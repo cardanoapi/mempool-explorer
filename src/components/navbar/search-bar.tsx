@@ -6,9 +6,8 @@ export default function SearchBar() {
             <input
                 type="text"
                 placeholder="Search"
-                className="outline-none bg-transparent"
+                className="outline-none w-fullR bg-transparent"
             />
-            <SearchBarIcon/>
         </div>
     )
 }
