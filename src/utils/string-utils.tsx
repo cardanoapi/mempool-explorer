@@ -8,5 +8,5 @@ export const toMidDottedStr = (str: string | number, leadingVisible = 12, firstI
 
 
 export const Heading = ({title}:any) => {
-    return <h1 className={"font-bold px-2 text-lg"}>{title}</h1>
+    return <h1 className={"font-bold mb-2 px-2 text-lg"}>{title}</h1>
 }
