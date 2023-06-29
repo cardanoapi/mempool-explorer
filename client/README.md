@@ -2,7 +2,7 @@
 
 ![Mempool Explorer](mempool-explorer.png)
 
-This is a web application built using Next.js for exploring and analyzing the transaction mempool of the Cardano blockchain network in real-time.
+This is a web application built using Next.js and Express for exploring and analyzing the transaction mempool of the Cardano blockchain network in real-time.
 
 ## Features
 
@@ -16,10 +16,19 @@ This is a web application built using Next.js for exploring and analyzing the tr
 
 ## Getting Started
 
-1. Clone the repository: `git clone https://github.com/sireto/cardano-mempool-explorer-webapp`
-2. Install dependencies: `cd cardano-mempool-explorer-webapp && yarn install`
-3. Start the development server: `yarn dev`
-4. Open your browser and navigate to `http://localhost:3000`
+This is a mono repo which has both the client and server on the same repository. To run the application, follow the 
+steps below:
+
+ - Clone the repository: `git clone https://github.com/sireto/cardano-mempool-explorer-webapp`
+
+After cloning the repository, we navigate to the `cardano-mempool-explorer`. Inside the directory, there are two
+sub-directories namely `client` and `server`.
+
+- To run the server, use the command `yarn start:server`
+- to run the client , use the command `yarn start:client`
+
+client runs on port `3000`. currently, server side is yet to be implemented.
+
 
 ## Acknowledgements
 
