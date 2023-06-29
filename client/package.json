@@ -11,6 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "4.16.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@stomp/stompjs": "^7.0.0",
     "@testing-library/react": "^14.0.0",
@@ -18,10 +19,12 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "autoprefixer": "10.4.14",
+    "cbor-x": "^1.5.3",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "next": "13.4.7",
     "postcss": "8.4.24",
+    "prisma": "^4.16.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "socket.io": "^4.7.1",
