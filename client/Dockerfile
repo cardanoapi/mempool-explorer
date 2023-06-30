@@ -10,6 +10,10 @@ COPY package.json yarn.lock ./
 RUN yarn install --prod --frozen-lockfile
 
 
+FROM base AS prisma
+RUN 
+
+
 # Rebuild the source code only when needed
 FROM prod as builder
 ARG BASE_DEPLOY_PATH=
@@ -33,5 +37,6 @@ ENTRYPOINT "./entrypoint.sh"
 # COPY --from=builder /app/next.config.js ./
 COPY --from=prod    /home/node/node_modules ./node_modules
 COPY --from=builder  /home/node/moveTarget/   ./
+RUN yarn prisma:generate
 COPY --from=builder  /home/node/.next ./.next
 VOLUME /home/node/.next/cache
