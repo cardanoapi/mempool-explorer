@@ -4,26 +4,37 @@ import {Navbar} from "@app/components/navbar";
 import {useParams} from "next/navigation";
 import {Heading} from "@app/utils/string-utils";
 import BlockDetails from "@app/components/transactions/block-details";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {decode} from "cbor-x";
+import {getLatestEpoch} from "@app/utils/cardano-utils";
+import AddressTransactionHistory from "@app/components/transactions/transaction-history";
+
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function AddressPage() {
 
-    const router = useParams()
+    const router = useParams();
+
+    const [transactions, setTransactions] = useState([]);
 
     const data = {
         "stat 1": "value 1",
         "stat 2": "value 2",
         "stat 3": "value 3"
     }
-    const getDataFromDatabase = async () => {
-        const response = await fetch("/api/db");
+    const getDataFromDatabase = async (pageNumber: number) => {
+        const latestEpoch = getLatestEpoch();
+        const response = await fetch(`/api/db?id=${router.id}&pageNumber=${pageNumber}`);
+        console.log(response)
         const arrayBuffer = await response.arrayBuffer();
+        console.log("Array buffer:", arrayBuffer)
         let data = decode(new Uint8Array(arrayBuffer));
+        setTransactions(data)
     }
 
     useEffect(() => {
-        getDataFromDatabase().then();
+        getDataFromDatabase(1).then()
     }, [router.id])
     return (
         <>
@@ -40,6 +51,7 @@ export default function AddressPage() {
                         ))}
                     </div>
                 </BlockDetails>
+                <AddressTransactionHistory transactions={transactions} getDataFromDatabase={getDataFromDatabase}/>
             </div>
         </>
     )

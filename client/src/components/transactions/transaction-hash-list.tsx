@@ -9,10 +9,10 @@ export default function TransactionHashList() {
     },[])
 
     return (
-        <div className={"p-4 border-solid border-[2px] overflow-y-scroll bg-white"}>
+        <div className={"p-4 border-solid border-[2px] bg-white"}>
             <Heading title={"Transactions"}/>
             {transactionHashes.map((hash, index) => (
-                <div key={index} className={"my-2 mx-1 px-2 py-2 cursor-pointer hover:bg-amber-100"}>
+                <div key={index} className={"my-2 mx-1 px-2 py-2 cursor-pointer hover:bg-emerald-50"}>
                     {toMidDottedStr(hash)}
                 </div>
             ))}

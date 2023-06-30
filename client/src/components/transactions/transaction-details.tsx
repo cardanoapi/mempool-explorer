@@ -11,7 +11,7 @@ export default function TransactionDetails() {
         "epoch/slot": "420/359124",
         "Total fees": "12",
         "Certificates": "0",
-        "stake": "stake1uyxuvcgktaycmpmtja372zxaj3tjrvxxr7vl6d2qfjk4ecsrsvfyt"
+        "pool_id": "pool17kew7rtakc7g6qzydntann5umw08xq3ll2j7spk7en4kvff69fa"
     }
 
     const TransactionCard = ({transactionData}: any) => {
@@ -20,7 +20,7 @@ export default function TransactionDetails() {
                 {Object.entries(transactionData).map(([key, value]: any) => (
                     <div key={key} className="border-solid border-2 border-gray-200 p-2">
                         <h4 className={"text-sm text-gray-500"}>{key}</h4>
-                        {key === "stake" ?
+                        {key === "pool_id" ?
                             <p className={"overflow-x-hidden text-lg cursor-pointer"}
                                onClick={() => router.push(`/${value}`)}>{value}</p>
                             :
