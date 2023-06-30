@@ -65,8 +65,9 @@ export default function AddressTransactionHistory(props: any) {
 
     return (
         <>
-            <Heading title={"Transaction History"}></Heading>
-            <PageRenderer/>
+            <Heading title={"Transaction History"}>
+                <PageRenderer/>
+            </Heading>
             <TableRenderer/>
         </>
     );

@@ -1,15 +1,17 @@
 "use client";
 
 import {Navbar} from "@app/components/navbar";
-import {useParams} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {Heading} from "@app/utils/string-utils";
 import BlockDetails from "@app/components/transactions/block-details";
 import {useEffect, useState} from "react";
 import {decode} from "cbor-x";
-import {getLatestEpoch} from "@app/utils/cardano-utils";
 import AddressTransactionHistory from "@app/components/transactions/transaction-history";
+import {Suspense} from 'react'
+
 
 import 'react-toastify/dist/ReactToastify.css';
+import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 
 type StatsEnumType = {
     [key: string]: string;
@@ -28,6 +30,8 @@ const StatsEnum: StatsEnumType = {
 export default function AddressPage() {
 
     const router = useParams();
+
+    const r = useRouter();
 
     const [transactions, setTransactions] = useState([]);
 
@@ -52,11 +56,28 @@ export default function AddressPage() {
         getStatsFromDatabase().then()
     }, [router.id])
 
+
+    const linkBuilder = () => {
+        const baseUrl = "https://cardanoscan.io/"
+        if (router.id.startsWith("pool")) {
+            return baseUrl + "pool" + `/${router.id.substring(4, )}`
+        } else if (router.id.startsWith("addr")) {
+            return baseUrl + "address" + `/${router.id.substring(4, )}`
+        } else {
+            return ""
+        }
+    }
+
     return (
         <>
             <Navbar/>
             <div className={"p-4"}>
-                <Heading title={router.id}/>
+                <div className={"flex items-center"}>
+                    <Heading title={router.id}/>
+                    <a href={linkBuilder()} target={"_blank"}>
+                        <CopyToClipboard/>
+                    </a>
+                </div>
                 <BlockDetails>
                     {stats.length > 0 &&
                         <div className={"flex flex-col gap-2"}>

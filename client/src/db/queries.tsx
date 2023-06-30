@@ -87,8 +87,9 @@ limit 3`
 export async function getAggregrationForLastThreeBlocks(id: string) {
     const latestEpoch = getLatestEpoch();
     try {
-        return await prisma.$queryRaw(
-            Prisma.sql`
+        if (id.startsWith("pool")) {
+            return await prisma.$queryRaw(
+                Prisma.sql`
             select tc.epoch as epoch ,
             count(tc.tx_hash) tx_count,
             extract ( epoch from avg(wait_time))avg_wait_time,
@@ -101,13 +102,36 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
             join tx_timing tt on tx_addresses.tx_hash = tt.tx_hash
             join tx_confirmed tc on tt.tx_hash = tc.tx_hash
             where
-            pool_id = 'pool104avq7309gjm0fxms69yqusxy8zf888k4mamngg5vnc6vculpzq'
-            and epoch <421
+            pool_id = ${id}
+            and epoch < ${latestEpoch}
             group by tc.epoch
             order by  epoch  desc
             limit 3
             `
-        )
+            )
+        } else if (id.startsWith("addr")) {
+            return await prisma.$queryRaw(
+                Prisma.sql`
+            select tc.epoch as epoch ,
+            count(tc.tx_hash) tx_count,
+            extract ( epoch from avg(wait_time))avg_wait_time,
+            extract ( epoch from min(wait_time)) min_wait_time,
+            extract ( epoch from max(wait_time)) max_wait_time,
+            extract ( epoch from (PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wait_time asc ))) median_wait_time,
+            extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time asc ))) best_5_percent,
+            extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time desc ))) worst_5_percent
+            from tx_addresses
+            join tx_timing tt on tx_addresses.tx_hash = tt.tx_hash
+            join tx_confirmed tc on tt.tx_hash = tc.tx_hash
+            where
+            address = ${id}
+            and epoch < ${latestEpoch}
+            group by tc.epoch
+            order by  epoch  desc
+            limit 3
+            `
+            )
+        }
     } catch (e) {
         console.error("error: ", e)
     }
