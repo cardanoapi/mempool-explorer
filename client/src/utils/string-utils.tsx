@@ -7,6 +7,11 @@ export const toMidDottedStr = (str: string | number, leadingVisible = 12, firstI
 };
 
 
-export const Heading = ({title}:any) => {
-    return <h1 className={"font-bold mb-2 px-2 text-lg"}>{title}</h1>
+export const Heading = (props:any) => {
+    return (
+        <div className={"flex justify-between items-center"} style={{justifyContent:"space-between"}}>
+            <h1 className={"font-bold mb-2 px-2 text-lg"}>{props.title}</h1>
+            {props.children}
+        </div>
+    )
 }

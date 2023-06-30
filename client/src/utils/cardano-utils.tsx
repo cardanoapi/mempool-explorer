@@ -80,12 +80,12 @@ export const transformToClientSideData = (data: any) => {
         return {
             ...item,
             tx_count: item.tx_count.toString(10),
-            avg_wait_time: parseFloat(item.avg_wait_time),
-            min_wait_time: parseFloat(item.min_wait_time),
-            max_wait_time: parseFloat(item.max_wait_time),
-            median_wait_time: parseFloat(item.median_wait_time),
-            best_5_percent: parseFloat(item.best_5_percent),
-            worst_5_percent: parseFloat(item.worst_5_percent),
+            avg_wait_time: parseFloat(item.avg_wait_time).toFixed(2),
+            min_wait_time: parseFloat(item.min_wait_time).toFixed(2),
+            max_wait_time: parseFloat(item.max_wait_time).toFixed(2),
+            median_wait_time: parseFloat(item.median_wait_time).toFixed(2),
+            best_5_percent: parseFloat(item.best_5_percent).toFixed(2),
+            worst_5_percent: parseFloat(item.worst_5_percent).toFixed(2),
         }
     })
 }
