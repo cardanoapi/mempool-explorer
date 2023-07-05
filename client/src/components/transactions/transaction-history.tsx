@@ -1,12 +1,43 @@
 import React, {useEffect, useState} from "react";
 
 import "../table/table.css";
-import {Heading} from "@app/utils/string-utils";
+import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import {decode} from "cbor-x";
+import {useParams} from "next/navigation";
+import useLoader from "@app/components/loader/useLoader";
+import Loader from "@app/components/loader";
+import {checkForErrorResponse, ErrorPage} from "@app/components/loader/error";
 
-export default function AddressTransactionHistory(props: any) {
-    const transactions = props.transactions;
+export default function TransactionHistory() {
+
+    const router = useParams();
 
     const [currentPage, setCurrentPage] = useState(1);
+
+    const {isLoading, hideLoader, error, setError} = useLoader();
+
+
+    const [transactions, setTransactions] = useState([]);
+
+    const getDataFromDatabase = async (pageNumber: number) => {
+        const response = await fetch(`/api/db?id=${router.id}&pageNumber=${pageNumber}`);
+        await checkForErrorResponse(response);
+        const arrayBuffer = await response.arrayBuffer();
+        return decode(new Uint8Array(arrayBuffer));
+    }
+
+    useEffect(() => {
+        getDataFromDatabase(currentPage)
+            .then(d => setTransactions(d))
+            .catch((e: any) => setError({
+                message: e.message,
+                status: e.code
+            })).finally(() => hideLoader())
+    }, [currentPage])
+
+    if (isLoading) return <Loader/>;
+
+    if (error.status) return <ErrorPage errObj={error}/>;
 
     const PageRenderer = () => {
         return (
@@ -34,12 +65,8 @@ export default function AddressTransactionHistory(props: any) {
         )
     }
 
-    useEffect(() => {
-        props.getDataFromDatabase(currentPage)
-    }, [currentPage])
-
     const TableRenderer = () => {
-        if (transactions.length === 0) return <></>;
+        if (transactions.length === 0) return <EmptyPageIcon/>;
         // @ts-ignore
         return (
             <table>
@@ -65,10 +92,8 @@ export default function AddressTransactionHistory(props: any) {
 
     return (
         <>
-            <Heading title={"Transaction History"}>
-                <PageRenderer/>
-            </Heading>
-            <TableRenderer/>
+            <PageRenderer/>
+            {transactions.length === 0 ? <EmptyPageIcon/> : <TableRenderer/>}
         </>
     );
 }
