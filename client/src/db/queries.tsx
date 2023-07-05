@@ -133,7 +133,7 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
             )
         }
     } catch (e) {
-        console.error("error: ", e)
+        console.log("/api/db/block ", e)
     }
 }
 

@@ -1,4 +1,3 @@
-import {decode} from "cbor-x";
 import {toMidDottedStr} from "@app/utils/string-utils";
 
 export const getLatestEpoch = () => {
@@ -88,4 +87,9 @@ export const transformToClientSideData = (data: any) => {
             worst_5_percent: parseFloat(item.worst_5_percent).toFixed(2),
         }
     })
+}
+
+
+export function getUrlObject(urlStr: string) {
+    return new URL(urlStr);
 }

@@ -1,17 +1,19 @@
 "use client";
 
 import {Navbar} from "@app/components/navbar";
-import {useParams, useRouter} from "next/navigation";
+import {useParams} from "next/navigation";
 import {Heading} from "@app/utils/string-utils";
 import BlockDetails from "@app/components/transactions/block-details";
-import {useEffect, useState} from "react";
-import {decode} from "cbor-x";
-import AddressTransactionHistory from "@app/components/transactions/transaction-history";
-import {Suspense} from 'react'
+import React, {useEffect} from "react";
 
 
 import 'react-toastify/dist/ReactToastify.css';
 import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
+
+import StatsSummary from "@app/components/details-page/stats-summary";
+import TransactionHistory from "@app/components/transactions/transaction-history";
+import AddressTitle from "@app/components/details-page/address-title";
+
 
 type StatsEnumType = {
     [key: string]: string;
@@ -31,82 +33,37 @@ export default function AddressPage() {
 
     const router = useParams();
 
-    const r = useRouter();
-
-    const [transactions, setTransactions] = useState([]);
-
-    const [stats, setStats] = useState([]);
-
-    const getDataFromDatabase = async (pageNumber: number) => {
-        const response = await fetch(`/api/db?id=${router.id}&pageNumber=${pageNumber}`);
-        const arrayBuffer = await response.arrayBuffer();
-        let data = decode(new Uint8Array(arrayBuffer));
-        setTransactions(data)
-    }
-
-    const getStatsFromDatabase = async () => {
-        const response = await fetch(`/api/db/block?id=${router.id}`);
-        const arrayBuffer = await response.arrayBuffer();
-        let data = decode(new Uint8Array(arrayBuffer));
-        setStats(data);
-    }
-
-    useEffect(() => {
-        getDataFromDatabase(1).then()
-        getStatsFromDatabase().then()
-    }, [router.id])
-
 
     const linkBuilder = () => {
-        const baseUrl = "https://cardanoscan.io/"
-        if (router.id.startsWith("pool")) {
-            return baseUrl + "pool" + `/${router.id.substring(4, )}`
-        } else if (router.id.startsWith("addr")) {
-            return baseUrl + "address" + `/${router.id.substring(4, )}`
-        } else {
-            return ""
-        }
+        // const addr = Address.from_bech32(router.id);
+        // const addr = Address.from_bech32("pool17kew7rtakc7g6qzydntann5umw08xq3ll2j7spk7en4kvff69fa");
+        // const hex = Buffer.from(addr.to_bytes()).toString('hex');
+        // console.log(hex)
+
+        // const addr = Address.from_bech32('addr1qxy657awttf5avs2629f4hs6k5ulhw8f27akv30yws622dudj86zwkwhv3yjky5ntrmhcln5yxc05rcq0lhs8l78vd3qhc5eak');
+        // const hex = Buffer.from(addr.to_bytes()).toString('hex');
+        // const baseUrl = "https://cardanoscan.io/"
+        // if (router.id.startsWith("pool")) {
+        //     return baseUrl + "pool" + `/${hex}`
+        // } else if (router.id.startsWith("addr")) {
+        //     return baseUrl + "address" + `/${hex}`
+        // } else {
+        //     return ""
+        // }
     }
 
     return (
         <>
             <Navbar/>
             <div className={"p-4"}>
-                <div className={"flex items-center"}>
-                    <Heading title={router.id}/>
-                    <a href={linkBuilder()} target={"_blank"}>
-                        <CopyToClipboard/>
-                    </a>
+                <div className={"flex items-center justify-center"}>
+                    <AddressTitle/>
                 </div>
                 <BlockDetails>
-                    {stats.length > 0 &&
-                        <div className={"flex flex-col gap-2"}>
-                            {stats.map((stat, idx) => (
-                                <div key={idx}
-                                     className={"flex flex-col gap-2 border-b-[1px] items-start justify-center border-b-gray-300 last:border-none py-3 first:pt-0 last:pb-0"}>
-                                    <div className={`flex gap-2`}>
-                                        <div className={'flex flex-col gap-2'}>
-                                            <p className={'text-lg uppercase tracking-widest'}>EPOCH</p>
-                                            <p className={'text-lg font-bold uppercase tracking-widest'}>{stat['epoch']}</p>
-                                        </div>
-                                        <div className={`flex gap-2`}>
-                                            {Object.entries(stat).map(([key, value]: any) => key !== 'epoch' && (
-                                                <div key={key}
-                                                     className={`${key === 'epoch' ? '' : 'border-solid border-[1px] bg-blue-50 px-3 py-1 border-blue-800'}`}>
-                                                    <p className={`${key === 'epoch' ? 'uppercase tracking-widest' : 'text-gray-500'}`}>{StatsEnum[key]}</p>
-                                                    <p className={"font-bold text-lg"}> {value} </p>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            ))}
-                        </div>
-                    }
+                    <StatsSummary/>
                 </BlockDetails>
-                <AddressTransactionHistory transactions={transactions} getDataFromDatabase={getDataFromDatabase}/>
+                <Heading title={"Transaction History"}/>
+                <TransactionHistory/>
             </div>
         </>
     )
