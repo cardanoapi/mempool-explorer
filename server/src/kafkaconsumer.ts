@@ -8,14 +8,13 @@ export const kafkaClient = new kafka.KafkaClient({
     kafkaHost: process.env.KAFKA_BROKERS
 });
 
-const maxBytes = 1024*10;
+const maxBytes = 1000*30;
 
 
 
 export const consumer = (offset:number) =>
     {
         console.log(process.env.KAFKA_BROKERS)
-        offset = 36556;
         let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:offset}],
             {
                 encoding: "buffer",
