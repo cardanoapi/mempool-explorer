@@ -16,7 +16,8 @@ export class AddTx extends EventType{
   constructor(key:string, value){
     super();
     this.txhash  = key.split(':')[1];
-    this.txbody = cbor.decodeFirstSync(value)[1];
+    let txbod:cbor.Tagged = cbor.decodeFirstSync(value)[1];
+    this.txbody = txbod.value;
   }
 }
 

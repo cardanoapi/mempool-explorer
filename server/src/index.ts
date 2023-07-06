@@ -9,7 +9,9 @@ import { Mempool } from './mempool';
 
 const app = express();
 const PORT = 3000;
-let throttler: Throttle<EventType> = new Throttle(10, true);
+let throttler: Throttle<EventType> = new Throttle(1, true);
+
+let localMempool  = new Mempool();
 
 app.get('/', (req, res) => {
     console.log("local mempool state:");
@@ -17,47 +19,50 @@ app.get('/', (req, res) => {
     res.send(localMempool.state);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-
-const kafkaConsumer = consumerMaker(true);
-throttler.on("hungry",()=> kafkaConsumer.resume())
-throttler.on("satiated",()=>  kafkaConsumer.pause())
 let offset = new Offset(kafkaClient);
-let localMempool  = new Mempool();
-kafkaConsumer.on("message",(msg)=>{
-    console.log(msg);
-    addMessage(msg);
-    if(msg.key.includes("add")){
-        throttler.addMessage(EventType.from_add(msg.key, msg.value));
-    }
-    else if(msg.key.includes("remove")){
-        throttler.addMessage(EventType.from_remove(msg.key, msg.value));
-    }
-})
-throttler.on("message",(msg:EventType,cb)=>{
-    if(msg instanceof AddTx){
-        localMempool.addTx(msg.txhash, msg.txbody);
-    }
-    else if(msg instanceof RemoveTx){
-        localMempool.removeTx(msg.txhashList);
-    }
+offset.fetchLatestOffsets([process.env.KAFKA_TOPIC_NAME],(err,data)=>{
 
-});
-throttler.on("processed",(msg:Message)=>{
-    // add some offset commit logic here.
-    processedMessage(msg,(offsetNo)=>{
-        offset.commit(process.env.KAFKA_GROUP_ID,[{topic:process.env.KAFKA_TOPIC_NAME, offset:offsetNo}], (err, data)=>{  
-            if(err){
-                logger.warn("[Kafka-Offset-Commit-Error] "+ err.message,err )
-            }
-            else{
-                logger.log("[Kafka-Offset-Commit] "+ offsetNo + " committed.")
-            }
+    const kafkaConsumer = consumerMaker(data[process.env.KAFKA_TOPIC_NAME]['0']);
+    throttler.on("hungry",()=> kafkaConsumer.resume())
+    throttler.on("satiated",()=>  kafkaConsumer.pause())
+
+    console.log(data);
+    kafkaConsumer.on("message",(msg)=>{
+        console.log(msg);
+        addMessage(msg);
+        if(msg.key.includes("add")){
+            throttler.addMessage(EventType.from_add(msg.key, msg.value));
+        }
+        else if(msg.key.includes("remove")){
+            throttler.addMessage(EventType.from_remove(msg.key, msg.value));
+        }
+    })
+    throttler.on("message",(msg:EventType,cb)=>{
+        if(msg instanceof AddTx){
+            localMempool.addTx(msg.txhash, msg.txbody);
+        }
+        else if(msg instanceof RemoveTx){
+            localMempool.removeTx(msg.txhashList);
+        }
+
+    });
+    throttler.on("processed",(msg:Message)=>{
+        // add some offset commit logic here.
+        processedMessage(msg,(offsetNo)=>{
+            offset.commit(process.env.KAFKA_GROUP_ID,[{topic:process.env.KAFKA_TOPIC_NAME, offset:offsetNo}], (err, data)=>{  
+                if(err){
+                    logger.warn("[Kafka-Offset-Commit-Error] "+ err.message,err )
+                }
+                else{
+                    logger.log("[Kafka-Offset-Commit] "+ offsetNo + " committed.")
+                }
+            });
         });
     });
+    console.log("starting throttler");
+    throttler.start();
 });
-console.log("starting throttler");
-throttler.start();

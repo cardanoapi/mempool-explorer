@@ -35,6 +35,7 @@ export class Throttle<T>{
         }
     }
     private _checkHungry(){
+        console.log(this.dataArray.length);
         if(this.dataArray.length < (this.concurrency*2) && !this.hungry){
             logger.degug("[Throttle] hungry at " + this.dataArray.length + " messages")
             this.handlers.hungry()
@@ -52,8 +53,8 @@ export class Throttle<T>{
             return
         }
         while(this.inFlight <this.concurrency && this.dataArray.length > 0){
-            // console.log(this.dataArray);
-                const message = this.dataArray[0];
+            console.log(this.dataArray);
+                const message = this.dataArray.shift();
                 this.handlers.message(message,(data, err)=>{
                     this.inFlight --;
                     if(err){

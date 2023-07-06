@@ -12,16 +12,19 @@ const maxBytes = 1024*10;
 
 
 
-export const consumer = (newGroup:boolean) =>
+export const consumer = (offset:number) =>
     {
         console.log(process.env.KAFKA_BROKERS)
-        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME}],
+        offset = 36556;
+        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:offset}],
             {
                 encoding: "buffer",
                 keyEncoding:"utf8",
                 groupId: process.env.KAFKA_GROUP_ID,
                 autoCommit: false,
                 fetchMaxBytes: maxBytes,
+                fromOffset: true,
+
             });
         
         consumer.on('error', function (err) {

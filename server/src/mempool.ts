@@ -2,6 +2,7 @@
 export class Mempool{
   state: Map<string, string >;
   constructor(){
+    this.state = new Map<string, string>();
   }
 
   addTx(txhash:string, txbody:string){
