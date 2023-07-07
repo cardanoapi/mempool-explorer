@@ -1,6 +1,6 @@
 import {PrismaClient} from "@prisma/client";
 
-const prisma: any = new PrismaClient();
+const prisma: PrismaClient = new PrismaClient();
 import {Prisma} from '@prisma/client'
 import {getLatestEpoch} from "@app/utils/cardano-utils";
 
@@ -135,6 +135,95 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
     } catch (e) {
         console.log("/api/db/block ", e)
     }
+}
+
+
+export async function getBody(txHash: Buffer) {
+    try {
+        return prisma.tx_body.findFirst({
+            where: {
+                hash: txHash
+            }
+        });
+    } catch (e) {
+        console.log("/api/db/transaction", e)
+    }
+}
+
+export async function getInputsForTxHash(hs: string | Buffer){
+    try {
+        let txHash:Buffer = Buffer.alloc(0);
+        if(typeof hs === "string"){
+            txHash = Buffer.from(hs, 'hex')
+        }
+        return prisma.tx_in.findMany({
+            where:{
+                hash: txHash
+            }
+        });
+    } catch (e) {
+        console.log("/api/db/transaction", e)
+    }
+} 
+// getOutputsCounts
+export async function getCompeting(txHash:Buffer){
+    try {
+        const inputs = await getInputsForTxHash(txHash);
+        const hashes = [];
+        inputs?.forEach(async (input) => {
+            const compHashes = await prisma.tx_in.findMany({
+                where:{
+                    utxohash: input.utxohash,
+                    utxoindex: input.utxoindex,
+                    hash:{
+                        not: input.hash
+                    }
+                },
+                distinct:["hash"],
+                select:{
+                    hash: true
+                }
+            })
+            const competitors = compHashes.map(async (input) => {
+                console.log(input.hash)
+                const body = await prisma.tx_body.findUnique({
+                    where:{
+                        hash: input.hash
+                    },
+                })
+                return {'hash':input.hash, 'body':body?.txbody, version:body?.version};
+            });
+            const comp = await Promise.all(competitors); 
+            hashes.push(...comp);
+        });
+        return hashes;
+
+    } catch (e) {
+        console.log("/api/db/transaction", e)
+    }
+}
+export async function getFollowups(txHash: Buffer){
+    const followHash = await prisma.tx_in.findMany({
+        where:{
+            utxohash: txHash
+        },
+        distinct:["hash"],
+        select:{
+            hash: true
+        }
+    });
+
+    const followups = followHash.map(async (input) => {
+        console.log(input.hash)
+        const body = await prisma.tx_body.findUnique({
+            where:{
+                hash: input.hash
+            },
+        })
+        return {'hash':input.hash, 'body':body?.txbody, 'version':body?.version};
+    });
+    const follow = await Promise.all(followups); 
+    return follow;
 }
 
 export async function closeConnection() {

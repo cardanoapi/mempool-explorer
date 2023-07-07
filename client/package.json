@@ -5,14 +5,14 @@
   "scripts": {
     "clean": "rm -rf node_modules .next .next-dev out .cache",
     "format": "prettier --write .",
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate"
-
   },
   "dependencies": {
+    "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
     "@prisma/client": "4.16.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@stomp/stompjs": "^7.0.0",

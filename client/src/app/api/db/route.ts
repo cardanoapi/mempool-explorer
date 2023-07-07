@@ -8,7 +8,8 @@ import {convertToTableData, getLatestEpoch, getUrlObject} from "@app/utils/carda
 
 async function getTransactionHistoryOfPool(id: string, pageNumber: number) {
     const latestEpoch = await getTheLatestTransactionEpochOfAddress(id);
-    return await getPoolDetails(id, latestEpoch, pageNumber);
+    if(latestEpoch!=null)
+        return await getPoolDetails(id, latestEpoch, pageNumber);
 }
 
 async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
