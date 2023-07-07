@@ -5,17 +5,22 @@
     "sourceMap": true,
     "target": "es2017",
     "outDir": "./dist",
-    "baseUrl": "./src",
+    "module": "CommonJS",
     "moduleResolution": "node",
+    "baseUrl": "./src",
     "types": [
-      "node"
-    ]
+      "node",
+      // "jest"
+    ],
+    "paths": {
+      "@/*": ["/*"]
+    }
   },
+  
   "include": [
     "src/**/*.ts",
-    "src/**/*.json",
-    "src/app.ts" 
-  ],
+    "src/**/*.json"
+, "src/app.ts"  ],
   "exclude": [
     "node_modules",
     "dist"
