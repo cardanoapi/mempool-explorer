@@ -7,6 +7,7 @@ import {useParams} from "next/navigation";
 import useLoader from "@app/components/loader/useLoader";
 import Loader from "@app/components/loader";
 import {checkForErrorResponse, ErrorPage} from "@app/components/loader/error";
+import {toMidDottedStr} from "@app/utils/string-utils";
 
 export default function TransactionHistory() {
 
@@ -67,7 +68,7 @@ export default function TransactionHistory() {
 
     const TableRenderer = () => {
         if (transactions.length === 0) return <EmptyPageIcon/>;
-        // @ts-ignore
+
         return (
             <table>
                 <thead>
@@ -80,9 +81,19 @@ export default function TransactionHistory() {
                 <tbody>
                 {transactions?.map((item: any) => (
                     <tr key={item.tx_hash}>
-                        {Object?.keys(item).map((k, idx) => (
-                            <td key={idx}>{item[k]}</td>
-                        ))}
+                        {Object?.keys(item).map((k, idx) => {
+                            if (k === "tx_hash") {
+                                return (
+                                    <a
+                                        className={"cursor-pointer hover:text-blue-500"}
+                                        key={item[k]}
+                                        target={"_blank"}
+                                        href={`/transactions/${item[k]}`}>{toMidDottedStr(item[k])}</a>
+                                )
+                            } else {
+                                return <td key={idx}>{item[k]}</td>
+                            }
+                        })}
                     </tr>
                 ))}
                 </tbody>
