@@ -47,22 +47,21 @@ export default function TransactionDetails() {
         const tx = props.transaction;
         return (
             <Layout>
-                <div>
-                    <div className={"flex flex-col"}>
-                        <div className={"flex items-center mt-1 text-sm"}>
-                            <p className={"text-gray-700 mr-1 font-semibold"}>Hash ID </p>
-                            <p className={"text-gray-500 font-xs"}>{toMidDottedStr(tx.hash_id)}</p>
-                        </div>
-                        <div className={"flex items-center mt-1 text-sm"}>
-                            <p className={"text-gray-700 mr-1 font-semibold"}>fee</p>
-                            <p className={"font-bold"}>{tx.fee}</p>
-                        </div>
-                        <div className={"flex items-center mt-1 text-sm"}>
-                            <p className={"text-gray-700 mr-1 font-semibold"}>arrival time</p>
-                            <p className={"font-bold"}>{tx.arrival_time}</p>
-                        </div>
+                <div className={"flex flex-col"}>
+                    <div className={"flex items-center mt-1 text-sm"}>
+                        <p className={"text-gray-700 mr-1 font-semibold"}>Hash ID </p>
+                        <p className={"text-gray-500 font-xs"}>{toMidDottedStr(tx.hash_id)}</p>
+                    </div>
+                    <div className={"flex items-center mt-1 text-sm"}>
+                        <p className={"text-gray-700 mr-1 font-semibold"}>Fee</p>
+                        <p className={"font-bold"}>{tx.fee}</p>
+                    </div>
+                    <div className={"flex items-center mt-1 text-sm"}>
+                        <p className={"text-gray-700 mr-1 font-semibold"}>Arrival time</p>
+                        <p className={"font-bold"}>{tx.arrival_time}</p>
                     </div>
                 </div>
+
             </Layout>
         )
     }
