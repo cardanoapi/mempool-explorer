@@ -4,11 +4,9 @@ import {encode} from "cbor-x";
 import {convertToTableData, getLatestEpoch, getUrlObject} from "@app/utils/cardano-utils";
 
 
-
-
 async function getTransactionHistoryOfPool(id: string, pageNumber: number) {
     const latestEpoch = await getTheLatestTransactionEpochOfAddress(id);
-    if(latestEpoch!=null)
+    if (latestEpoch != null)
         return await getPoolDetails(id, latestEpoch, pageNumber);
 }
 
@@ -22,7 +20,7 @@ export async function GET(req: Request) {
     const urlObject = getUrlObject(req.url);
     const id = urlObject.searchParams.get("id") as string;
     const pageNumber = parseInt(<string>urlObject.searchParams.get("pageNumber"));
-    let data;
+    let data: any;
     try {
         if (id.startsWith("pool")) {
             data = await getTransactionHistoryOfPool(id, pageNumber)

@@ -1,14 +1,12 @@
 "use client";
 
 import {Navbar} from "@app/components/navbar";
-import {useParams} from "next/navigation";
 import {Heading} from "@app/utils/string-utils";
 import BlockDetails from "@app/components/transactions/block-details";
-import React, {useEffect} from "react";
+import React from "react";
 
 
 import 'react-toastify/dist/ReactToastify.css';
-import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 
 import StatsSummary from "@app/components/details-page/stats-summary";
 import TransactionHistory from "@app/components/transactions/transaction-history";
@@ -30,27 +28,6 @@ const StatsEnum: StatsEnumType = {
 }
 
 export default function AddressPage() {
-
-    const router = useParams();
-
-
-    const linkBuilder = () => {
-        // const addr = Address.from_bech32(router.id);
-        // const addr = Address.from_bech32("pool17kew7rtakc7g6qzydntann5umw08xq3ll2j7spk7en4kvff69fa");
-        // const hex = Buffer.from(addr.to_bytes()).toString('hex');
-        // console.log(hex)
-
-        // const addr = Address.from_bech32('addr1qxy657awttf5avs2629f4hs6k5ulhw8f27akv30yws622dudj86zwkwhv3yjky5ntrmhcln5yxc05rcq0lhs8l78vd3qhc5eak');
-        // const hex = Buffer.from(addr.to_bytes()).toString('hex');
-        // const baseUrl = "https://cardanoscan.io/"
-        // if (router.id.startsWith("pool")) {
-        //     return baseUrl + "pool" + `/${hex}`
-        // } else if (router.id.startsWith("addr")) {
-        //     return baseUrl + "address" + `/${hex}`
-        // } else {
-        //     return ""
-        // }
-    }
 
     return (
         <>

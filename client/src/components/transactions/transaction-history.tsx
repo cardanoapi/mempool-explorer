@@ -66,11 +66,9 @@ export default function TransactionHistory() {
         )
     }
 
-    console.log("transactions: ", transactions)
-
     const TableRenderer = () => {
         if (transactions.length === 0) return <EmptyPageIcon/>;
-        // @ts-ignore
+
         return (
             <table>
                 <thead>
