@@ -68,7 +68,7 @@ export const convertToTableData = (data: Array<Transaction>) => {
             wait_time: parseFloat(item.wait_time),
             confirmation_time: convertToAppropriateDate(item.confirmation_time.toString()),
             block_hash: toMidDottedStr(Buffer.from(item.block_hash).toString('hex')),
-            tx_hash: toMidDottedStr(Buffer.from(item.tx_hash).toString('hex')),
+            tx_hash: Buffer.from(item.tx_hash).toString('hex'),
             block_no: item.block_no.toString(10),
         }
     })
