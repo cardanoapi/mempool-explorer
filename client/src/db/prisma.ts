@@ -47,7 +47,7 @@ export const  dbClient=new PrismaClient({
     db:{
       url : process.env.DATABASE_URL? 
           process.env.DATABASE_URL 
-          : `postgresql://${readEnv('PGUSER',os.userInfo().username)}:${escape(readEnv('PGPASSWORD'))}@${readEnv('PGHOST',process.env.NODE_ENV=='development'?'localhost':'postgres')}:${readEnv('PGPORT','5432')}/${readEnv('PGDATABASE')}?schema=public&application_name=webhook-worker`
+          : `postgresql://${readEnv('PGUSER',os.userInfo().username)}:${escape(readEnv('PGPASSWORD'))}@${readEnv('PGHOST',process.env.NODE_ENV=='development'?'localhost':'postgres')}:${readEnv('PGPORT','5432')}/${readEnv('PGDATABASE')}?schema=public&application_name=mempool-webapp`
     }
   }
 })

@@ -47,3 +47,24 @@ model tx_out {
   value       Json?
 
 }
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tx_addresses {
+  tx_hash Bytes?
+  address String? @db.VarChar(150)
+
+  @@unique([tx_hash, address])
+  @@ignore
+}
+
+model tx_confirmed {
+  tx_hash           Bytes     @id
+  epoch             Int?
+  block_hash        Bytes?
+  slot_no           BigInt?
+  block_no          BigInt?
+  pool_id           String?   @db.VarChar(100)
+  confirmation_time DateTime? @db.Timestamp(6)
+
+  @@index([epoch(sort: Desc)], map: "idx_epoch")
+}

@@ -1,6 +1,6 @@
-import {PrismaClient} from "@prisma/client";
-
-const prisma: PrismaClient = new PrismaClient();
+import {dbClient} from "./prisma";
+import { PrismaClient } from "@prisma/client";
+const prisma: PrismaClient = dbClient;
 import {Prisma} from '@prisma/client'
 import {getLatestEpoch} from "@app/utils/cardano-utils";
 
