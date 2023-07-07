@@ -226,6 +226,20 @@ export async function getFollowups(txHash: Buffer){
     return follow;
 }
 
+export async function getConfirmation(txHash:Buffer[]){
+    try {
+        return prisma.tx_confirmed.findMany({
+            where:{
+                tx_hash:{
+                    in: txHash
+                }
+            }
+        });
+    } catch (e) {
+        console.log("/api/db/transaction", e)
+    }
+}
+
 export async function closeConnection() {
     await prisma.$disconnect();
 }
