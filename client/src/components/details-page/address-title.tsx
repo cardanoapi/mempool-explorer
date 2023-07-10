@@ -26,7 +26,7 @@ export default function AddressTitle() {
             const hex = Buffer.from(addr.to_bytes()).toString('hex');
             return baseUrl + "address" + `/${hex}`
         } else if (router.id.startsWith("pool")) {
-            return "/"
+            return baseUrl + "pool/" + router.id
         }
     }
 
