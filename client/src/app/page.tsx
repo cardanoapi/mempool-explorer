@@ -37,14 +37,20 @@ export default function Home() {
         const decoder = new Decoder();
         const enc = new Encoder();
         socket.addEventListener("message", async (event:MessageEvent) => {
+            console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
             const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
-            console.log(data);
+            if(data[0]=="rollback" || data[0]=="mint"){
+                console.log("Block received");
+                console.log(data);
+            }
             switch(data[0]){
                 case "add":
                     const txcbor = (data[2][1]);
                     console.log(data[2]);
+                    data[2][1].free();
                 case "remove":
                 case "reject":
+                case "rollback":
                 default:
             }
             console.log("Message from server ",  );
