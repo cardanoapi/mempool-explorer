@@ -37,13 +37,11 @@ export default function TransactionsContainer() {
             decode(data: Buffer) {
                 // define how your custom class should be decoded
                 console.debug('Decoding transaction', data.toString('hex'));
-                let instance = Transaction.from_bytes(data);
-                return instance; // decoded value from buffer
+                return Transaction.from_bytes(data); // decoded value from buffer
             }
         });
 
         const decoder = new Decoder();
-        const enc = new Encoder();
         socket.addEventListener('message', async (event: MessageEvent) => {
             const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
             console.log('data from socket: ', data);
@@ -52,8 +50,11 @@ export default function TransactionsContainer() {
                     const txcbor = data[2][1];
                     console.log('data', txcbor.to_js_value());
                 case 'remove':
+                    break;
                 case 'reject':
+                    break;
                 default:
+                    break;
             }
             console.log('Message from server ');
         });
