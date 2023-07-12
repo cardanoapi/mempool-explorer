@@ -1,7 +1,7 @@
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
 import Layout from '@app/shared/layout';
-import { SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
-import { Heading, toMidDottedStr } from '@app/utils/string-utils';
+import {SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
+import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 
 interface PropType {
     transactions: Array<SocketEventResponseType>;
@@ -43,19 +43,21 @@ export default function TransactionEventList(props: PropType) {
     }
 
     return (
-        <div className="calc-h-68 bg-white border-[2px] !min-w-[400px] p-2 border-solid ">
-            <Heading title={'Transaction Events'} />
-            {!!transactionHashes && transactionHashes.length ? (
-                <div className="overflow-y-auto">
-                    {transactionHashes.map((tx, index) => (
-                        <div key={index} className={'mx-1 py-2 cursor-pointer block-list'}>
-                            <TransactionItems transaction={tx} />
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <EmptyPageIcon />
-            )}
+        <div className="min-h-full max-h-full bg-white border-[2px] !min-w-[400px] p-2 border-solid ">
+            <Heading title={'Transaction Events'}/>
+            <div className={"h-full"}>
+                {!!transactionHashes && transactionHashes.length ? (
+                    <>
+                        {transactionHashes.map((tx, index) => (
+                            <div key={index} className={'mx-1 py-2 cursor-pointer block-list'}>
+                                <TransactionItems transaction={tx}/>
+                            </div>
+                        ))}
+                    </>
+                ) : (
+                    <EmptyPageIcon/>
+                )}
+            </div>
         </div>
     );
 }

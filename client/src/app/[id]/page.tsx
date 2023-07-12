@@ -9,7 +9,6 @@ import StatsSummary from '@app/components/details-page/stats-summary';
 import {Navbar} from '@app/components/navbar';
 import TransactionHistory from '@app/components/transactions/transaction-history';
 import {Heading} from '@app/utils/string-utils';
-import TableLayout from "@app/shared/table-layout";
 
 type StatsEnumType = {
     [key: string]: string;

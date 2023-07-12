@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Layout from '@app/shared/layout';
 import TableLayout from '@app/shared/table-layout';
 import { MempoolTransactionListType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
-import { Heading } from '@app/utils/string-utils';
+import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 
 interface PropType {
     event: SocketEventResponseType;
@@ -22,9 +22,12 @@ export default function MempoolTransactionsList(props: PropType) {
 
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionListType>>([]);
 
+
+
     const addTransactionToMempoolState = (event: SocketEventResponseType) => {
         const { action, fee, ...filteredObject } = event;
-        setCurrentMempoolTransactions([...currentMempoolTransactions, filteredObject]);
+        const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(filteredObject);
+        setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
     };
 
     const removeTransactionFromMempoolState = (hash: string) => {

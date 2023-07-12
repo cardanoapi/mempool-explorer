@@ -64,28 +64,6 @@ export default function TransactionDetails() {
             .finally(() => hideLoader());
     }, [router.id]);
 
-    // function ItemCard(props: any) {
-    //     const tx = props.transaction;
-    //     return (
-    //         <Layout>
-    //             <div className={'flex flex-col'}>
-    //                 <div className={'flex items-center mt-1 text-sm'}>
-    //                     <p className={'text-gray-700 mr-1 font-semibold'}>Hash ID </p>
-    //                     <p className={'text-gray-500 font-xs'}>{toMidDottedStr(tx.hash_id)}</p>
-    //                 </div>
-    //                 <div className={'flex items-center mt-1 text-sm'}>
-    //                     <p className={'text-gray-700 mr-1 font-semibold'}>Fee</p>
-    //                     <p className={'font-bold'}>{tx.fee}</p>
-    //                 </div>
-    //                 <div className={'flex items-center mt-1 text-sm'}>
-    //                     <p className={'text-gray-700 mr-1 font-semibold'}>Arrival time</p>
-    //                     <p className={'font-bold'}>{tx.arrival_time}</p>
-    //                 </div>
-    //             </div>
-    //         </Layout>
-    //     );
-    // }
-
     function ItemCard(props: any) {
         const dataObj = props.transaction;
         return (
@@ -145,7 +123,7 @@ export default function TransactionDetails() {
     function Miners() {
         return (
             <Layout className={"!max-h-full !overflow-y-scroll"}>
-                <Heading title={"Miners"}/>
+                <Heading title={"Miner"}/>
                 <div className={'grid grid-cols-1 md:grid-cols-2'}>
                     {TxDetail.map((tx) => (
                         <TransactionBlockInfo key={tx.block_hash} transaction={tx}/>

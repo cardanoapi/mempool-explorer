@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
-import { Transaction } from '@emurgo/cardano-serialization-lib-asmjs';
-import { Decoder, Encoder, addExtension, decode } from 'cbor-x';
+import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
+import {Decoder, Encoder, addExtension, decode} from 'cbor-x';
 
-import { SocketResponseMock } from '@app/assets/mock-data/mock-data';
+import {SocketResponseMock} from '@app/assets/mock-data/mock-data';
 import BlockDetails from '@app/components/transactions/block-details';
-import { SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
+import {SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
 
 import MempoolTransactionsList from './transaction-details';
 import TransactionEventList from './transaction-hash-list';
@@ -60,15 +60,14 @@ export default function TransactionsContainer() {
     }, []);
 
     return (
-        <div className=" overflow-y-auto">
+        <div className="overflow-y-auto">
             <div className="flex calc-h-68 px-5 flex-1">
-                <div className="overflow-auto p-1 mb-1 ">
-                    <TransactionEventList transactions={transactionHashes} />
+                <div className={"overflow-y-scroll"}>
+                    <TransactionEventList transactions={transactionHashes}/>
                 </div>
-
                 <div className=" flex gap-2 flex-col flex-1">
-                    <MempoolTransactionsList event={transactionHashes[0]} />
-                    <BlockDetails />
+                    <MempoolTransactionsList event={transactionHashes[0]}/>
+                    <BlockDetails/>
                 </div>
             </div>
         </div>

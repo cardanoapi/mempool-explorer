@@ -8,7 +8,7 @@ import TransactionsContainer from '@app/components/transactions';
 
 export default function Home() {
     return (
-        <main className={'flex flex-1 flex-col bg-[#f2f2f2] min-h-screen'}>
+        <main className={'flex flex-1 flex-col bg-[#f2f2f2] min-h-screen max-h-screen'}>
             <ToastContainer />
             <Navbar />
             <TransactionsContainer />

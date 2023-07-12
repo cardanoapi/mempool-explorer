@@ -9,6 +9,8 @@ import Loader from '@app/components/loader';
 import { ErrorPage, checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
 import TableLayout from '@app/shared/table-layout';
+import {createLinkElementsForTransactionHash} from "@app/utils/string-utils";
+import {AddressTransactionType} from "@app/types/transaction-details-response/socket-response-type";
 
 export default function TransactionHistory() {
     const router = useParams();
@@ -17,7 +19,7 @@ export default function TransactionHistory() {
 
     const { isLoading, hideLoader, error, setError } = useLoader();
 
-    const [transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState<Array<AddressTransactionType>>([]);
 
     const getDataFromDatabase = async (pageNumber: number) => {
         const response = await fetch(`/api/db?id=${router.id}&pageNumber=${pageNumber}`);
@@ -28,7 +30,7 @@ export default function TransactionHistory() {
 
     useEffect(() => {
         getDataFromDatabase(currentPage)
-            .then((d) => setTransactions(d))
+            .then((d) => setTransactions(createLinkElementsForTransactionHash(d)))
             .catch((e: any) =>
                 setError({
                     message: e.message,
