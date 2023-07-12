@@ -217,7 +217,6 @@ export async function getFollowups(txHash: Buffer) {
     });
 
     const followups = followHash.map(async (input) => {
-        console.log(input.hash)
         const body = await prisma.tx_body.findUnique({
             where: {
                 hash: input.hash
@@ -229,11 +228,11 @@ export async function getFollowups(txHash: Buffer) {
     return follow;
 }
 
-export async function getConfirmation(txHash:Buffer[]){
+export async function getConfirmation(txHash: Buffer[]) {
     try {
         return prisma.tx_confirmed.findMany({
-            where:{
-                tx_hash:{
+            where: {
+                tx_hash: {
                     in: txHash
                 }
             }

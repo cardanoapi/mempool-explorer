@@ -1,7 +1,6 @@
-import {getAddressDetails, getBody, getConfirmation, getPoolDetails, getTheLatestTransactionEpochOfAddress} from "@app/db/queries";
+import {getConfirmation} from "@app/db/queries";
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
-import { getFollowups, getCompeting } from "@app/db/queries";
 import {getUrlObject} from "@app/utils/cardano-utils";
 
 export async function GET(req:any ) {
