@@ -16,7 +16,7 @@ export const consumer = (latestOffset:number, blockOffset:number) =>
     {
         latestOffset = latestOffset - 1;
         console.log(process.env.KAFKA_BROKERS)
-        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:latestOffset}, {topic:process.env.KAFKA_BLOCK_TOPIC_NAME, offset:blockOffset-2}],
+        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:latestOffset-2}, {topic:process.env.KAFKA_BLOCK_TOPIC_NAME, offset:blockOffset-5}],
             {
                 encoding: "buffer",
                 keyEncoding:"buffer",
