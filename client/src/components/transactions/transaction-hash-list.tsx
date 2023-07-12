@@ -43,7 +43,7 @@ export default function TransactionEventList(props: PropType) {
     }
 
     return (
-        <div className="min-h-full max-h-full bg-white border-[2px] !min-w-[400px] p-2 border-solid ">
+        <div className="min-h-full max-h-full overflow-auto bg-white border-[2px] !min-w-[400px] p-2 border-solid ">
             <Heading title={'Transaction Events'}/>
             <div className={"h-full"}>
                 {!!transactionHashes && transactionHashes.length ? (

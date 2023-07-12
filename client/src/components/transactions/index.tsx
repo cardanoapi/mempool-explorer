@@ -61,11 +61,11 @@ export default function TransactionsContainer() {
 
     return (
         <div className="overflow-y-auto">
-            <div className="flex calc-h-68 px-5 flex-1">
-                <div className={"overflow-y-scroll"}>
+            <div className="flex calc-h-68 px-5 flex-1 gap-2">
+                <div className={"min-h-full max-h-full"}>
                     <TransactionEventList transactions={transactionHashes}/>
                 </div>
-                <div className=" flex gap-2 flex-col flex-1">
+                <div className="flex gap-2 flex-col flex-1">
                     <MempoolTransactionsList event={transactionHashes[0]}/>
                     <BlockDetails/>
                 </div>
