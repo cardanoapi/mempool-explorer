@@ -112,7 +112,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
     const enc = new Encoder();
     this.ws.addEventListener("message", async (event:MessageEvent) => {
       try{
-        console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
+        // console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
         const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
         switch(data[0]){
             case "add":
@@ -126,6 +126,8 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
               break;
 
             case "remove":
+              // console.log("remove");
+              // console.log(data);
               const txHashes = data[1][1];
               const removehashes = txHashes.map((txHash:Uint8Array) => Buffer.from(txHash).toString('hex'));
               const txCountt = data[1][0][0];

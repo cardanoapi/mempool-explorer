@@ -22,11 +22,10 @@ export default function TransactionsContainer() {
         useEffect(()=>{
             const sock = CardanoWebSocketImpl.createConnection("ws://localhost:8080/ws");
             sock.on("mint", (msg: MintMessage)=>{
-                // console.log("mint",msg.slotNumber, msg.headerHash, msg.txHashes);
+                console.log("mint",msg.slotNumber, msg.headerHash, msg.txHashes);
                 setMintEvent(msg);
             });
             sock.on("addTx", (msg:AddTxMessage) =>{
-                console.log(msg);
                 // console.log(msg.hash, msg.tx.transaction.inputs, msg.tx.transaction.outputs, msg.tx.transaction.isMint, msg.tx.transaction.mintTokens, msg.mempoolSize, msg.mempoolTxCount  );
                 const addActionAddedTransaction:AddRejectTxClientSideType = {
                     ...msg,
