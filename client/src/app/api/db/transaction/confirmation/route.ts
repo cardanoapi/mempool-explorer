@@ -1,7 +1,7 @@
-import {getConfirmation} from "@app/db/queries";
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {getUrlObject} from "@app/utils/cardano-utils";
+import { getConfirmationDetails } from "@app/db/queries";
 
 export async function GET(req:any ) {
     try {
@@ -10,14 +10,13 @@ export async function GET(req:any ) {
         const hashbytes = hashes.map((hash: string) => {
             return Buffer.from(hash, 'hex');
         });
-        const confirmation = await getConfirmation(hashbytes);
+        const confirmation = await getConfirmationDetails(hashbytes);
         const serializedBuffer = encode(confirmation);
         const response = new NextResponse(serializedBuffer);
-        console.log(confirmation);
         response.headers.set("Content-Type", "application/cbor")
         return response;
     } catch (e: any) {
-        console.log("/api/db/transaction", e);
+        console.log("/api/db/transaction/confirmation", e);
         return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
     }
 }
