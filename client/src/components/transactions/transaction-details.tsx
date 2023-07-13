@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
-import Layout from '@app/shared/layout';
 import TableLayout from '@app/shared/table-layout';
 import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';

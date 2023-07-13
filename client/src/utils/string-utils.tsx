@@ -112,7 +112,7 @@ function createLinkFromTransactionHashesArray(arr: Array<string>) {
     const displayLimit = getTheLimitForTransactionListDisplay(arr.length); 
     return (
         <>
-        {arr.slice(0, displayLimit).map((e,index) => (
+        {arr.slice(0, displayLimit).map((e) => (
         <>
             <Link key={e} target={"_blank"} className={"text-blue-500"} href={`/transactions/${e}`}>
                 {toMidDottedStr(e)}

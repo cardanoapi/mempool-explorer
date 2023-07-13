@@ -14,19 +14,10 @@ import { MempoolEventType } from '@app/constants/constants';
 
 
 export default function TransactionsContainer() {
-    // const [transactionHashes, setTransactionHashes] = useState<Array<SocketEventResponseType>>([]);
 
     const [mempoolEvent, setMempoolEvent] = useState<AddRejectTxClientSideType | RemoveTxClientSideType>();
 
     const [mintEvent, setMintEvent] = useState<MintMessage>();
-
-    // const timeout = setTimeout(() => {
-    //     setTransactionHashes([SocketResponseMock[transactionHashes.length], ...transactionHashes]);
-    // }, 5000);
-
-    // if (transactionHashes.length === SocketResponseMock.length) {
-    //     clearTimeout(timeout);
-    // }
 
         useEffect(()=>{
             const sock = CardanoWebSocketImpl.createConnection("ws://localhost:8080/ws");

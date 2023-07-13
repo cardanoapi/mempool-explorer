@@ -68,22 +68,22 @@ export default function TransactionEventList(props: PropType) {
         const event = props.event;
         return (
             <>
-            {event.txHashes.map((e) => {
+            {event.txHashes.map((e,index) => {
                return( 
-               <Layout className={"mb-2"}>
-                <div className={'flex gap-4 justify-between items-center'}>
-                    <>{renderBatchPill(event.action)}</>
-                    <div className={'flex flex-col'}>
-                        <p className="text-sm">
-                            Hash <span className="text-md text-blue-500">{toMidDottedStr(e, 4)}</span>
-                        </p>
-                        <p className="text-sm text-gray-400">{new Date(Date.now()).toISOString()}</p>
+               <Layout key={index} className={"mb-2"}>
+                    <div className={'flex gap-4 justify-between items-center'}>
+                        <>{renderBatchPill(event.action)}</>
+                        <div className={'flex flex-col'}>
+                            <p className="text-sm">
+                                Hash <span className="text-md text-blue-500">{toMidDottedStr(e, 4)}</span>
+                            </p>
+                            <p className="text-sm text-gray-400">{new Date(Date.now()).toISOString()}</p>
+                        </div>
+                        {/* <div className={'flex flex-col'}>
+                            <p className="font-bold">{event.amount} ADA</p>
+                        </div> */}
                     </div>
-                    {/* <div className={'flex flex-col'}>
-                        <p className="font-bold">{event.amount} ADA</p>
-                    </div> */}
-                </div>
-            </Layout>
+                </Layout>
                )
             })}
             </>
