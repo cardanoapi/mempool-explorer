@@ -54,6 +54,10 @@ export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTran
     const outputs = obj.outputs as Array<string>;
     return {
         ...obj,
+        hash: <Link key={obj.hash} target={"_blank"} className={"text-blue-500 mb-[2px]"}
+                    href={`/transactions/${obj.hash}`}>
+            {toMidDottedStr(obj.hash)}
+        </Link>,
         inputs: <div className={"flex flex-col gap-2"}>{convertArrayToReactElement(inputs)}</div>,
         outputs: <div className={"flex flex-col gap-2"}>{convertArrayToReactElement(outputs)}</div>
     }
