@@ -1,13 +1,12 @@
 import Link from "next/link";
 import {
-    AddressTransactionType,
+    AddressTransactionType, BlockDetailsType,
     MempoolTransactionResponseType,
     TransactionInputResponseType,
     TransactionOutputResponseType
 } from "@app/types/transaction-details-response/socket-response-type";
 import React from "react";
 import {MintMessage} from "@app/lib/websocket";
-import { TransactionListMaxDisplayCount } from "@app/constants/constants";
 
 export const toMidDottedStr = (str: string, leadingVisible = 5, firstIndex = 0) => {
     if (str === undefined || str.length < 12) return str;
@@ -36,63 +35,56 @@ export const createLinkElementsForTransactionHash = (arr: Array<AddressTransacti
     });
 }
 
-
-
-export function getTheLimitForTransactionListDisplay(arrLength: number) {
-    if(arrLength <= TransactionListMaxDisplayCount) {
-        return arrLength;
-    } else {
-        return TransactionListMaxDisplayCount;
-    }
-}
-
-export function getNumberOfHiddenTransactionList(arrLength: number,displayLimit: number) {
-    if(arrLength > displayLimit){
-        return `and ${arrLength-displayLimit} more...`
-    }
-    return "";
-}
-
 function convertInputArrayToReactElement(arr: Array<TransactionInputResponseType>) {
-    const displayLimit = getTheLimitForTransactionListDisplay(arr.length);
+    let endLength = 0;
+    if (arr.length <= 5) {
+        endLength = arr.length;
+    } else {
+        endLength = 5;
+    }
     return (
         <>
-            {arr.slice(0, displayLimit)?.map(el => {
+            {arr.slice(0, endLength)?.map(el => {
                 const appendedInputs = `${el.hash}#${el.index}`;
                 return <Link key={appendedInputs} target={"_blank"} className={"text-blue-500 mb-[2px]"}
                              href={`/transactions/${el.hash}`}>
                     {toMidDottedStr(appendedInputs)}
                 </Link>
             })}
-            <p>{getNumberOfHiddenTransactionList(arr.length,displayLimit)}</p>
+            <p>{arr.length > 5 && `and ${arr.length - 5} more...`}</p>
         </>
     )
 }
 
-export function convertToADA(lovelace: number) {
+function convertToADA(lovelace: number) {
     return lovelace / 1000000 + " ADA";
 }
 
 
 function convertOutputArrayToReactElement(arr: Array<TransactionOutputResponseType>) {
-    const displayLimit = getTheLimitForTransactionListDisplay(arr.length);
+    let endLength = 0;
+    let displayLength = 4;
+    if (arr.length <= displayLength) {
+        endLength = arr.length;
+    } else {
+        endLength = displayLength;
+    }
     return (
         <>
-            {arr.slice(0, displayLimit).map((el,index) => {
+            {arr.slice(0, endLength).map(el => {
                 return (
-                    <div key={index} className="flex gap-2 items-center">
-                        <Link target={"_blank"} className={"text-blue-500"} href={`/${el.address}`}>
+                    <div key={el.address} className="flex gap-2 items-center">
+                        <Link key={el.address} target={"_blank"} className={"text-blue-500"} href={`/${el.address}`}>
                             {toMidDottedStr(el.address)}
                         </Link>
                         <p className="text-sm font-bold">{convertToADA(el.amount[0].lovelace)}</p>
                     </div>
                 )
             })}
-            <p>{getNumberOfHiddenTransactionList(arr.length, displayLimit)}</p>
+            <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
         </>
     )
 }
-
 
 export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTransactionResponseType) => {
     const inputs: any = obj.inputs;
@@ -109,20 +101,21 @@ export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTran
 }
 
 function createLinkFromTransactionHashesArray(arr: Array<string>) {
-    const displayLimit = getTheLimitForTransactionListDisplay(arr.length); 
-    return (
-        <>
-        {arr.slice(0, displayLimit).map((e) => (
+    let endLength = 0;
+    let displayLength = 4;
+    if (arr.length <= displayLength) {
+        endLength = arr.length;
+    } else {
+        endLength = displayLength;
+    }
+    return arr.slice(0, endLength).map(e => (
         <>
             <Link key={e} target={"_blank"} className={"text-blue-500"} href={`/transactions/${e}`}>
                 {toMidDottedStr(e)}
             </Link>
-
+            <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
         </>
-    ))}
-    <p>{getNumberOfHiddenTransactionList(arr.length,displayLimit)}</p>
-     </>
-    )
+    ))
 }
 
 

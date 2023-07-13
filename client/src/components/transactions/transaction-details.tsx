@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
+import Layout from '@app/shared/layout';
 import TableLayout from '@app/shared/table-layout';
-import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveMintedTransactions, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
+import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 import { MempoolEventType } from '@app/constants/constants';
-import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
-import { MintMessage } from '@app/lib/websocket';
 
 interface PropType {
-    event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
 }
 
 export default function MempoolTransactionsList(props: PropType) {
@@ -37,7 +38,7 @@ export default function MempoolTransactionsList(props: PropType) {
         setCurrentMempoolTransactions(updatedArray);
     };
 
-    function mutateCurrentMempoolStateBasedOnEvent(event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions) {
+    function mutateCurrentMempoolStateBasedOnEvent(event: AddRejectTxClientSideType | RemoveTxClientSideType) {
         switch (event.action) {
             case MempoolEventType.Remove:
                 const removeEvent = event as RemoveTxClientSideType;
@@ -47,8 +48,6 @@ export default function MempoolTransactionsList(props: PropType) {
                 const addEvent = event as AddRejectTxClientSideType;
                 addTransactionToMempoolState(addEvent);
                 break;
-            case MempoolEventType.Mint:
-                removeTransactionFromMempoolState((event as RemoveMintedTransactions).txHashes)
             default:
                 //TODO: what to do when reject event
                 return;
@@ -64,7 +63,7 @@ export default function MempoolTransactionsList(props: PropType) {
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
             <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`} />
-            {currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> : <TableLayout data={currentMempoolTransactions} />}
+            <TableLayout data={currentMempoolTransactions} />
         </div>
     );
 }

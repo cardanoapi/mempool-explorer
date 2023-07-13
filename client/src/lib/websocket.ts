@@ -59,7 +59,7 @@ addExtension({
         return instance.transaction.inputs;
     },
     decode(data:Buffer) {
-        // console.debug("Decoding transaction",data.toString('hex'))
+        console.debug("Decoding transaction",data.toString('hex'))
         let instance = new Transaction(data);
         return instance;
     }
