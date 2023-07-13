@@ -3,3 +3,5 @@ export enum MempoolEventType {
     Remove = "remove",
     Reject = "reject"
 }
+
+export const TransactionListMaxDisplayCount = 4;
