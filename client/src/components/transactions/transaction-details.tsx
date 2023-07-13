@@ -4,17 +4,12 @@ import { useRouter } from 'next/navigation';
 
 import Layout from '@app/shared/layout';
 import TableLayout from '@app/shared/table-layout';
-import { MempoolTransactionListType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
+import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
+import { MempoolEventType } from '@app/constants/constants';
 
 interface PropType {
-    event: SocketEventResponseType;
-}
-
-export enum EventActionEnum {
-    Remove = 'remove',
-    Add = 'add',
-    Reject = 'reject'
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
 }
 
 export default function MempoolTransactionsList(props: PropType) {
@@ -23,34 +18,52 @@ export default function MempoolTransactionsList(props: PropType) {
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionListType>>([]);
 
 
-
-    const addTransactionToMempoolState = (event: SocketEventResponseType) => {
-        const { action, fee, ...filteredObject } = event;
-        const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(filteredObject);
+    const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
+        console.log("add reject event: ", event)
+        // const { action, fee, ...filteredObject } = event;
+        // const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(filteredObject);
+        // setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
+        const clientSideObject:MempoolTransactionResponseType = {
+            hash: event.hash,
+            inputs:  event.tx.transaction.inputs,
+            outputs: event.tx.transaction.outputs,
+            arrival_time: new Date(Date.now()).toISOString()
+        }
+        const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(clientSideObject);
         setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
     };
 
-    const removeTransactionFromMempoolState = (hash: string) => {
-        const updatedArray = currentMempoolTransactions.filter((item) => item.hash !== hash);
+    const removeTransactionFromMempoolState = (hashes: Array<string>) => {
+        let updatedArray = [] as Array<MempoolTransactionListType>;
+        for(let i=0 ; i < hashes.length; i++) {
+            const hash = hashes[i];
+            updatedArray = currentMempoolTransactions.filter((item) => item.hash !== hash);
+        }
         setCurrentMempoolTransactions(updatedArray);
     };
 
-    function mutateCurrentMempoolStateBasedOnEvent(event: SocketEventResponseType) {
+    function mutateCurrentMempoolStateBasedOnEvent(event: AddRejectTxClientSideType | RemoveTxClientSideType) {
         switch (event.action) {
-            case EventActionEnum.Remove:
-                removeTransactionFromMempoolState(event.hash);
+            case MempoolEventType.Remove:
+                const removeEvent = event as RemoveTxClientSideType;
+                removeTransactionFromMempoolState(removeEvent.txHashes);
                 break;
-            case EventActionEnum.Add:
-                addTransactionToMempoolState(event);
+            case MempoolEventType.Add:
+                const addEvent = event as AddRejectTxClientSideType;
+                addTransactionToMempoolState(addEvent);
                 break;
             default:
+                //TODO: what to do when reject event
                 return;
         }
     }
 
+    console.log("current mempool transactions:", currentMempoolTransactions);
+
     useEffect(() => {
         if (!event) return;
-        mutateCurrentMempoolStateBasedOnEvent(event);
+        const nonEmptyEvent  = props.event as AddRejectTxClientSideType | RemoveTxClientSideType
+        mutateCurrentMempoolStateBasedOnEvent(nonEmptyEvent);
     }, [event]);
 
     return (

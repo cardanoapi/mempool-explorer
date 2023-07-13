@@ -93,3 +93,37 @@ export const transformToClientSideData = (data: any) => {
 export function getUrlObject(urlStr: string) {
     return new URL(urlStr);
 }
+
+export function updateTimeSinceArrival(arrivalTime: any) {
+  // Get the current time
+  const currentTime:any = new Date();
+  
+  // Calculate the time difference in milliseconds
+  const timeDifference:any = currentTime - arrivalTime;
+  
+  // Calculate the time difference in seconds, minutes, hours, and days
+  const seconds = Math.floor(timeDifference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  // Determine the appropriate time unit to display
+  let timeUnit, timeValue;
+  if (days > 0) {
+    timeUnit = 'day';
+    timeValue = days;
+  } else if (hours > 0) {
+    timeUnit = 'hour';
+    timeValue = hours;
+  } else if (minutes > 0) {
+    timeUnit = 'minute';
+    timeValue = minutes;
+  } else {
+    timeUnit = 'second';
+    timeValue = seconds;
+  }
+
+  // Create the time since arrival message
+  return `${timeValue} ${timeUnit}${timeValue !== 1 ? 's' : ''} ago`;
+
+}

@@ -5,7 +5,7 @@ import { TransactionParser, TransactionInput, TransactionOutput, Value, Mint, IT
 
 type EventType = "mint" | "rollback" | "addTx" | "removeTx" | "rejectTx" | "disconnected" | "connected";
 
-export interface AddTxMessage{
+export interface AddTxMessage {
   mempoolTxCount: number;
   mempoolSize: number;
   hash: string;
@@ -25,13 +25,13 @@ export interface RemoveTxMessage{
   txHashes:string[];
 }
 
-export interface MintMessage{
+export interface MintMessage {
   slotNumber:number;
   headerHash:string;
   txHashes:string[];
 }
 
-export interface RollbackMessage{
+export interface RollbackMessage {
   slotNumber:number;
   headerHash:string;
 }
@@ -77,9 +77,9 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
   }
 
   public static createConnection(wsUrl: string):CardanoWebSocket{
-    if(CardanoWebSocketImpl.ins){
-      return CardanoWebSocketImpl.ins
-    }
+    // if(CardanoWebSocketImpl.ins){
+    //   return CardanoWebSocketImpl.ins
+    // }
     return CardanoWebSocketImpl.ins =new CardanoWebSocketImpl(wsUrl);
   }
   public on(event:EventType,callback:CallableFunction):void{

@@ -2,72 +2,72 @@
 
 import {useEffect, useState} from 'react';
 
-import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
-import {Decoder, Encoder, addExtension, decode} from 'cbor-x';
-
-import {SocketResponseMock} from '@app/assets/mock-data/mock-data';
 import BlockDetails from '@app/components/transactions/block-details';
-import {SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
+import {AddRejectTxClientSideType, RemoveTxClientSideType, SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
 
 import MempoolTransactionsList from './transaction-details';
 import TransactionEventList from './transaction-hash-list';
 
+
+import CardanoWebSocketImpl, { AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage } from "@app/lib/websocket";
+import { MempoolEventType } from '@app/constants/constants';
+
+
 export default function TransactionsContainer() {
-    const [transactionHashes, setTransactionHashes] = useState<Array<SocketEventResponseType>>([]);
+    // const [transactionHashes, setTransactionHashes] = useState<Array<SocketEventResponseType>>([]);
 
-    const timeout = setTimeout(() => {
-        setTransactionHashes([SocketResponseMock[transactionHashes.length], ...transactionHashes]);
-    }, 5000);
+    const [mempoolEvent, setMempoolEvent] = useState<AddRejectTxClientSideType | RemoveTxClientSideType>();
 
-    if (transactionHashes.length === SocketResponseMock.length) {
-        clearTimeout(timeout);
-    }
+    const [mintEvent, setMintEvent] = useState();
 
-    useEffect(() => {
-        const socket = new WebSocket('ws://localhost:8080/ws');
+    // const timeout = setTimeout(() => {
+    //     setTransactionHashes([SocketResponseMock[transactionHashes.length], ...transactionHashes]);
+    // }, 5000);
 
-        // Listen for messages
-        addExtension({
-            Class: Transaction,
-            tag: 24, // register our own extension code (a tag code)
-            encode(instance: Transaction, encode) {
-                // define how your custom class should be encoded
-                return encode(instance.to_bytes()); // return a buffer
-            },
-            decode(data: Buffer) {
-                // define how your custom class should be decoded
-                console.debug('Decoding transaction', data.toString('hex'));
-                return Transaction.from_bytes(data); // decoded value from buffer
-            }
-        });
+    // if (transactionHashes.length === SocketResponseMock.length) {
+    //     clearTimeout(timeout);
+    // }
 
-        const decoder = new Decoder();
-        socket.addEventListener('message', async (event: MessageEvent) => {
-            const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
-            console.log('data from socket: ', data);
-            switch (data[0]) {
-                case 'add':
-                    const txcbor = data[2][1];
-                    console.log('data', txcbor.to_js_value());
-                case 'remove':
-                    break;
-                case 'reject':
-                    break;
-                default:
-                    break;
-            }
-            console.log('Message from server ');
-        });
+        useEffect(()=>{
+            const sock = CardanoWebSocketImpl.createConnection("ws://localhost:8080/ws");
+            sock.on("mint", (msg: MintMessage)=>{
+                // console.log(msg.slotNumber, msg.headerHash, msg.txHashes);
+            });
+            sock.on("addTx", (msg:AddTxMessage) =>{
+                // console.log(msg.hash, msg.tx.transaction.inputs, msg.tx.transaction.outputs, msg.tx.transaction.isMint, msg.tx.transaction.mintTokens, msg.mempoolSize, msg.mempoolTxCount  );
+                const addActionAddedTransaction:AddRejectTxClientSideType = {
+                    ...msg,
+                    action: MempoolEventType.Add
+                }
+                setMempoolEvent(addActionAddedTransaction);
+
+            });
+            sock.on("removeTx", (msg:RemoveTxMessage) =>{
+                // console.log(msg.mempoolSize, msg.mempoolTxCount, msg.txHashes);
+                const removeActionAddedTransaction:RemoveTxClientSideType = {
+                    ...msg,
+                    action: MempoolEventType.Remove
+                }
+                setMempoolEvent(removeActionAddedTransaction)
+            });
+            sock.on("rejectTx", (msg: RejectTxMessage) => {
+                const rejectActionAddedTransaction:AddRejectTxClientSideType = {
+                    ...msg,
+                    action: MempoolEventType.Reject
+                }
+                setMempoolEvent(rejectActionAddedTransaction)
+            })
     }, []);
+
 
     return (
         <div className="overflow-y-auto">
             <div className="flex calc-h-68 px-5 flex-1 gap-2">
                 <div className={"min-h-full max-h-full"}>
-                    <TransactionEventList transactions={transactionHashes}/>
+                    <TransactionEventList event={mempoolEvent}/>
                 </div>
                 <div className="flex gap-2 flex-col flex-1">
-                    <MempoolTransactionsList event={transactionHashes[0]}/>
+                    <MempoolTransactionsList event={mempoolEvent}/>
                     <BlockDetails/>
                 </div>
             </div>

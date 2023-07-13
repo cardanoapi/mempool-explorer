@@ -24,7 +24,7 @@ export default function TableLayout(props: any) {
                     return (
                         <tr key={idx} className="bg-white dark:bg-gray-900 dark:border-gray-700">
                             {Object.values(row).map((d: any, index) => (
-                                <td key={index}>{d}</td>
+                                <td key={d.toString()}>{d}</td>
                             ))}
                         </tr>
                     );
