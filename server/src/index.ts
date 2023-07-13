@@ -98,62 +98,43 @@ offset.fetchLatestOffsets(
               }
               txHashes = ["mint", cb[1][0], cb[1][1], txHashes];
             }
-
-            Object.values(connections).forEach(
-              (connection: WebSocket & { id: number }) => {
-                const cbordata = cbor.encode(txHashes);
-                connection.send(cbordata, (err) => {
-                  if (err) {
-                    console.log("error sending message to client");
-                    delete connections[connection.id];
-                  }
+            else{
+                let cborlen = Buffer.from([0x83]);
+                let totaldata;
+                msg.key = msg.key.toString();
+                const key = (msg.key as string).split(':');
+                const cborkey = cbor.encode(key[0]);
+                if((msg.key as string).startsWith("add")){    
+                    let addTx = EventType.from_add(msg.key, msg.value);
+                    localMempool.addTx(addTx.txhash, addTx.txbody);
+                    totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
+                }
+                else if((msg.key as string).startsWith("remove")){
+                    cborlen = Buffer.from([0x82]);
+                    let removeTx = EventType.from_remove(msg.key, msg.value);
+                    localMempool.removeTx(removeTx.txhashList);
+                    totaldata = Buffer.concat([cborlen, cborkey, (msg.value as Buffer)]);
+                }
+                else if((msg.key as string).startsWith("reject")){
+                    totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
+                    const isPresent = localMempool.rejectTx(key[1]);
+                    if(isPresent){
+                        return;
+                    }
+                    // publish this event to the client
+                }
+                Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
+                    
+                    connection.send(totaldata, (err) => {
+                        if(err){
+                            console.log("error sending message to client");
+                            delete connections[connection.id]; 
+                        }
+                    });
                 });
               }
-            );
-          } else {
-            let cborlen = Buffer.from([0x83]);
-            let totaldata;
-            msg.key = msg.key.toString();
-            const key = (msg.key as string).split(":");
-            const cborkey = cbor.encode(key[0]);
-            if ((msg.key as string).startsWith("add")) {
-              let addTx = EventType.from_add(msg.key, msg.value);
-              localMempool.addTx(addTx.txhash, addTx.txbody);
-              totaldata = Buffer.concat([
-                cborlen,
-                cborkey,
-                cbor.encode(key[1]),
-                msg.value as Buffer,
-              ]);
-            } else if ((msg.key as string).startsWith("remove")) {
-              cborlen = Buffer.from([0x82]);
-              let removeTx = EventType.from_remove(msg.key, msg.value);
-              localMempool.removeTx(removeTx.txhashList);
-              totaldata = Buffer.concat([
-                cborlen,
-                cborkey,
-                msg.value as Buffer,
-              ]);
-            } else if ((msg.key as string).startsWith("reject")) {
-              totaldata = Buffer.concat([
-                cborlen,
-                cborkey,
-                cbor.encode(key[1]),
-                msg.value as Buffer,
-              ]);
-              // publish this event to the client
-            }
-            Object.values(connections).forEach(
-              (connection: WebSocket & { id: number }) => {
-                connection.send(totaldata, (err) => {
-                  if (err) {
-                    console.log("error sending message to client");
-                    delete connections[connection.id];
-                  }
-                });
-              }
-            );
-          }
+           
+          } 
         });
       }
     );
