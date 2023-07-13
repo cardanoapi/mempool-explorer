@@ -1,7 +1,8 @@
-import {dbClient} from "./prisma";
+import {dbClient, syncClient} from "./prisma";
 import {PrismaClient} from "@prisma/client";
 
 const prisma: PrismaClient = dbClient;
+const sync: PrismaClient= syncClient;
 import {Prisma} from '@prisma/client'
 import {getLatestEpoch} from "@app/utils/cardano-utils";
 
@@ -244,4 +245,43 @@ export async function getConfirmation(txHash:Buffer[]){
 
 export async function closeConnection() {
     await prisma.$disconnect();
+}
+
+export async function getConfirmationDetails(txHashes: Buffer[]) {
+    try {
+        const query = Prisma.sql` select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no , ph.view  pool_id
+        , b.block_no as block_no,b.time as block_time,b.epoch_no as epoch,
+        (select json_agg(distinct tout.address)
+                from tx_out tout join tx_in ti
+                    on tout.tx_id = ti.tx_out_id and tout.index = ti.tx_out_index
+            where ti.tx_in_id = tx.id ) as in_addrs
+        from tx join block b on b.id = tx.block_id
+        left join slot_leader sl on b.slot_leader_id = sl.id
+        left join pool_hash ph on sl.pool_hash_id = ph.id  
+        where 
+            tx.hash in (${Prisma.join(txHashes)})`;
+        return sync.$queryRaw(query);
+        
+    } catch (e) {
+        // return prisma.
+        console.log("/api/db/transaction", e)
+    }
+}
+
+export async function getArrivalTime(txHash: Buffer){
+    try {
+        return prisma.tx_log.findFirst({
+            where:{
+                hash:txHash
+            },
+            select:{
+                received:true,
+            },
+            orderBy:{
+                received:"asc"
+            }
+        });
+    } catch (e) {
+        console.log("/api/db/transaction", e)
+    }
 }
