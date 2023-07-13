@@ -8,15 +8,14 @@ export const kafkaClient = new kafka.KafkaClient({
     kafkaHost: process.env.KAFKA_BROKERS
 });
 
-const maxBytes = 1000*30;
+const maxBytes = 1000*1000*30;
 
 
 
 export const consumer = (latestOffset:number, blockOffset:number) =>
     {
         latestOffset = latestOffset - 1;
-        console.log(process.env.KAFKA_BROKERS)
-        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:latestOffset-2}, {topic:process.env.KAFKA_BLOCK_TOPIC_NAME, offset:blockOffset-5}],
+        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:latestOffset}, {topic:process.env.KAFKA_BLOCK_TOPIC_NAME, offset:blockOffset}],
             {
                 encoding: "buffer",
                 keyEncoding:"buffer",
