@@ -228,11 +228,11 @@ export async function getFollowups(txHash: Buffer) {
     return follow;
 }
 
-export async function getConfirmation(txHash: Buffer[]) {
+export async function getConfirmation(txHash:Buffer[]){
     try {
         return prisma.tx_confirmed.findMany({
-            where: {
-                tx_hash: {
+            where:{
+                tx_hash:{
                     in: txHash
                 }
             }
