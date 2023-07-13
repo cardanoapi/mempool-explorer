@@ -60,10 +60,8 @@ export interface AddressTransactionType {
 }
 
 export interface BlockDetailsType {
-    block: string;
-    "epoch/slot": string;
+    "slot": string;
     Transactions: string;
     Timestamp: string;
-    Stake_pool: string;
     Output: number;
 }

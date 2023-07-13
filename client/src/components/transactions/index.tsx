@@ -18,7 +18,7 @@ export default function TransactionsContainer() {
 
     const [mempoolEvent, setMempoolEvent] = useState<AddRejectTxClientSideType | RemoveTxClientSideType>();
 
-    const [mintEvent, setMintEvent] = useState();
+    const [mintEvent, setMintEvent] = useState<MintMessage>();
 
     // const timeout = setTimeout(() => {
     //     setTransactionHashes([SocketResponseMock[transactionHashes.length], ...transactionHashes]);
@@ -31,7 +31,8 @@ export default function TransactionsContainer() {
         useEffect(()=>{
             const sock = CardanoWebSocketImpl.createConnection("ws://localhost:8080/ws");
             sock.on("mint", (msg: MintMessage)=>{
-                // console.log(msg.slotNumber, msg.headerHash, msg.txHashes);
+                console.log("mint",msg.slotNumber, msg.headerHash, msg.txHashes);
+                setMintEvent(msg);
             });
             sock.on("addTx", (msg:AddTxMessage) =>{
                 // console.log(msg.hash, msg.tx.transaction.inputs, msg.tx.transaction.outputs, msg.tx.transaction.isMint, msg.tx.transaction.mintTokens, msg.mempoolSize, msg.mempoolTxCount  );
@@ -68,7 +69,7 @@ export default function TransactionsContainer() {
                 </div>
                 <div className="flex gap-2 flex-col flex-1">
                     <MempoolTransactionsList event={mempoolEvent}/>
-                    <BlockDetails/>
+                    <BlockDetails event={mintEvent as MintMessage}/>
                 </div>
             </div>
         </div>

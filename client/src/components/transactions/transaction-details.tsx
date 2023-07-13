@@ -19,10 +19,6 @@ export default function MempoolTransactionsList(props: PropType) {
 
 
     const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
-        console.log("add reject event: ", event)
-        // const { action, fee, ...filteredObject } = event;
-        // const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(filteredObject);
-        // setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
         const clientSideObject:MempoolTransactionResponseType = {
             hash: event.hash,
             inputs:  event.tx.transaction.inputs,
@@ -34,10 +30,10 @@ export default function MempoolTransactionsList(props: PropType) {
     };
 
     const removeTransactionFromMempoolState = (hashes: Array<string>) => {
-        let updatedArray = [] as Array<MempoolTransactionListType>;
+        let updatedArray = [...currentMempoolTransactions];
         for(let i=0 ; i < hashes.length; i++) {
             const hash = hashes[i];
-            updatedArray = currentMempoolTransactions.filter((item) => item.hash !== hash);
+            updatedArray = updatedArray.filter((item:any) => item.hash.key.toLowerCase() !== hash.toLowerCase());
         }
         setCurrentMempoolTransactions(updatedArray);
     };
@@ -58,8 +54,6 @@ export default function MempoolTransactionsList(props: PropType) {
         }
     }
 
-    console.log("current mempool transactions:", currentMempoolTransactions);
-
     useEffect(() => {
         if (!event) return;
         const nonEmptyEvent  = props.event as AddRejectTxClientSideType | RemoveTxClientSideType
@@ -68,7 +62,7 @@ export default function MempoolTransactionsList(props: PropType) {
 
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
-            <Heading title={'Mempool Transactions'} />
+            <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`} />
             <TableLayout data={currentMempoolTransactions} />
         </div>
     );

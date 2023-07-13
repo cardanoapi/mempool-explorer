@@ -58,7 +58,7 @@ addExtension({
         return instance.transaction.inputs;
     },
     decode(data:Buffer) {
-        console.debug("Decoding transaction",data.toString('hex'))
+        // console.debug("Decoding transaction",data.toString('hex'))
         let instance = new Transaction(data);
         return instance;
     }
@@ -99,11 +99,11 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
     const enc = new Encoder();
     this.ws.addEventListener("message", async (event:MessageEvent) => {
       try{
-        console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
+        // console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
         const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
         switch(data[0]){
             case "add":
-              console.log("add");
+              // console.log("add");
               const tx:Transaction = data[2][1];
               const txCount = data[2][0][0];
               const mempoolSize = data[2][0][1];
@@ -112,8 +112,8 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
               break;
 
             case "remove":
-              console.log("remove");
-              console.log(data);
+              // console.log("remove");
+              // console.log(data);
               const txHashes = data[1][1];
               const removehashes = txHashes.map((txHash:Uint8Array) => Buffer.from(txHash).toString('hex'));
               const txCountt = data[1][0][0];
@@ -122,7 +122,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
               break;
 
             case "reject":
-              console.log("reject");
+              // console.log("reject");
               const _tx:Transaction = data[2][1];
               const _txCount = data[2][0][0];
               const _mempoolSize = data[2][0][1];
@@ -131,8 +131,8 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
               break;
 
             case "rollback":
-              console.log("rollback");
-              console.log(data);
+              // console.log("rollback");
+              // console.log(data);
               const slotNumber = data[1];
               const headerHash = data[2];
               this.consumers.rollback({slotNumber, headerHash} as RollbackMessage);

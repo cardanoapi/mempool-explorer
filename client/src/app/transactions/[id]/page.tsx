@@ -42,11 +42,11 @@ export default function TransactionDetails() {
         getTransactionDetails()
             .then((d) => {
                 let responseObjClone = Object.assign({}, d);
-                console.log(responseObjClone);
+                // console.log(responseObjClone);
                 let inputOutputObject = convertToClientSideInputOutputObject(d);
                 inputOutputObject = {...inputOutputObject, hash: router.id};
                 const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
-                console.log(followups);
+                // console.log(followups);
                 const transactionDetailsObj: TransactionDetailsInterface = {
                     inputoutput: [],
                     competitors: [],

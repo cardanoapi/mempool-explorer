@@ -29,7 +29,7 @@ export default function TransactionEventList(props: PropType) {
     //     })
     // }
 
-    setTimeout(updateTimeSinceArrival,1000)
+    // setTimeout(updateTimeSinceArrival,1000)
 
     function renderBatchPill(action: string) {
         const batchPillBaseStyle = 'text-xs rounded-md p-1 border-solid border-[1px]';

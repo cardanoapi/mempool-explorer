@@ -13,7 +13,6 @@ export async function GET(req:any ) {
         const confirmation = await getConfirmation(hashbytes);
         const serializedBuffer = encode(confirmation);
         const response = new NextResponse(serializedBuffer);
-        console.log(confirmation);
         response.headers.set("Content-Type", "application/cbor")
         return response;
     } catch (e: any) {

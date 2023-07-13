@@ -6,6 +6,7 @@ import {
     TransactionOutputResponseType
 } from "@app/types/transaction-details-response/socket-response-type";
 import React from "react";
+import {MintMessage} from "@app/lib/websocket";
 
 export const toMidDottedStr = (str: string, leadingVisible = 5, firstIndex = 0) => {
     if (str === undefined || str.length < 12) return str;
@@ -35,21 +36,22 @@ export const createLinkElementsForTransactionHash = (arr: Array<AddressTransacti
 }
 
 function convertInputArrayToReactElement(arr: Array<TransactionInputResponseType>) {
-        let endLength = 0;
-    if(arr.length <= 5) {
-      endLength = arr.length;  
+    let endLength = 0;
+    if (arr.length <= 5) {
+        endLength = arr.length;
     } else {
         endLength = 5;
     }
     return (
         <>
-           {arr.slice(0,endLength)?.map(el => {
-            const appendedInputs = `${el.hash}#${el.index}`;
-                return <Link key={appendedInputs} target={"_blank"} className={"text-blue-500 mb-[2px]"} href={`/transactions/${el.hash}`}>
+            {arr.slice(0, endLength)?.map(el => {
+                const appendedInputs = `${el.hash}#${el.index}`;
+                return <Link key={appendedInputs} target={"_blank"} className={"text-blue-500 mb-[2px]"}
+                             href={`/transactions/${el.hash}`}>
                     {toMidDottedStr(appendedInputs)}
                 </Link>
             })}
-             <p>{arr.length > 5 && `and ${arr.length - 5} more...`}</p>
+            <p>{arr.length > 5 && `and ${arr.length - 5} more...`}</p>
         </>
     )
 }
@@ -61,32 +63,32 @@ function convertToADA(lovelace: number) {
 
 function convertOutputArrayToReactElement(arr: Array<TransactionOutputResponseType>) {
     let endLength = 0;
-    if(arr.length <= 5) {
-      endLength = arr.length;  
+    let displayLength = 4;
+    if (arr.length <= displayLength) {
+        endLength = arr.length;
     } else {
-        endLength = 5;
+        endLength = displayLength;
     }
-        return (
+    return (
         <>
-           {arr.slice(0,endLength).map(el => {
+            {arr.slice(0, endLength).map(el => {
                 return (
-                <div className="flex gap-2 items-center">
-                <Link key={el.address} target={"_blank"} className={"text-blue-500"} href={`/${el.address}`}>
-                    {toMidDottedStr(el.address)}
-                </Link>
-                <p className="text-sm font-bold">{convertToADA(el.amount[0].lovelace)}</p>
-                </div>
+                    <div key={el.address} className="flex gap-2 items-center">
+                        <Link key={el.address} target={"_blank"} className={"text-blue-500"} href={`/${el.address}`}>
+                            {toMidDottedStr(el.address)}
+                        </Link>
+                        <p className="text-sm font-bold">{convertToADA(el.amount[0].lovelace)}</p>
+                    </div>
                 )
             })}
-            <p>{arr.length > 5 && `and ${arr.length - 5} more...`}</p>
+            <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
         </>
     )
 }
 
 export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTransactionResponseType) => {
-    const inputs:any = obj.inputs;
-    const outputs:any = obj.outputs;
-    console.log("outputs: ", obj.outputs);
+    const inputs: any = obj.inputs;
+    const outputs: any = obj.outputs;
     return {
         ...obj,
         hash: <Link key={obj.hash} target={"_blank"} className={"text-blue-500 mb-[2px]"}
@@ -98,12 +100,32 @@ export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTran
     }
 }
 
-export const createLinkElementForBlockDetails = (arr: Array<BlockDetailsType>) => {
+function createLinkFromTransactionHashesArray(arr: Array<string>) {
+    let endLength = 0;
+    let displayLength = 4;
+    if (arr.length <= displayLength) {
+        endLength = arr.length;
+    } else {
+        endLength = displayLength;
+    }
+    return arr.slice(0, endLength).map(e => (
+        <>
+            <Link key={e} target={"_blank"} className={"text-blue-500"} href={`/transactions/${e}`}>
+                {toMidDottedStr(e)}
+            </Link>
+            <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
+        </>
+    ))
+}
+
+
+export const createLinkElementForBlockDetails = (arr: Array<MintMessage>) => {
+
     return arr.map(obj => {
         return {
             ...obj,
-            Stake_pool: <Link target={"_blank"} className={"text-blue-500 mb-[2px]"}
-                              href={`/${obj.Stake_pool}`}>{obj.Stake_pool}</Link>
+            headerHash: toMidDottedStr(obj.headerHash),
+            txHashes: <div className={"flex flex-col gap-2"}>{createLinkFromTransactionHashesArray(obj.txHashes)}</div>,
         }
     })
 }
