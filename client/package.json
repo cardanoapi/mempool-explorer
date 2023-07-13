@@ -21,6 +21,9 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "autoprefixer": "10.4.14",
+    "bech32": "^2.0.0",
+    "blake2": "^5.0.0",
+    "cbor-web": "^9.0.0",
     "cbor-x": "^1.5.3",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
@@ -39,6 +42,7 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/blake2": "^4.0.1",
     "@types/react-table": "^7.7.14",
     "@types/ws": "^8.5.5",
     "cross-env": "^7.0.3",

@@ -9,33 +9,29 @@ datasource db {
 }
 
 model tx_log {
-  hash        Bytes  @id
+  hash        Bytes     @id
   received    DateTime? @db.Timestamp(6)
   sender_addr String?   @db.Inet
   sender_port Int?
-
 }
 
 model tx_body {
-  hash    Bytes @id
+  hash    Bytes  @id
   version Int?
   txbody  Bytes?
-
 }
 
 model tx_in {
-  hash      Bytes  @id
+  hash      Bytes   @id
   utxohash  Bytes?
   utxoindex String? @db.VarChar
-
 }
 
 model tx_mint {
-  hash      Bytes  @id
+  hash      Bytes   @id
   policyid  String? @db.VarChar
   assetname String? @db.VarChar
   quantity  Int?
-
 }
 
 model tx_out {
@@ -45,7 +41,6 @@ model tx_out {
   paymentcred String? @db.VarChar
   stakecred   String? @db.VarChar
   value       Json?
-
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

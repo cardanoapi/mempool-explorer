@@ -217,7 +217,6 @@ export async function getFollowups(txHash: Buffer) {
     });
 
     const followups = followHash.map(async (input) => {
-        console.log(input.hash)
         const body = await prisma.tx_body.findUnique({
             where: {
                 hash: input.hash

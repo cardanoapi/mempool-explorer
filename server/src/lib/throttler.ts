@@ -1,6 +1,5 @@
 // const shutdown = require('./lib/gracefulShutdown')
 import logger from "./logger";
-import * as cbor from 'cbor';
 
 export type RetryAction=(callback?:RetryAction)=>void
 type BrustAction<T>=(T,RetryAction)=>void

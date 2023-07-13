@@ -1,21 +1,63 @@
-import {Heading, toMidDottedStr} from "@app/utils/string-utils";
-import {useEffect} from "react";
+import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
+import Layout from '@app/shared/layout';
+import {SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
+import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 
-export default function TransactionHashList() {
-    const transactionHashes = ["b2257dbec4034b96b588cc0148dc0bae2e2005cb5dba58fc2501a1a2f6b618ca", "65b0b6ded8a8ee149e77fe4b91b10003efe748ca91c9c5b25886b8beeb84fead", "65b0b6ded8a8ee149e77fe4b91b10003efe748ca91c9c5b25886b8beeb84fead", "65b0b6ded8a8ee149e77fe4b91b10003efe748ca91c9c5b25886b8beeb84fead"];
+interface PropType {
+    transactions: Array<SocketEventResponseType>;
+}
 
-    useEffect(() => {
+export default function TransactionEventList(props: PropType) {
+    const transactionHashes = props.transactions;
 
-    },[])
+    function renderBatchPill(action: string) {
+        const batchPillBaseStyle = 'text-xs rounded-md p-1 border-solid border-[1px]';
+        switch (action) {
+            case 'add':
+                return <div className={`${batchPillBaseStyle} bg-green-100 border-green-400`}>{action}</div>;
+            case 'remove':
+                return <div className={` ${batchPillBaseStyle} bg-red-100 border-red-400 `}>{action}</div>;
+            case 'reject':
+                return <div className={` ${batchPillBaseStyle} bg-yellow-100 border-yellow-400`}>{action}</div>;
+        }
+    }
+
+    function TransactionItems(props: any) {
+        const transaction = props.transaction;
+        return (
+            <Layout>
+                <div className={'flex gap-4 justify-between items-center'}>
+                    <>{renderBatchPill(transaction.action)}</>
+                    <div className={'flex flex-col'}>
+                        <p className="text-sm">
+                            Hash <span className="text-md text-blue-500">{toMidDottedStr(transaction.hash, 4)}</span>
+                        </p>
+                        <p className="text-sm text-gray-400">{new Date(1689128824593).toISOString()}</p>
+                    </div>
+                    <div className={'flex flex-col'}>
+                        <p className="font-bold">{transaction.amount} ADA</p>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
 
     return (
-        <div className={"p-4 border-solid border-[2px] bg-white"}>
-            <Heading title={"Transactions"}/>
-            {transactionHashes.map((hash, index) => (
-                <div key={index} className={"my-2 mx-1 px-2 py-2 cursor-pointer hover:bg-emerald-50"}>
-                    {toMidDottedStr(hash)}
-                </div>
-            ))}
+        <div className="min-h-full max-h-full overflow-auto bg-white border-[2px] !min-w-[400px] p-2 border-solid ">
+            <Heading title={'Transaction Events'}/>
+            <div className={"h-full"}>
+                {!!transactionHashes && transactionHashes.length ? (
+                    <>
+                        {transactionHashes.map((tx, index) => (
+                            <div key={index} className={'mx-1 py-2 cursor-pointer block-list'}>
+                                <TransactionItems transaction={tx}/>
+                            </div>
+                        ))}
+                    </>
+                ) : (
+                    <EmptyPageIcon/>
+                )}
+            </div>
         </div>
-    )
+    );
 }

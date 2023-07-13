@@ -1,20 +1,76 @@
-"use client";
-import TransactionHashList from "@app/components/transactions/transaction-hash-list";
-import TransactionDetails from "@app/components/transactions/transaction-details";
-import BlockDetails from "@app/components/transactions/block-details";
-import {Heading} from "@app/utils/string-utils";
+'use client';
+
+import {useEffect, useState} from 'react';
+
+import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
+import {Decoder, Encoder, addExtension, decode} from 'cbor-x';
+
+import {SocketResponseMock} from '@app/assets/mock-data/mock-data';
+import BlockDetails from '@app/components/transactions/block-details';
+import {SocketEventResponseType} from '@app/types/transaction-details-response/socket-response-type';
+
+import MempoolTransactionsList from './transaction-details';
+import TransactionEventList from './transaction-hash-list';
 
 export default function TransactionsContainer() {
+    const [transactionHashes, setTransactionHashes] = useState<Array<SocketEventResponseType>>([]);
+
+    const timeout = setTimeout(() => {
+        setTransactionHashes([SocketResponseMock[transactionHashes.length], ...transactionHashes]);
+    }, 5000);
+
+    if (transactionHashes.length === SocketResponseMock.length) {
+        clearTimeout(timeout);
+    }
+
+    useEffect(() => {
+        const socket = new WebSocket('ws://localhost:8080/ws');
+
+        // Listen for messages
+        addExtension({
+            Class: Transaction,
+            tag: 24, // register our own extension code (a tag code)
+            encode(instance: Transaction, encode) {
+                // define how your custom class should be encoded
+                return encode(instance.to_bytes()); // return a buffer
+            },
+            decode(data: Buffer) {
+                // define how your custom class should be decoded
+                console.debug('Decoding transaction', data.toString('hex'));
+                return Transaction.from_bytes(data); // decoded value from buffer
+            }
+        });
+
+        const decoder = new Decoder();
+        socket.addEventListener('message', async (event: MessageEvent) => {
+            const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
+            console.log('data from socket: ', data);
+            switch (data[0]) {
+                case 'add':
+                    const txcbor = data[2][1];
+                    console.log('data', txcbor.to_js_value());
+                case 'remove':
+                    break;
+                case 'reject':
+                    break;
+                default:
+                    break;
+            }
+            console.log('Message from server ');
+        });
+    }, []);
+
     return (
-        <>
-            <h1 className={"flex mt-8 mb-2 justify-end"}>Total transactions: 4</h1>
-            <div className={"flex flex-col min-w-full mb-4 md:flex-row gap-4"}>
-                <TransactionHashList/>
-                <TransactionDetails/>
+        <div className="overflow-y-auto">
+            <div className="flex calc-h-68 px-5 flex-1 gap-2">
+                <div className={"min-h-full max-h-full"}>
+                    <TransactionEventList transactions={transactionHashes}/>
+                </div>
+                <div className="flex gap-2 flex-col flex-1">
+                    <MempoolTransactionsList event={transactionHashes[0]}/>
+                    <BlockDetails/>
+                </div>
             </div>
-            <BlockDetails>
-                <Heading title={"Block Details"}/>
-            </BlockDetails>
-        </>
+        </div>
     );
 }
