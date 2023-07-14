@@ -97,6 +97,15 @@ offset.fetchLatestOffsets(
               }
               txHashes = ["mint", cb[1][0], cb[1][1], txHashes];
             }
+            Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
+                  
+                  connection.send(cbor.encode(txHashes), (err) => {
+                      if(err){
+                          console.log("error sending message to client");
+                          delete connections[connection.id]; 
+                      }
+                  });
+              });
           }
           else{
               let cborlen = Buffer.from([0x83]);
@@ -123,6 +132,7 @@ offset.fetchLatestOffsets(
                   }
                   // publish this event to the client
               }
+              
               Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
                   
                   connection.send(totaldata, (err) => {
