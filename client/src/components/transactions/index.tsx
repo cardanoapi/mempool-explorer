@@ -26,6 +26,7 @@ export default function TransactionsContainer() {
                 setMintEvent(msg);
             });
             sock.on("addTx", (msg:AddTxMessage) =>{
+                console.log(msg);
                 // console.log(msg.hash, msg.tx.transaction.inputs, msg.tx.transaction.outputs, msg.tx.transaction.isMint, msg.tx.transaction.mintTokens, msg.mempoolSize, msg.mempoolTxCount  );
                 const addActionAddedTransaction:AddRejectTxClientSideType = {
                     ...msg,

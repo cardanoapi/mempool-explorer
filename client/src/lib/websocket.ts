@@ -10,6 +10,7 @@ export interface AddTxMessage {
   mempoolSize: number;
   hash: string;
   tx: Transaction;
+  arrivalTime : Date;
 }
 
 export interface RejectTxMessage{
@@ -62,7 +63,19 @@ addExtension({
         let instance = new Transaction(data);
         return instance;
     }
-});
+}
+);
+addExtension({
+  Class: Date,
+  tag:1,
+  encode(instance:Date, encode){
+    return Buffer.from(instance);
+  },
+  decode(data:number){
+    return new Date(data);
+  }
+
+})
 
 export default class CardanoWebSocketImpl implements CardanoWebSocket{
   wsUrl: string;
@@ -99,15 +112,17 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
     const enc = new Encoder();
     this.ws.addEventListener("message", async (event:MessageEvent) => {
       try{
-        // console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
+        console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
         const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
         switch(data[0]){
             case "add":
-              const tx:Transaction = data[2][1];
-              const txCount = data[2][0][0];
-              const mempoolSize = data[2][0][1];
-              const hash = Buffer.from(data[1]).toString('hex');
-              this.consumers.addTx({mempoolTxCount:txCount, mempoolSize:mempoolSize, hash:data[1], tx:tx});
+              const tx:Transaction = data[3][1];
+              const txCount = data[3][0][0];
+              const mempoolSize = data[3][0][1];
+              const hash = data[2];
+              const unixTimestamp:number = Number(data[1]);
+              const received = new Date(unixTimestamp);
+              this.consumers.addTx({mempoolTxCount:txCount, arrivalTime: received, mempoolSize:mempoolSize, hash:hash, tx:tx});
               break;
 
             case "remove":

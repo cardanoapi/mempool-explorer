@@ -12,6 +12,7 @@ import { IncomingMessage } from "http";
 import { v4 } from "uuid";
 import * as cbor from "cbor";
 import * as blake2b from "blake2";
+import { dbClient } from "./db/prisma";
 
 const app = express();
 const PORT = 8080;
@@ -64,7 +65,7 @@ offset.fetchLatestOffsets(
           blockoffset[process.env.KAFKA_BLOCK_TOPIC_NAME]
         );
         // const blockKafkaConsumer = blockConsumer(blockoffset[process.env.KAFKA_BLOCK_TOPIC_NAME]['0']);
-        kafkaConsumer.on("message", (msg) => {
+        kafkaConsumer.on("message", async (msg) => {
           console.log(msg.topic, msg.offset);
           if (msg.topic == process.env.KAFKA_BLOCK_TOPIC_NAME) {
             let txHashes = [];
@@ -114,9 +115,24 @@ offset.fetchLatestOffsets(
               const key = (msg.key as string).split(':');
               const cborkey = cbor.encode(key[0]);
               if((msg.key as string).startsWith("add")){    
+                  const client = await  dbClient.tx_log.findFirst({
+                    where:{
+                      hash:Buffer.from(key[1], 'hex')
+                    },
+                    select:{
+                      received:true
+                    }
+                  })
                   let addTx = EventType.from_add(msg.key, msg.value);
                   localMempool.addTx(addTx.txhash, addTx.txbody);
-                  totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
+                  let received;
+                  if(client.received){
+                    received = cbor.encode(client.received.getTime());
+                  }
+                  else{
+                    received = cbor.encode(0);
+                  }
+                  totaldata = Buffer.concat([Buffer.from([0x84]), cborkey, received , cbor.encode(key[1]), (msg.value as Buffer)]);
               }
               else if((msg.key as string).startsWith("remove")){
                   cborlen = Buffer.from([0x82]);

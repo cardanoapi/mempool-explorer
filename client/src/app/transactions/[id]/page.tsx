@@ -41,6 +41,7 @@ export default function TransactionDetails() {
     useEffect(() => {
         getTransactionDetails()
             .then((d) => {
+                console.log(d);
                 let responseObjClone = Object.assign({}, d);
                 // console.log(responseObjClone);
                 let inputOutputObject = convertToClientSideInputOutputObject(d);
