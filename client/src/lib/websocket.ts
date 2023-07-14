@@ -103,17 +103,14 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
         const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
         switch(data[0]){
             case "add":
-              // console.log("add");
               const tx:Transaction = data[2][1];
               const txCount = data[2][0][0];
               const mempoolSize = data[2][0][1];
               const hash = Buffer.from(data[1]).toString('hex');
-              this.consumers.addTx({mempoolTxCount:txCount, mempoolSize:mempoolSize, hash:hash, tx:tx});
+              this.consumers.addTx({mempoolTxCount:txCount, mempoolSize:mempoolSize, hash:data[1], tx:tx});
               break;
 
             case "remove":
-              // console.log("remove");
-              // console.log(data);
               const txHashes = data[1][1];
               const removehashes = txHashes.map((txHash:Uint8Array) => Buffer.from(txHash).toString('hex'));
               const txCountt = data[1][0][0];
@@ -127,7 +124,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
               const _txCount = data[2][0][0];
               const _mempoolSize = data[2][0][1];
               const txhash = Buffer.from(data[1]).toString('hex');
-              this.consumers.rejectTx({mempoolTxCount:_txCount, mempoolSize:_mempoolSize, hash:txhash, tx:_tx});
+              this.consumers.rejectTx({mempoolTxCount:_txCount, mempoolSize:_mempoolSize, hash:data[1], tx:_tx});
               break;
 
             case "rollback":
