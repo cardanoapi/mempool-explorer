@@ -1,4 +1,4 @@
-import { AddTxMessage, RejectTxMessage, RemoveTxMessage } from "@app/lib/websocket";
+import { AddTxMessage, RejectTxMessage, RemoveTxMessage, MintMessage } from "@app/lib/websocket";
 import React from "react";
 
 export interface SocketEventResponseType {
@@ -18,6 +18,10 @@ interface ActionType {
 export type AddRejectTxClientSideType = (AddTxMessage | RejectTxMessage) & ActionType;
 
 export type RemoveTxClientSideType = RemoveTxMessage & ActionType;
+
+export type RemoveMintedTransactions = MintMessage & ActionType;
+
+export type MintClientSideType = MintMessage & ActionType;
 
 export type MempoolEventType = AddRejectTxClientSideType | RemoveTxClientSideType;
 

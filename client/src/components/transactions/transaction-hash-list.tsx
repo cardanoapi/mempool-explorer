@@ -3,6 +3,7 @@ import {MempoolEventType} from '@app/constants/constants';
 import Layout from '@app/shared/layout';
 import {
     AddRejectTxClientSideType,
+    RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
 import {updateTimeSinceArrival} from '@app/utils/cardano-utils';
@@ -12,7 +13,7 @@ import Link from "next/link";
 
 
 export interface PropType {
-    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
 }
 
 export default function TransactionEventList(props: PropType) {

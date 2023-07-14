@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import TableLayout from '@app/shared/table-layout';
-import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
+import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveMintedTransactions, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 import { MempoolEventType } from '@app/constants/constants';
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import { MintMessage } from '@app/lib/websocket';
 
 interface PropType {
-    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
 }
 
 export default function MempoolTransactionsList(props: PropType) {
@@ -36,7 +37,7 @@ export default function MempoolTransactionsList(props: PropType) {
         setCurrentMempoolTransactions(updatedArray);
     };
 
-    function mutateCurrentMempoolStateBasedOnEvent(event: AddRejectTxClientSideType | RemoveTxClientSideType) {
+    function mutateCurrentMempoolStateBasedOnEvent(event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions) {
         switch (event.action) {
             case MempoolEventType.Remove:
                 const removeEvent = event as RemoveTxClientSideType;
@@ -46,6 +47,8 @@ export default function MempoolTransactionsList(props: PropType) {
                 const addEvent = event as AddRejectTxClientSideType;
                 addTransactionToMempoolState(addEvent);
                 break;
+            case MempoolEventType.Mint:
+                removeTransactionFromMempoolState((event as RemoveMintedTransactions).txHashes)
             default:
                 //TODO: what to do when reject event
                 return;
