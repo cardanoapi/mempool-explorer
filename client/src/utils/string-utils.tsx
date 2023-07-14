@@ -38,7 +38,7 @@ export const createLinkElementsForTransactionHash = (arr: Array<AddressTransacti
 
 
 
-function getTheLimitForTransactionListDisplay(arrLength: number) {
+export function getTheLimitForTransactionListDisplay(arrLength: number) {
     if(arrLength <= TransactionListMaxDisplayCount) {
         return arrLength;
     } else {
@@ -46,7 +46,7 @@ function getTheLimitForTransactionListDisplay(arrLength: number) {
     }
 }
 
-function getNumberOfHiddenTransactionList(arrLength: number,displayLimit: number) {
+export function getNumberOfHiddenTransactionList(arrLength: number,displayLimit: number) {
     if(arrLength > displayLimit){
         return `and ${arrLength-displayLimit} more...`
     }
@@ -69,7 +69,7 @@ function convertInputArrayToReactElement(arr: Array<TransactionInputResponseType
     )
 }
 
-function convertToADA(lovelace: number) {
+export function convertToADA(lovelace: number) {
     return lovelace / 1000000 + " ADA";
 }
 

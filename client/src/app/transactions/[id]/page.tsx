@@ -12,11 +12,13 @@ import {Navbar} from '@app/components/navbar';
 import TransactionInputOutput from '@app/components/transaction-hash/transaction-input-output';
 import Layout from '@app/shared/layout';
 import {Heading, toMidDottedStr} from '@app/utils/string-utils';
+
 import {
     convertFollowupsToClientSide,
     convertToClientSideInputOutputObject
 } from '@app/utils/transaction-details-utils';
 import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
+import {TransactionParser} from "@app/lib/parser";
 
 type TransactionDetailsInterface = {
     inputoutput: object;
@@ -31,8 +33,10 @@ export default function TransactionDetails() {
 
     const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
 
+    const [utxo,setUtxo] = useState<any>();
+
     const getTransactionDetails = async () => {
-        const response = await fetch(`/api/db/transaction?hash=${router.id}`);
+        const response = await fetch(`/api/db/transaction?hash=${encodeURIComponent(router.id.toString())}`);
         await checkForErrorResponse(response);
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));
@@ -41,19 +45,10 @@ export default function TransactionDetails() {
     useEffect(() => {
         getTransactionDetails()
             .then((d) => {
-                console.log(d);
-                let responseObjClone = Object.assign({}, d);
-                // console.log(responseObjClone);
-                let inputOutputObject = convertToClientSideInputOutputObject(d);
+                let inputOutputObject:any = convertToClientSideInputOutputObject(d);
                 inputOutputObject = {...inputOutputObject, hash: router.id};
-                const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
-                // console.log(followups);
-                const transactionDetailsObj: TransactionDetailsInterface = {
-                    inputoutput: [],
-                    competitors: [],
-                    followups: followups
-                };
-                setTransactionDetails(transactionDetailsObj);
+                setUtxo(inputOutputObject);
+                // const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
             })
             .catch((e: any) => {
                 console.error(e);
@@ -139,7 +134,7 @@ export default function TransactionDetails() {
             <Navbar/>
             <div className={'calc-h-68'}>
                 <div className={'grid mx-4 grid-cols-1 md:grid-cols-2 gap-4 '}>
-                    <TransactionInputOutput txInputOutputs={transactionDetails?.inputoutput}/>
+                    <TransactionInputOutput txInputOutputs={utxo}/>
                     <Miners/>
                     <Competitors/>
                     <Followups/>
