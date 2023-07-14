@@ -115,7 +115,7 @@ offset.fetchLatestOffsets(
               const key = (msg.key as string).split(':');
               const cborkey = cbor.encode(key[0]);
               if((msg.key as string).startsWith("add")){    
-                  const client = await  dbClient.tx_log.findFirst({
+                  const query = await  dbClient.tx_log.findFirst({
                     where:{
                       hash:Buffer.from(key[1], 'hex')
                     },
@@ -126,11 +126,11 @@ offset.fetchLatestOffsets(
                   let addTx = EventType.from_add(msg.key, msg.value);
                   localMempool.addTx(addTx.txhash, addTx.txbody);
                   let received;
-                  if(client.received){
-                    received = cbor.encode(client.received.getTime());
+                  if(query){
+                    received = cbor.encode(query.received.getTime());
                   }
                   else{
-                    received = cbor.encode(0);
+                    received = cbor.encode(new Date().getTime());
                   }
                   totaldata = Buffer.concat([Buffer.from([0x84]), cborkey, received , cbor.encode(key[1]), (msg.value as Buffer)]);
               }
