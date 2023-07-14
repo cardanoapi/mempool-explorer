@@ -13,12 +13,8 @@ import TransactionInputOutput from '@app/components/transaction-hash/transaction
 import Layout from '@app/shared/layout';
 import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 
-import {
-    convertFollowupsToClientSide,
-    convertToClientSideInputOutputObject
-} from '@app/utils/transaction-details-utils';
+import {convertToClientSideInputOutputObject} from '@app/utils/transaction-details-utils';
 import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
-import {TransactionParser} from "@app/lib/parser";
 
 type TransactionDetailsInterface = {
     inputoutput: object;
