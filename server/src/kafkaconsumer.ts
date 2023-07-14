@@ -12,10 +12,23 @@ const maxBytes = 1000*1000*30;
 
 
 
-export const consumer = (latestOffset:number, blockOffset:number) =>
+export const consumer = (latestOffset:object, blockOffset:object) =>
     {
-        latestOffset = latestOffset - 1;
-        let consumer = new kafka.Consumer(kafkaClient,[{topic:process.env.KAFKA_TOPIC_NAME, offset:latestOffset}, {topic:process.env.KAFKA_BLOCK_TOPIC_NAME, offset:blockOffset}],
+        const mempoolOption = Object.keys(latestOffset).map((key)=>{
+            return{
+                partition:parseInt(key),
+                topic:process.env.KAFKA_TOPIC_NAME,
+                offset:latestOffset[key]
+            }
+        });
+        const blockOption = Object.keys(blockOffset).map((key)=>{
+            return {
+                partition:parseInt(key),
+                topic:process.env.KAFKA_BLOCK_TOPIC_NAME,
+                offset:blockOffset[key]
+            }
+        });
+        let consumer = new kafka.Consumer(kafkaClient,[...mempoolOption, ...blockOption],
             {
                 encoding: "buffer",
                 keyEncoding:"buffer",

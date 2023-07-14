@@ -60,13 +60,12 @@ offset.fetchLatestOffsets(
         }
         console.log(mempoolOffset, blockoffset);
         const kafkaConsumer = consumerMaker(
-          mempoolOffset[process.env.KAFKA_TOPIC_NAME]["0"],
-          blockoffset[process.env.KAFKA_BLOCK_TOPIC_NAME]["0"]
+          mempoolOffset[process.env.KAFKA_TOPIC_NAME],
+          blockoffset[process.env.KAFKA_BLOCK_TOPIC_NAME]
         );
         // const blockKafkaConsumer = blockConsumer(blockoffset[process.env.KAFKA_BLOCK_TOPIC_NAME]['0']);
         kafkaConsumer.on("message", (msg) => {
-          console.log("KafkaMessage", msg.topic, msg.key);
-
+          console.log(msg.topic, msg.offset);
           if (msg.topic == process.env.KAFKA_BLOCK_TOPIC_NAME) {
             let txHashes = [];
             let cb = cbor.decodeFirstSync(msg.key, {
@@ -82,6 +81,7 @@ offset.fetchLatestOffsets(
                 },
               },
             });
+            console.log(cb[0]);
             if (cb[0] == 0) {
               txHashes = ["rollbackToGenesis"];
             } else if (cb[0] == 2) {
@@ -98,43 +98,42 @@ offset.fetchLatestOffsets(
               }
               txHashes = ["mint", cb[1][0], cb[1][1], txHashes];
             }
-            else{
-                let cborlen = Buffer.from([0x83]);
-                let totaldata;
-                msg.key = msg.key.toString();
-                const key = (msg.key as string).split(':');
-                const cborkey = cbor.encode(key[0]);
-                if((msg.key as string).startsWith("add")){    
-                    let addTx = EventType.from_add(msg.key, msg.value);
-                    localMempool.addTx(addTx.txhash, addTx.txbody);
-                    totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
-                }
-                else if((msg.key as string).startsWith("remove")){
-                    cborlen = Buffer.from([0x82]);
-                    let removeTx = EventType.from_remove(msg.key, msg.value);
-                    localMempool.removeTx(removeTx.txhashList);
-                    totaldata = Buffer.concat([cborlen, cborkey, (msg.value as Buffer)]);
-                }
-                else if((msg.key as string).startsWith("reject")){
-                    totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
-                    const isPresent = localMempool.rejectTx(key[1]);
-                    if(isPresent){
-                        return;
-                    }
-                    // publish this event to the client
-                }
-                Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
-                    
-                    connection.send(totaldata, (err) => {
-                        if(err){
-                            console.log("error sending message to client");
-                            delete connections[connection.id]; 
-                        }
-                    });
-                });
+          }
+          else{
+              let cborlen = Buffer.from([0x83]);
+              let totaldata;
+              msg.key = msg.key.toString();
+              const key = (msg.key as string).split(':');
+              const cborkey = cbor.encode(key[0]);
+              if((msg.key as string).startsWith("add")){    
+                  let addTx = EventType.from_add(msg.key, msg.value);
+                  localMempool.addTx(addTx.txhash, addTx.txbody);
+                  totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
               }
-           
-          } 
+              else if((msg.key as string).startsWith("remove")){
+                  cborlen = Buffer.from([0x82]);
+                  let removeTx = EventType.from_remove(msg.key, msg.value);
+                  localMempool.removeTx(removeTx.txhashList);
+                  totaldata = Buffer.concat([cborlen, cborkey, (msg.value as Buffer)]);
+              }
+              else if((msg.key as string).startsWith("reject")){
+                  totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
+                  const isPresent = localMempool.rejectTx(key[1]);
+                  if(isPresent){
+                      return;
+                  }
+                  // publish this event to the client
+              }
+              Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
+                  
+                  connection.send(totaldata, (err) => {
+                      if(err){
+                          console.log("error sending message to client");
+                          delete connections[connection.id]; 
+                      }
+                  });
+              });
+            }
         });
       }
     );
