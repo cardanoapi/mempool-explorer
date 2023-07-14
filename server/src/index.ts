@@ -81,7 +81,6 @@ offset.fetchLatestOffsets(
                 },
               },
             });
-            console.log(cb[0]);
             if (cb[0] == 0) {
               txHashes = ["rollbackToGenesis"];
             } else if (cb[0] == 2) {
