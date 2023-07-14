@@ -1,24 +1,28 @@
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
-import { MempoolEventType } from '@app/constants/constants';
+import {MempoolEventType} from '@app/constants/constants';
 import Layout from '@app/shared/layout';
-import { AddRejectTxClientSideType, RemoveTxClientSideType } from '@app/types/transaction-details-response/socket-response-type';
-import { updateTimeSinceArrival } from '@app/utils/cardano-utils';
+import {
+    AddRejectTxClientSideType,
+    RemoveTxClientSideType
+} from '@app/types/transaction-details-response/socket-response-type';
+import {updateTimeSinceArrival} from '@app/utils/cardano-utils';
 import {Heading, toMidDottedStr} from '@app/utils/string-utils';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
+import Link from "next/link";
 
 
 export interface PropType {
-    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined ;
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
 }
 
 export default function TransactionEventList(props: PropType) {
 
-    const [eventLogList,setEventLogList] = useState<Array<typeof props.event>>([]);
+    const [eventLogList, setEventLogList] = useState<Array<typeof props.event>>([]);
 
     useEffect(() => {
-        if(!props.event) return;
-        setEventLogList([props.event,...eventLogList])
-    },[props.event])
+        if (!props.event) return;
+        setEventLogList([props.event, ...eventLogList])
+    }, [props.event])
 
     // function updateTimeForEveryEventLog() {
     //     eventLogList.map(event => {
@@ -43,19 +47,15 @@ export default function TransactionEventList(props: PropType) {
         }
     }
 
-    function AddRejectEvent(props: {event: AddRejectTxClientSideType}) {
-        const event = props.event;
-        const currentDateTime = new Date(Date.now()).toISOString();
+    function ItemsCardElementLayout(props: any) {
+        const {action, hash} = props;
         return (
             <Layout>
-                <div className={'flex gap-4 justify-between items-center'}>
-                    <>{renderBatchPill(event.action)}</>
-                    <div className={'flex flex-col'}>
-                        <p className="text-sm">
-                            Hash <span className="text-md text-blue-500">{toMidDottedStr(event.hash, 4)}</span>
-                        </p>
-                        <p className="text-sm text-gray-400">{currentDateTime}</p>
-                    </div>
+                <div className={'flex gap-2 justify-between items-center'}>
+                    <>{renderBatchPill(action)}</>
+                    <Link className={'flex flex-col cursor-pointer text-sm text-blue-500'} href={`/transactions/${hash}`} target={"_blank"}>
+                        {toMidDottedStr(hash, 10)}
+                    </Link>
                     {/* <div className={'flex flex-col'}>
                         <p className="font-bold">{event.amount} ADA</p>
                     </div> */}
@@ -64,41 +64,33 @@ export default function TransactionEventList(props: PropType) {
         )
     }
 
-    function RemoveEvent(props: {event: RemoveTxClientSideType}) {
+    function AddRejectEvent(props: { event: AddRejectTxClientSideType }) {
+        const event = props.event;
+        return <ItemsCardElementLayout action={event.action} hash={event.hash}/>
+    }
+
+    function RemoveEvent(props: { event: RemoveTxClientSideType }) {
         const event = props.event;
         return (
-            <>
-            {event.txHashes.map((e,index) => {
-               return( 
-               <Layout key={index} className={"mb-2"}>
-                    <div className={'flex gap-4 justify-between items-center'}>
-                        <>{renderBatchPill(event.action)}</>
-                        <div className={'flex flex-col'}>
-                            <p className="text-sm">
-                                Hash <span className="text-md text-blue-500">{toMidDottedStr(e, 4)}</span>
-                            </p>
-                            <p className="text-sm text-gray-400">{new Date(Date.now()).toISOString()}</p>
-                        </div>
-                        {/* <div className={'flex flex-col'}>
-                            <p className="font-bold">{event.amount} ADA</p>
-                        </div> */}
-                    </div>
-                </Layout>
-               )
-            })}
-            </>
+            <div className={"flex flex-col gap-2"}>
+                {event.txHashes.map((e, index) => {
+                    return (
+                        <ItemsCardElementLayout key={index} action={event.action} hash={e}/>
+                    )
+                })}
+            </div>
         )
     }
 
 
     function TransactionItems(props: PropType) {
-        const event = props.event as AddRejectTxClientSideType|RemoveTxClientSideType;
-        if(event.action === MempoolEventType.Add || event.action === MempoolEventType.Reject) {
+        const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
+        if (event.action === MempoolEventType.Add || event.action === MempoolEventType.Reject) {
             const addRejectEvent = props.event as AddRejectTxClientSideType;
             return <AddRejectEvent event={addRejectEvent}/>
         } else if (event.action === MempoolEventType.Remove) {
             const removeEvent = props.event as RemoveTxClientSideType;
-            return <RemoveEvent event={removeEvent} />
+            return <RemoveEvent event={removeEvent}/>
         }
     }
 
@@ -109,13 +101,13 @@ export default function TransactionEventList(props: PropType) {
                 {!!eventLogList && eventLogList.length ? (
                     <>
                         {eventLogList.map((tx, index) => (
-                            <div key={index} className={'mx-1 py-2 cursor-pointer block-list'}>
+                            <div key={index} className={'mx-1 py-2 block-list'}>
                                 <TransactionItems event={tx}/>
                             </div>
                         ))}
                     </>
                 ) : (
-                    <EmptyPageIcon/>
+                    <EmptyPageIcon message={""}/>
                 )}
             </div>
         </div>

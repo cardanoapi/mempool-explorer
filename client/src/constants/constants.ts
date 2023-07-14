@@ -4,4 +4,4 @@ export enum MempoolEventType {
     Reject = "reject"
 }
 
-export const TransactionListMaxDisplayCount = 4;
+export const TransactionListMaxDisplayCount = 2;

@@ -4,6 +4,7 @@ import TableLayout from '@app/shared/table-layout';
 import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 import { MempoolEventType } from '@app/constants/constants';
+import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
 
 interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
@@ -60,7 +61,7 @@ export default function MempoolTransactionsList(props: PropType) {
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
             <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`} />
-            <TableLayout data={currentMempoolTransactions} />
+            {currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> : <TableLayout data={currentMempoolTransactions} />}
         </div>
     );
 }

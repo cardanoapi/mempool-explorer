@@ -1,8 +1,7 @@
 import TableLayout from '@app/shared/table-layout';
 import {createLinkElementForBlockDetails, Heading} from '@app/utils/string-utils';
-import {BlockDetailsType} from "@app/types/transaction-details-response/socket-response-type";
-import { MintMessage } from '@app/lib/websocket';
-import { useEffect, useState } from 'react';
+import {MintMessage} from '@app/lib/websocket';
+import {useEffect, useState} from 'react';
 
 interface BlockType {
     event: MintMessage;
