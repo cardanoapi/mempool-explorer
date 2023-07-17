@@ -38,6 +38,7 @@ export default function TransactionHistory() {
                 })
             )
             .finally(() => hideLoader());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage]);
 
     if (error.status) return <ErrorPage errObj={error}/>;

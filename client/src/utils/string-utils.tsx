@@ -7,6 +7,7 @@ import {
 } from "@app/types/transaction-details-response/socket-response-type";
 import React from "react";
 import {MintMessage} from "@app/lib/websocket";
+import {TransactionListMaxDisplayCount} from "@app/constants/constants";
 
 export const toMidDottedStr = (str: string, leadingVisible = 5, firstIndex = 0) => {
     if (str === undefined || str.length < 12) return str;
@@ -56,10 +57,24 @@ function convertInputArrayToReactElement(arr: Array<TransactionInputResponseType
     )
 }
 
-function convertToADA(lovelace: number) {
+export function convertToADA(lovelace: number) {
     return lovelace / 1000000 + " ADA";
 }
 
+export function getTheLimitForTransactionListDisplay(arrLength: number) {
+    if (arrLength <= TransactionListMaxDisplayCount) {
+        return arrLength;
+    } else {
+        return TransactionListMaxDisplayCount;
+    }
+}
+
+export function getNumberOfHiddenTransactionList(arrLength: number, displayLimit: number) {
+    if (arrLength > displayLimit) {
+        return `and ${arrLength - displayLimit} more...`
+    }
+    return "";
+}
 
 function convertOutputArrayToReactElement(arr: Array<TransactionOutputResponseType>) {
     let endLength = 0;

@@ -19,7 +19,7 @@ import {
 import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
 
 type TransactionDetailsInterface = {
-    inputoutput: object;
+    inputoutput: any;
     competitors: Array<any>;
     followups: Array<any>;
 };
@@ -62,6 +62,7 @@ export default function TransactionDetails() {
                 });
             })
             .finally(() => hideLoader());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router.id]);
 
     function ItemCard(props: any) {

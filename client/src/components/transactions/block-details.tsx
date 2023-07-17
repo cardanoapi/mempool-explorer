@@ -14,6 +14,7 @@ export default function BlockDetails(props:BlockType) {
     useEffect(() => {
         if(!props.event) return;
         setMintDetails([props.event,...mintDetails])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[props.event])
 
     return (

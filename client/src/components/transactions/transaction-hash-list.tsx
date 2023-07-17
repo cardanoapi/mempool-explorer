@@ -23,6 +23,8 @@ export default function TransactionEventList(props: PropType) {
     useEffect(() => {
         if (!props.event) return;
         setEventLogList([props.event, ...eventLogList])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.event])
 
     // function updateTimeForEveryEventLog() {

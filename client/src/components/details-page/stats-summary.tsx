@@ -39,6 +39,7 @@ export default function StatsSummary() {
                 message: e.message,
                 status: e.code
             })).finally(() => hideLoader())
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router.id])
 
     if (isLoading) return <Loader/>
