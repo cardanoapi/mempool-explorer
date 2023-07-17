@@ -19,7 +19,7 @@ import {
 import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
 
 type TransactionDetailsInterface = {
-    inputoutput: object;
+    inputoutput: any;
     competitors: Array<any>;
     followups: Array<any>;
 };
@@ -42,11 +42,11 @@ export default function TransactionDetails() {
         getTransactionDetails()
             .then((d) => {
                 let responseObjClone = Object.assign({}, d);
-                console.log(responseObjClone);
+                // console.log(responseObjClone);
                 let inputOutputObject = convertToClientSideInputOutputObject(d);
                 inputOutputObject = {...inputOutputObject, hash: router.id};
                 const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
-                console.log(followups);
+                // console.log(followups);
                 const transactionDetailsObj: TransactionDetailsInterface = {
                     inputoutput: [],
                     competitors: [],
@@ -62,6 +62,7 @@ export default function TransactionDetails() {
                 });
             })
             .finally(() => hideLoader());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router.id]);
 
     function ItemCard(props: any) {

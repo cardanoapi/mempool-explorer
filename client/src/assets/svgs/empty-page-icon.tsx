@@ -1,4 +1,7 @@
-export default function EmptyPageIcon() {
+interface EmptyPropsType {
+    message: string | undefined;
+}
+export default function EmptyPageIcon(props:EmptyPropsType) {
     return (
         <div className={'flex flex-col justify-center items-center'}>
             <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -11,7 +14,7 @@ export default function EmptyPageIcon() {
                     fill="#D5D5D5"
                 />
             </svg>
-            <p className={'text-gray-500'}>No data available!</p>
+            <p className={'text-gray-500'}>{props.message ? props.message: "No data available!"}</p>
         </div>
     );
 }

@@ -4,7 +4,7 @@ import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
 export default function TableLayout(props: any) {
     const {data} = props;
 
-    if (!!data && data.length === 0) return <EmptyPageIcon/>;
+    if (!!data && data.length === 0) return <EmptyPageIcon message={""}/>;
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">

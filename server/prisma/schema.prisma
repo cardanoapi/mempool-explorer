@@ -1,0 +1,65 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model tx_log {
+  hash        Bytes     @id
+  received    DateTime? @db.Timestamp(6)
+  sender_addr String?   @db.Inet
+  sender_port Int?
+}
+
+model tx_body {
+  hash    Bytes  @id
+  version Int?
+  txbody  Bytes?
+}
+
+model tx_in {
+  hash      Bytes   @id
+  utxohash  Bytes?
+  utxoindex String? @db.VarChar
+}
+
+model tx_mint {
+  hash      Bytes   @id
+  policyid  String? @db.VarChar
+  assetname String? @db.VarChar
+  quantity  Int?
+}
+
+model tx_out {
+  hash        Bytes   @id
+  index       Int?
+  address     String? @db.VarChar
+  paymentcred String? @db.VarChar
+  stakecred   String? @db.VarChar
+  value       Json?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tx_addresses {
+  tx_hash Bytes?
+  address String? @db.VarChar(150)
+
+  @@unique([tx_hash, address])
+  @@ignore
+}
+
+model tx_confirmed {
+  tx_hash           Bytes     @id
+  epoch             Int?
+  block_hash        Bytes?
+  slot_no           BigInt?
+  block_no          BigInt?
+  pool_id           String?   @db.VarChar(100)
+  confirmation_time DateTime? @db.Timestamp(6)
+
+  @@index([epoch(sort: Desc)], map: "idx_epoch")
+}

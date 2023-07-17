@@ -39,12 +39,13 @@ export default function StatsSummary() {
                 message: e.message,
                 status: e.code
             })).finally(() => hideLoader())
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router.id])
 
     if (isLoading) return <Loader/>
 
     if (error.status) return <ErrorPage errObj={error}/>;
-    if (!stats || stats.length === 0) return <EmptyPageIcon/>;
+    if (!stats || stats.length === 0) return <EmptyPageIcon message={""}/>;
 
     return (
         <div className={"flex flex-col gap-2"}>

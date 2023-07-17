@@ -1,25 +1,81 @@
-import { toMidDottedStr } from '@app/utils/string-utils';
+import {
+    convertToADA,
+    getNumberOfHiddenTransactionList,
+    getTheLimitForTransactionListDisplay,
+    toMidDottedStr
+} from '@app/utils/string-utils';
+import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
 
-export default function TransactionInputOutput(props: any) {
-    const txInputOutputs:any= []
+interface MultiAssetType {
+    hash: string;
+    Amount: number;
+}
+
+interface OutputType {
+    address: string;
+    amount: number;
+    multiasset: Array<Map<string, number>>
+}
+
+interface UtxoType {
+    hash: string;
+    inputs: Array<string>;
+    outputs: Array<OutputType>;
+}
+
+interface TransactionOutputInputType {
+    txInputOutputs: UtxoType;
+}
+
+export default function TransactionInputOutput(props: TransactionOutputInputType) {
+
+    if(!props.txInputOutputs) {
+        return (
+            <Layout>
+                <div className={'flex flex-col'}>
+                    <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
+                    <EmptyPageIcon message={"Fetching transaction.."}/>
+                </div>
+            </Layout>
+        )
+    }
+
+    const txInputOutputs = props.txInputOutputs;
 
     function Layout(props: any) {
-        return <div className={'border-solid bg-white border-[1px] border-[#bfbfbf] p-4 rounded-md'}>{props.children}</div>;
+        return <div
+            className={'border-solid bg-white border-[1px] border-[#bfbfbf] p-4 rounded-md'}>{props.children}</div>;
     }
 
     function Outputs() {
         return (
             <>
-                <h1 className={'font-semibold'}>Outputs</h1>
                 <div className={'flex flex-col'}>
-                    {txInputOutputs?.outputs?.map((tx: any, idx: number) => (
-                        <div key={tx.address} className={'flex mb-4 items-center'}>
-                            <p className={'font-semibold mr-2'}>{idx}.</p>
+                    <h1 className={'font-semibold'}>Outputs</h1>
+                    {txInputOutputs?.outputs?.map((tx: OutputType, idx: number) => (
+                        <div key={tx.address} className={'flex mb-4 items-start'}>
+                            <p className={'font-semibold mr-2'}>{idx}<span>.</span></p>
                             <div className={'flex flex-col text-sm'}>
-                                <p className={'text-blue-500'}>{toMidDottedStr("dwknowfknoiwfnfwonwfeoifew")}</p>
-                                <div className={'flex justify-between items-center'}>
-                                    <p className={'font-semibold'}>{tx.amount}</p>
-                                    <p className={'p-1 text-xs border-solid border-[1px] bg-amber-50 border-amber-400 rounded-lg'}>a2vv.dene</p>
+                                <div className={'flex items-center gap-2'}>
+                                    <p className={'text-blue-500'}>{toMidDottedStr(tx.address)}</p>
+                                    <p className={'font-semibold'}>{convertToADA(tx.amount)}</p>
+                                </div>
+                                <div className={"flex gap-1 flex-wrap"}>
+                                    {tx.multiasset.map((t:any) => {
+                                        const displayLimit = getTheLimitForTransactionListDisplay(Object.keys(t).length);
+                                        return (
+                                            <div key={t.hash} className={"flex items-center"}>
+                                                {Object.keys(t).slice(0,displayLimit).map((key:string) => {
+                                                    return <div key={t.hash} className={"flex items-center m-2"}>
+                                                        <p className={'p-1 text-xs border-solid border-[1px] bg-blue-50 rounded-lg'}>{key}<span
+                                                            className={"ml-2 text-green-800 font-bold"}>{convertToADA(parseInt(t[key]))}</span>
+                                                        </p>
+                                                    </div>
+                                                })}
+                                                <>{getNumberOfHiddenTransactionList(Object.keys(t).length, displayLimit)}</>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -34,11 +90,10 @@ export default function TransactionInputOutput(props: any) {
             <div className={'mr-40'}>
                 <h1 className={'font-semibold mb-2'}>Inputs</h1>
                 {txInputOutputs?.inputs?.map((tx: any, idx: number) => (
-                    <div key={tx.address} className={'flex mb-4 items-center'}>
+                    <div key={tx.address} className={'flex gap-2 mb-4 items-center'}>
                         <p className={'font-semibold mr-2'}>{idx + 1}.</p>
                         <div className={'flex flex-col text-sm'}>
                             <p className={'text-blue-500'}>{toMidDottedStr(tx.address)}</p>
-                            {/*<p className={"font-bold"}>46.884724</p>*/}
                         </div>
                     </div>
                 ))}
@@ -51,12 +106,12 @@ export default function TransactionInputOutput(props: any) {
             <div className={'flex flex-col'}>
                 <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
                 <p className={'mr-1 font-semibold'}>Hash ID </p>
-                <p className={'text-gray-500 font-xs'}>5425783c08f95d16995676eeb4bc5c029add137f403936eaec72d0caa4080471</p>
+                <p className={'text-gray-500 font-xs'}>{txInputOutputs?.hash}</p>
             </div>
 
-            <div className={'flex justify-between items-start'}>
-                <Inputs />
-                <Outputs />
+            <div className={'flex flex-col gap-2'}>
+                <Inputs/>
+                <Outputs/>
             </div>
         </Layout>
     );

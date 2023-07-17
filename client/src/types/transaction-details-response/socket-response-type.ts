@@ -1,3 +1,4 @@
+import { AddTxMessage, RejectTxMessage, RemoveTxMessage, MintMessage } from "@app/lib/websocket";
 import React from "react";
 
 export interface SocketEventResponseType {
@@ -10,10 +11,44 @@ export interface SocketEventResponseType {
     arrival_time: string;
 }
 
-export interface MempoolTransactionListType {
+interface ActionType {
+    action: string;
+}
+
+export type AddRejectTxClientSideType = (AddTxMessage | RejectTxMessage) & ActionType;
+
+export type RemoveTxClientSideType = RemoveTxMessage & ActionType;
+
+export type RemoveMintedTransactions = MintMessage & ActionType;
+
+export type MintClientSideType = MintMessage & ActionType;
+
+export type MempoolEventType = AddRejectTxClientSideType | RemoveTxClientSideType;
+
+export interface MempoolTransactionResponseType {
+    hash: string ;
+    inputs: Array<string> ;
+    outputs: Array<string> ;
+    arrival_time: string;
+}
+
+export interface AmountType {
+    lovelace: number;
+}
+
+export interface TransactionOutputResponseType {
+    address: string;
+    amount: Array <AmountType>;
+}
+
+export interface TransactionInputResponseType {
     hash: string;
+    index: number;
+}
+
+export interface MempoolTransactionListType {
+    hash: string | React.ReactElement;
     inputs: Array<string> | React.ReactElement ;
-    amount: string;
     outputs: Array<string> | React.ReactElement ;
     arrival_time: string;
 }
@@ -29,10 +64,8 @@ export interface AddressTransactionType {
 }
 
 export interface BlockDetailsType {
-    block: string;
-    "epoch/slot": string;
+    "slot": string;
     Transactions: string;
     Timestamp: string;
-    Stake_pool: string;
     Output: number;
 }
