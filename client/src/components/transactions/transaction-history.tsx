@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 
-import { decode } from 'cbor-x';
+import {decode} from 'cbor-x';
 
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
 import Loader from '@app/components/loader';
-import { ErrorPage, checkForErrorResponse } from '@app/components/loader/error';
+import {ErrorPage, checkForErrorResponse} from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
 import TableLayout from '@app/shared/table-layout';
 import {createLinkElementsForTransactionHash} from "@app/utils/string-utils";
@@ -17,7 +17,7 @@ export default function TransactionHistory() {
 
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { isLoading, hideLoader, error, setError } = useLoader();
+    const {isLoading, hideLoader, error, setError} = useLoader();
 
     const [transactions, setTransactions] = useState<Array<AddressTransactionType>>([]);
 
@@ -40,8 +40,8 @@ export default function TransactionHistory() {
             .finally(() => hideLoader());
     }, [currentPage]);
 
-    if (error.status) return <ErrorPage errObj={error} />;
-    if (isLoading) return <Loader />;
+    if (error.status) return <ErrorPage errObj={error}/>;
+    if (isLoading) return <Loader/>;
 
     const PageRenderer = () => {
         return (
@@ -58,7 +58,8 @@ export default function TransactionHistory() {
 
                 <span>Page {currentPage}</span>
 
-                <button disabled={!!transactions && transactions.length < 100} onClick={() => setCurrentPage(currentPage + 1)} className={'ml-2 border-solid border-2 p-2'}>
+                <button disabled={!!transactions && transactions.length < 100}
+                        onClick={() => setCurrentPage(currentPage + 1)} className={'ml-2 border-solid border-2 p-2'}>
                     Next
                 </button>
             </div>
@@ -67,8 +68,8 @@ export default function TransactionHistory() {
 
     return (
         <>
-            <PageRenderer />
-            {!transactions ? <EmptyPageIcon /> : <TableLayout data={transactions} />}
+            <PageRenderer/>
+            {!transactions ? <EmptyPageIcon message={""}/> : <TableLayout data={transactions}/>}
         </>
     );
 }

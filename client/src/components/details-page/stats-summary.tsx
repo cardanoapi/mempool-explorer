@@ -44,7 +44,7 @@ export default function StatsSummary() {
     if (isLoading) return <Loader/>
 
     if (error.status) return <ErrorPage errObj={error}/>;
-    if (!stats || stats.length === 0) return <EmptyPageIcon/>;
+    if (!stats || stats.length === 0) return <EmptyPageIcon message={""}/>;
 
     return (
         <div className={"flex flex-col gap-2"}>

@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
-import { useRouter } from 'next/navigation';
-
-import Layout from '@app/shared/layout';
 import TableLayout from '@app/shared/table-layout';
-import { AddRejectTxClientSideType, MempoolTransactionListType, MempoolTransactionResponseType, RemoveTxClientSideType, SocketEventResponseType } from '@app/types/transaction-details-response/socket-response-type';
+import {
+    AddRejectTxClientSideType,
+    MempoolTransactionListType,
+    MempoolTransactionResponseType,
+    RemoveTxClientSideType,
+    SocketEventResponseType
+} from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
-import { MempoolEventType } from '@app/constants/constants';
+import {MempoolEventType} from '@app/constants/constants';
+import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
 
 interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | undefined;
@@ -19,9 +23,9 @@ export default function MempoolTransactionsList(props: PropType) {
 
 
     const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
-        const clientSideObject:MempoolTransactionResponseType = {
+        const clientSideObject: MempoolTransactionResponseType = {
             hash: event.hash,
-            inputs:  event.tx.transaction.inputs,
+            inputs: event.tx.transaction.inputs,
             outputs: event.tx.transaction.outputs,
             arrival_time: new Date(Date.now()).toISOString()
         }
@@ -31,9 +35,9 @@ export default function MempoolTransactionsList(props: PropType) {
 
     const removeTransactionFromMempoolState = (hashes: Array<string>) => {
         let updatedArray = [...currentMempoolTransactions];
-        for(let i=0 ; i < hashes.length; i++) {
+        for (let i = 0; i < hashes.length; i++) {
             const hash = hashes[i];
-            updatedArray = updatedArray.filter((item:any) => item.hash.key.toLowerCase() !== hash.toLowerCase());
+            updatedArray = updatedArray.filter((item: any) => item.hash.key.toLowerCase() !== hash.toLowerCase());
         }
         setCurrentMempoolTransactions(updatedArray);
     };
@@ -56,14 +60,15 @@ export default function MempoolTransactionsList(props: PropType) {
 
     useEffect(() => {
         if (!event) return;
-        const nonEmptyEvent  = props.event as AddRejectTxClientSideType | RemoveTxClientSideType
+        const nonEmptyEvent = props.event as AddRejectTxClientSideType | RemoveTxClientSideType
         mutateCurrentMempoolStateBasedOnEvent(nonEmptyEvent);
     }, [event]);
 
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
-            <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`} />
-            <TableLayout data={currentMempoolTransactions} />
+            <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`}/>
+            {currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> :
+                <TableLayout data={currentMempoolTransactions}/>}
         </div>
     );
 }
