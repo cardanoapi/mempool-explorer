@@ -1,8 +1,10 @@
 FROM node:19 as prod
 USER node
 WORKDIR /home/node
-COPY --chown=node:node package.json yarn.lock ./ 
-RUN  yarn install --prod --frozen-lockfile
+COPY --chown=node:node package.json yarn.lock  ./ 
+COPY  ./prisma  ./prisma
+RUN  yarn install --prod --frozen-lockfile 
+RUN yarn prisma:generate
 
 
 
