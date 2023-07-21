@@ -47,5 +47,5 @@ deploy-release:
     script:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
         - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG  cardanoapi_mempool-explorer-webapp
-        - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$server-CI_COMMIT_TAG  cardanoapi_mempool-websocket
+        - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$server-$CI_COMMIT_TAG  cardanoapi_mempool-websocket
 
