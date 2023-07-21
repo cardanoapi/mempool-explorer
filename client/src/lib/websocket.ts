@@ -83,8 +83,13 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
   consumers:Record<string, CallableFunction>;
   static ins:CardanoWebSocketImpl|null = null;
   private constructor(wsUrl:string){
-    this.wsUrl = wsUrl;
-    this.ws = new WebSocket(wsUrl);
+    wsUrl= wsUrl.startsWith('/')?window.location.origin+wsUrl:wsUrl;
+    if(wsUrl.startsWith('http')){
+      wsUrl='ws' + wsUrl.substring(4);
+    }
+    this.wsUrl=wsUrl
+    this.ws= new WebSocket(wsUrl)
+
     this.listenToWs();
     this.consumers = {}
   }
@@ -109,7 +114,6 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket{
   };
   private listenToWs(){
     const decoder = new Decoder();
-    const enc = new Encoder();
     this.ws.addEventListener("message", async (event:MessageEvent) => {
       try{
         // console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
