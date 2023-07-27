@@ -6,7 +6,6 @@ import {
     RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
-import {updateTimeSinceArrival} from '@app/utils/cardano-utils';
 import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
@@ -14,16 +13,29 @@ import Link from "next/link";
 
 export interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
+    index: number;
 }
 
 export default function TransactionEventList(props: PropType) {
 
     const [eventLogList, setEventLogList] = useState<Array<typeof props.event>>([]);
 
+    const [animateNewItem, setAnimateNewItem] = useState(false);
+
+    useEffect(() => {
+        if (animateNewItem) {
+            const animationDuration = 1000;
+            const timeout = setTimeout(() => {
+                setAnimateNewItem(false);
+            }, animationDuration);
+            return () => clearTimeout(timeout);
+        }
+    }, [animateNewItem]);
+
     useEffect(() => {
         if (!props.event) return;
         setEventLogList([props.event, ...eventLogList])
-
+        setAnimateNewItem(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.event])
 
@@ -54,9 +66,11 @@ export default function TransactionEventList(props: PropType) {
         const {action, hash} = props;
         return (
             <Layout>
-                <div className={'flex gap-2 justify-between items-center'}>
+                <div className={`flex my-2 justify-between items-center`}>
                     <>{renderBatchPill(action)}</>
-                    <Link className={'flex flex-col cursor-pointer text-sm text-blue-500'} href={`/transactions/${hash}`} target={"_blank"}>
+                    <Link className={'flex flex-col cursor-pointer text-sm text-blue-500'}
+                          href={`/transactions/${hash}`}
+                          target={"_blank"}>
                         {toMidDottedStr(hash, 10)}
                     </Link>
                     {/* <div className={'flex flex-col'}>
@@ -72,28 +86,33 @@ export default function TransactionEventList(props: PropType) {
         return <ItemsCardElementLayout action={event.action} hash={event.hash}/>
     }
 
-    function RemoveEvent(props: { event: RemoveTxClientSideType }) {
+    function RemoveEvent(props: { event: RemoveTxClientSideType, parentIndex: number }) {
         const event = props.event;
         return (
-            <div className={"flex flex-col gap-2"}>
+            <>
                 {event.txHashes.map((e, index) => {
                     return (
-                        <ItemsCardElementLayout key={index} action={event.action} hash={e}/>
+                        <div key={index} className={`mx-1 py-1 ${animateNewItem && !index && !props.parentIndex ? "block-list" : ""}`}>
+                            <ItemsCardElementLayout key={index} action={event.action} hash={e}/>
+                        </div>
                     )
                 })}
-            </div>
+            </>
         )
     }
-
 
     function TransactionItems(props: PropType) {
         const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
         if (event.action === MempoolEventType.Add || event.action === MempoolEventType.Reject) {
             const addRejectEvent = props.event as AddRejectTxClientSideType;
-            return <AddRejectEvent event={addRejectEvent}/>
+            return (
+                <div className={`mx-1 py-1 ${animateNewItem && props.index === 0 ? "block-list" : ""}`}>
+                    <AddRejectEvent event={addRejectEvent}/>
+                </div>
+            )
         } else if (event.action === MempoolEventType.Remove) {
             const removeEvent = props.event as RemoveTxClientSideType;
-            return <RemoveEvent event={removeEvent}/>
+            return <RemoveEvent parentIndex={props.index} event={removeEvent}/>
         }
     }
 
@@ -104,9 +123,7 @@ export default function TransactionEventList(props: PropType) {
                 {!!eventLogList && eventLogList.length ? (
                     <>
                         {eventLogList.map((tx, index) => (
-                            <div key={index} className={'mx-1 py-2 block-list'}>
-                                <TransactionItems event={tx}/>
-                            </div>
+                            <TransactionItems index={index} key={index} event={tx}/>
                         ))}
                     </>
                 ) : (
