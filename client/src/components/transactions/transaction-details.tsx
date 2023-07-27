@@ -17,7 +17,7 @@ interface PropType {
 }
 
 export default function MempoolTransactionsList(props: PropType) {
-    const event = props.event;
+    const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionListType>>([]);
 
     const getClientSideResponse = () => {
@@ -78,7 +78,21 @@ export default function MempoolTransactionsList(props: PropType) {
 
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
-            <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`}/>
+            <div className={"flex justify-between items-start"}>
+                <Heading title={`Mempool Transactions`}/>
+                <div className={"flex flex-col items-end gap-1"}>
+                    <div className={"flex gap-2 items-center"}>
+                        <p className={"text-sm text-gray-500"}>Remote Mempool size:&nbsp;<span
+                            className={"text-black font-bold"}>{!!event?.mempoolSize ? (event.mempoolSize / 1000) + " Kb" : 0}</span>
+                        </p>
+                        <p className={"text-sm text-gray-500"}>Tx count:&nbsp;<span
+                            className={"text-black font-bold"}>{!!event?.mempoolTxCount ? event.mempoolTxCount : 0}</span>
+                        </p>
+                    </div>
+                    <p className={"text-sm text-gray-500"}>Local Tx count:&nbsp;<span
+                        className={"text-black font-bold"}>{currentMempoolTransactions.length}</span></p>
+                </div>
+            </div>
             {/*{currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> :*/}
             <TableLayout data={getClientSideResponse()}/>
         </div>
