@@ -1,3 +1,5 @@
+"use client";
+
 import SearchBarIcon from "@app/assets/svgs/search-bar-icon";
 import {useRouter} from "next/navigation";
 

@@ -6,8 +6,7 @@ import BlockDetails from '@app/components/transactions/block-details';
 import {
     AddRejectTxClientSideType,
     RemoveMintedTransactions,
-    RemoveTxClientSideType,
-    SocketEventResponseType
+    RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
 
 import MempoolTransactionsList from './transaction-details';
@@ -17,8 +16,11 @@ import TransactionEventList from './transaction-hash-list';
 import CardanoWebSocketImpl, {AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage} from "@app/lib/websocket";
 import {MempoolEventType} from '@app/constants/constants';
 
+interface myProps {
+    ws: string;
+}
 
-export default function TransactionsContainer() {
+export default function TransactionsContainer(props: myProps) {
 
     const [mempoolEvent, setMempoolEvent] = useState<AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions>();
 
