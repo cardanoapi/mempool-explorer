@@ -12,7 +12,8 @@ if (config && config.serverRuntimeConfig) {
 }
 
 const environments = {
-    WS_URL: publicRuntimeConfig.WS_URL ?? "ws://localhost:8080/ws"
+    WS_URL: publicRuntimeConfig.WS_URL ?? "ws://localhost:8080/ws",
+    CARDANO_NETWORK: publicRuntimeConfig.CARDANO_NETWORK ?? "mainnet"
 }
 
 export default environments;

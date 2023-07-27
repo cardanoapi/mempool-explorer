@@ -1,33 +1,35 @@
 import * as cbor from 'cbor-web';
-import { bech32 } from 'bech32';
+import {bech32} from 'bech32';
+import environments from "@app/configs/environments";
+import {Network} from "@app/constants/constants";
 
-export class Transaction{
+export class Transaction {
     transaction;
-    constructor(cbortx:Buffer){
+
+    constructor(cbortx: Buffer) {
         // const tx = await cbor.decodeFirst(cbortx);
-        const tx= cbor.decodeFirstSync(cbortx);
-        const inputs = tx[0].get(0).map((input:any) =>{
+        const tx = cbor.decodeFirstSync(cbortx);
+        const inputs = tx[0].get(0).map((input: any) => {
             return {
                 hash: input[0].toString('hex'),
                 index: input[1]
             }
         });
         const outputs = this.getOutput(tx[0].get(1));
-        const isMint =  tx[0].has(9);
-        let mintTokens=null;
-        if(isMint){
+        const isMint = tx[0].has(9);
+        let mintTokens = null;
+        if (isMint) {
             mintTokens = this.assetMapParse(tx[0].get(9));
         }
         let metadata = null;
-        if(tx[3]!=null){
-            if(tx[3] instanceof cbor.Tagged){
+        if (tx[3] != null) {
+            if (tx[3] instanceof cbor.Tagged) {
                 metadata = tx[3].toJSON();
-            }
-            else{
+            } else {
                 metadata = tx[3];
             }
         }
-        const transaction =  {
+        const transaction = {
             inputs,
             outputs,
             isMint,
@@ -38,14 +40,15 @@ export class Transaction{
     }
 
 
-    getInput(tx:any){
+    getInput(tx: any) {
         return tx[0].get(0);
-        
+
     }
-    assetMapParse(assetMap:any){
-        return Array.from(assetMap).map((arr:any)=> {
+
+    assetMapParse(assetMap: any) {
+        return Array.from(assetMap).map((arr: any) => {
             const currSymbol = arr[0].toString('hex');
-            const val:[any,any] = arr[1];
+            const val: [any, any] = arr[1];
             const numberOfAsset = Array.from(val).map(([assetId, amount]) => {
                 const assetIdHex = assetId.toString('hex');
                 return {
@@ -59,40 +62,50 @@ export class Transaction{
             };
         });
     }
-    multiAssetParsing(value:any){
-        if(Array.isArray(value)){
+
+    multiAssetParsing(value: any) {
+        if (Array.isArray(value)) {
             const multiAssets = this.assetMapParse(value[1]);
-            const assets = [{'lovelace':value[0]}, ...multiAssets];
+            const assets = [{'lovelace': value[0]}, ...multiAssets];
             return assets;
-        }
-        else{
-            return [{'lovelace':value}];
+        } else {
+            return [{'lovelace': value}];
         }
     }
 
-    getOutput(outputs:any){
-        return outputs.map((output:any)=>{
-            if (Array.isArray(output)){
+    getAddressPrefixAccordingToNetwork(network: string) {
+        switch (network) {
+            case Network.MAINNET:
+                return "addr"
+            case Network.TESTNET:
+                return "addr_test"
+            default:
+                return "addr"
+        }
+    }
+
+    getOutput(outputs: any) {
+        return outputs.map((output: any) => {
+            if (Array.isArray(output)) {
                 const assets = this.multiAssetParsing(output[1]);
-                let datumHash=null;
-                if(output.length>2){
+                let datumHash = null;
+                if (output.length > 2) {
                     datumHash = output[2];
                 }
                 const ret = {
-                    "address": bech32.encode('addr_test', bech32.toWords(output[0]), 150),
+                    "address": bech32.encode(this.getAddressPrefixAccordingToNetwork(environments.CARDANO_NETWORK), bech32.toWords(output[0]), 150),
                     "amount": assets,
                     "datumHash": datumHash
                 }
                 return ret;
-            }
-            else{
+            } else {
                 const ret = {
-                    "address":bech32.encode('addr_test', bech32.toWords(output.get(0)), 150),
+                    "address": bech32.encode(this.getAddressPrefixAccordingToNetwork(environments.CARDANO_NETWORK), bech32.toWords(output.get(0)), 150),
                     "amount": this.multiAssetParsing(output.get(1)),
                 };
                 return ret;
             }
         });
-        
+
     }
 }
