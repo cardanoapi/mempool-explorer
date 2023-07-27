@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-    AddressTransactionType, BlockDetailsType,
+    AddressTransactionType,
     MempoolTransactionResponseType,
     TransactionInputResponseType,
     TransactionOutputResponseType
@@ -61,11 +61,12 @@ export function convertToADA(lovelace: number) {
     return lovelace / 1000000 + " ADA";
 }
 
-export function getTheLimitForTransactionListDisplay(arrLength: number) {
-    if (arrLength <= TransactionListMaxDisplayCount) {
+export function getTheLimitForTransactionListDisplay(arrLength: number, maxDisplayCount?: number) {
+    const maxCount = !maxDisplayCount ? TransactionListMaxDisplayCount : maxDisplayCount
+    if (arrLength <= maxCount) {
         return arrLength;
     } else {
-        return TransactionListMaxDisplayCount;
+        return maxCount;
     }
 }
 

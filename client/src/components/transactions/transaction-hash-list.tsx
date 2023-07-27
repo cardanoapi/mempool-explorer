@@ -6,9 +6,15 @@ import {
     RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
-import {Heading, toMidDottedStr} from '@app/utils/string-utils';
+import {
+    getNumberOfHiddenTransactionList,
+    getTheLimitForTransactionListDisplay,
+    Heading,
+    toMidDottedStr
+} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
+import ClockIcon from "@app/assets/svgs/clock-icon";
 
 
 export interface PropType {
@@ -54,8 +60,18 @@ export default function TransactionEventList(props: PropType) {
 
     // setTimeout(updateTimeSinceArrival,1000)
 
+    function getTimeString(dateObj: Date) {
+        const hours = dateObj.getHours();
+        const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+        const seconds = dateObj.getSeconds().toString().padStart(2, "0");
+
+        let parsedHours = hours > 12 ? hours - 12 : hours;
+
+        return `${parsedHours.toString().padStart(2, "0")}:${minutes}:${seconds}`;
+    }
+
     function renderBatchPill(action: string) {
-        const batchPillBaseStyle = 'text-xs rounded-md p-1 border-solid border-[1px]';
+        const batchPillBaseStyle = 'rounded-md p-1 text-xs';
         switch (action) {
             case 'add':
                 return <div className={`${batchPillBaseStyle} bg-green-100 border-green-400`}>{action}</div>;
@@ -67,19 +83,20 @@ export default function TransactionEventList(props: PropType) {
     }
 
     function ItemsCardElementLayout(props: any) {
-        const {action, hash} = props;
+        const {action, hash, arrival_time} = props;
         return (
             <Layout>
                 <div className={`flex my-2 justify-between items-center`}>
-                    <>{renderBatchPill(action)}</>
+                    <div className={"inline"}>{renderBatchPill(action)}</div>
                     <Link className={'flex flex-col cursor-pointer text-sm text-blue-500'}
                           href={`/transactions/${hash}`}
                           target={"_blank"}>
                         {toMidDottedStr(hash, 10)}
                     </Link>
-                    {/* <div className={'flex flex-col'}>
-                        <p className="font-bold">{event.amount} ADA</p>
-                    </div> */}
+                    {!!arrival_time && <div className={'flex gap-2 items-center text-gray-600'}>
+                        <ClockIcon/>
+                        <p className="text-sm">{arrival_time}</p>
+                    </div>}
                 </div>
             </Layout>
         )
@@ -87,21 +104,32 @@ export default function TransactionEventList(props: PropType) {
 
     function AddRejectEvent(props: { event: AddRejectTxClientSideType }) {
         const event = props.event;
-        return <ItemsCardElementLayout action={event.action} hash={event.hash}/>
+        const arrivalTime: string = !!event?.arrivalTime ? getTimeString(event.arrivalTime) : "N/A";
+        return <ItemsCardElementLayout action={event.action} hash={event.hash} arrival_time={arrivalTime}/>
     }
 
     function RemoveEvent(props: { event: RemoveTxClientSideType, parentIndex: number }) {
         const event = props.event;
+        const displayLimit = getTheLimitForTransactionListDisplay(event.txHashes.length, 4);
         return (
             <>
-                {event.txHashes.map((e, index) => {
-                    return (
-                        <div key={index}
-                             className={`mx-1 py-1 ${animateNewItem && !index && !props.parentIndex ? "block-list" : ""}`}>
-                            <ItemsCardElementLayout key={index} action={event.action} hash={e}/>
-                        </div>
-                    )
-                })}
+                <Layout>
+                    <div className={"flex justify-start"}>{renderBatchPill(event.action)}</div>
+                    <div className={"flex flex-col !text-sm justify-center items-center"}>
+                        {event.txHashes.slice(0, displayLimit).map((e, index) => {
+                            return (
+                                <Link key={index}
+                                      className={'flex flex-col mb-1 cursor-pointer text-sm text-blue-500'}
+                                      href={`/transactions/${e}`}
+                                      target={"_blank"}>
+                                    {toMidDottedStr(e, 10)}
+                                </Link>
+                            )
+                        })}
+                        <div
+                            className={"text-gray-500"}>{getNumberOfHiddenTransactionList(event.txHashes.length, displayLimit)}</div>
+                    </div>
+                </Layout>
             </>
         )
     }
@@ -117,7 +145,11 @@ export default function TransactionEventList(props: PropType) {
             )
         } else if (event.action === MempoolEventType.Remove) {
             const removeEvent = props.event as RemoveTxClientSideType;
-            return <RemoveEvent parentIndex={props.index} event={removeEvent}/>
+            return (
+                <div className={`mx-1 py-1 ${animateNewItem && props.index === 0 ? "block-list" : ""}`}>
+                    <RemoveEvent parentIndex={props.index} event={removeEvent}/>
+                </div>
+            );
         }
     }
 
