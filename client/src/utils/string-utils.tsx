@@ -9,11 +9,12 @@ import React from "react";
 import {MintMessage} from "@app/lib/websocket";
 import {TransactionListMaxDisplayCount} from "@app/constants/constants";
 
-export const toMidDottedStr = (str: string, leadingVisible = 5, firstIndex = 0) => {
-    if (str === undefined || str.length < 12) return str;
+export const toMidDottedStr = (str: string, leadingVisible = 9, firstIndex = 0) => {
+    if (str === undefined || str.length < 15) return str;
     const total = str.toString().length;
+    const trailingLength = 5;
     const leadingStr = str.toString().substring(firstIndex, leadingVisible);
-    const trailingStr = str.toString().substring(total - leadingVisible);
+    const trailingStr = str.toString().substring(total - trailingLength);
     return `${leadingStr}...${trailingStr}`;
 };
 
