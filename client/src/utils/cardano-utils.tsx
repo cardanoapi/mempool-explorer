@@ -104,6 +104,6 @@ export function getRelativeTime(arrivalTime: any) {
     // Calculate the time difference in seconds, minutes, hours, and days
     const seconds = Math.floor(timeDifference / 1000);
 
-    return seconds > 1 ? `${seconds} seconds ago` : `${seconds} seconds ago`
+    return seconds > 1 ? `${seconds} seconds ago` : `${seconds} second ago`
 
 }
