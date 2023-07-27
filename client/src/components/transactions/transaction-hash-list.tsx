@@ -13,6 +13,10 @@ import Link from "next/link";
 
 export interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
+}
+
+interface TransactionActionType {
+    event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
     index: number;
 }
 
@@ -92,7 +96,8 @@ export default function TransactionEventList(props: PropType) {
             <>
                 {event.txHashes.map((e, index) => {
                     return (
-                        <div key={index} className={`mx-1 py-1 ${animateNewItem && !index && !props.parentIndex ? "block-list" : ""}`}>
+                        <div key={index}
+                             className={`mx-1 py-1 ${animateNewItem && !index && !props.parentIndex ? "block-list" : ""}`}>
                             <ItemsCardElementLayout key={index} action={event.action} hash={e}/>
                         </div>
                     )
@@ -101,7 +106,7 @@ export default function TransactionEventList(props: PropType) {
         )
     }
 
-    function TransactionItems(props: PropType) {
+    function TransactionItems(props: TransactionActionType) {
         const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
         if (event.action === MempoolEventType.Add || event.action === MempoolEventType.Reject) {
             const addRejectEvent = props.event as AddRejectTxClientSideType;

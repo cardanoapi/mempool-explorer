@@ -6,8 +6,7 @@ import BlockDetails from '@app/components/transactions/block-details';
 import {
     AddRejectTxClientSideType,
     RemoveMintedTransactions,
-    RemoveTxClientSideType,
-    SocketEventResponseType
+    RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
 
 import MempoolTransactionsList from './transaction-details';
