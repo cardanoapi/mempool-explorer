@@ -9,7 +9,7 @@ import {
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
-import {MempoolEventType} from '@app/constants/constants';
+import {MempoolEventType, MempoolLiveViewTableHeaderEnum} from '@app/constants/constants';
 import {getRelativeTime} from "@app/utils/cardano-utils";
 
 interface PropType {
@@ -22,10 +22,10 @@ export default function MempoolTransactionsList(props: PropType) {
 
     const getClientSideResponse = () => {
         return currentMempoolTransactions.map(item => ({
-            hash: item.hash,
-            inputs: item.inputs,
-            outputs: item.outputs,
-            received_time: getRelativeTime(new Date(item.arrival_time))
+            [MempoolLiveViewTableHeaderEnum.hash]: item.hash,
+            [MempoolLiveViewTableHeaderEnum.inputs]: item.inputs,
+            [MempoolLiveViewTableHeaderEnum.outputs]: item.outputs,
+            [MempoolLiveViewTableHeaderEnum.received_time]: getRelativeTime(new Date(item.arrival_time))
         }))
     }
 
@@ -93,7 +93,6 @@ export default function MempoolTransactionsList(props: PropType) {
                         className={"text-black font-bold"}>{currentMempoolTransactions.length}</span></p>
                 </div>
             </div>
-            {/*{currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> :*/}
             <TableLayout data={getClientSideResponse()}/>
         </div>
     );

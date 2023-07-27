@@ -47,7 +47,6 @@ export default function TransactionsContainer(props: myProps) {
 
         });
         sock.on("removeTx", (msg: RemoveTxMessage) => {
-            // console.log(msg.mempoolSize, msg.mempoolTxCount, msg.txHashes);
             const removeActionAddedTransaction: RemoveTxClientSideType = {
                 ...msg,
                 action: MempoolEventType.Remove

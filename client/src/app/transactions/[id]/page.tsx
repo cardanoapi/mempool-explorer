@@ -17,11 +17,13 @@ import {
     convertToClientSideInputOutputObject
 } from '@app/utils/transaction-details-utils';
 import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
+import Followups from "@app/components/transaction-hash/followups";
 
 type TransactionDetailsInterface = {
-    inputoutput: any;
-    competitors: Array<any>;
+    tx: any;
+    competing: Array<any>;
     followups: Array<any>;
+    arrivalTime: Date;
 };
 
 export default function TransactionDetails() {
@@ -41,18 +43,8 @@ export default function TransactionDetails() {
     useEffect(() => {
         getTransactionDetails()
             .then((d) => {
-                let responseObjClone = Object.assign({}, d);
-                // console.log(responseObjClone);
-                let inputOutputObject = convertToClientSideInputOutputObject(d);
-                inputOutputObject = {...inputOutputObject, hash: router.id};
-                const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
-                // console.log(followups);
-                const transactionDetailsObj: TransactionDetailsInterface = {
-                    inputoutput: [],
-                    competitors: [],
-                    followups: followups
-                };
-                setTransactionDetails(transactionDetailsObj);
+                console.log("transaction details: ", d)
+                setTransactionDetails(d);
             })
             .catch((e: any) => {
                 console.error(e);
@@ -108,19 +100,6 @@ export default function TransactionDetails() {
         );
     }
 
-    function Followups() {
-        return (
-            <Layout className={"!overflow-y-scroll"}>
-                <Heading title={'Followups'}/>
-                <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
-                    {txs.map((tx) => (
-                        <ItemCard key={tx.hash_id} transaction={tx}/>
-                    ))}
-                </div>
-            </Layout>
-        );
-    }
-
     function Miners() {
         return (
             <Layout className={"!max-h-full !overflow-y-scroll"}>
@@ -139,10 +118,10 @@ export default function TransactionDetails() {
             <Navbar/>
             <div className={'calc-h-68'}>
                 <div className={'grid mx-4 grid-cols-1 md:grid-cols-2 gap-4 '}>
-                    <TransactionInputOutput txInputOutputs={transactionDetails?.inputoutput}/>
+                    <TransactionInputOutput txInputOutputs={transactionDetails?.tx}/>
                     <Miners/>
                     <Competitors/>
-                    <Followups/>
+                    <Followups followups={transactionDetails?.followups} arrival_time={transactionDetails?.arrivalTime}/>
                 </div>
             </div>
         </>

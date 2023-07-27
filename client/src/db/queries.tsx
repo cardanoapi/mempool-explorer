@@ -2,7 +2,7 @@ import {dbClient, syncClient} from "./prisma";
 import {PrismaClient} from "@prisma/client";
 
 const prisma: PrismaClient = dbClient;
-const sync: PrismaClient= syncClient;
+const sync: PrismaClient = syncClient;
 import {Prisma} from '@prisma/client'
 import {getLatestEpoch} from "@app/utils/cardano-utils";
 
@@ -188,7 +188,6 @@ export async function getCompeting(txHash: Buffer) {
                 }
             })
             const competitors = compHashes.map(async (input) => {
-                console.log(input.hash)
                 const body = await prisma.tx_body.findUnique({
                     where: {
                         hash: input.hash
@@ -229,11 +228,11 @@ export async function getFollowups(txHash: Buffer) {
     return follow;
 }
 
-export async function getConfirmation(txHash:Buffer[]){
+export async function getConfirmation(txHash: Buffer[]) {
     try {
         return prisma.tx_confirmed.findMany({
-            where:{
-                tx_hash:{
+            where: {
+                tx_hash: {
                     in: txHash
                 }
             }
@@ -261,24 +260,24 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
         where 
             tx.hash in (${Prisma.join(txHashes)})`;
         return sync.$queryRaw(query);
-        
+
     } catch (e) {
         // return prisma.
         console.log("/api/db/transaction", e)
     }
 }
 
-export async function getArrivalTime(txHash: Buffer){
+export async function getArrivalTime(txHash: Buffer) {
     try {
         return prisma.tx_log.findFirst({
-            where:{
-                hash:txHash
+            where: {
+                hash: txHash
             },
-            select:{
-                received:true,
+            select: {
+                received: true,
             },
-            orderBy:{
-                received:"asc"
+            orderBy: {
+                received: "asc"
             }
         });
     } catch (e) {

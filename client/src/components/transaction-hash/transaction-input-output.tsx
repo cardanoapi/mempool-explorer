@@ -5,6 +5,9 @@ import {
     toMidDottedStr
 } from '@app/utils/string-utils';
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import {useEffect, useState} from "react";
+import {convertToClientSideInputOutputObject} from "@app/utils/transaction-details-utils";
+import {useParams} from "next/navigation";
 
 interface MultiAssetType {
     hash: string;
@@ -29,12 +32,24 @@ interface TransactionOutputInputType {
 
 export default function TransactionInputOutput(props: TransactionOutputInputType) {
 
-    if(!props.txInputOutputs) {
+    const router = useParams();
+
+    const [tx, setTxDetails] = useState({});
+
+
+    useEffect(() => {
+        if (!props.txInputOutputs) return;
+        let inputOutputObject = convertToClientSideInputOutputObject(props.txInputOutputs);
+        inputOutputObject = {...inputOutputObject, hash: router.id};
+        setTxDetails(inputOutputObject)
+    }, [props.txInputOutputs, router.id])
+
+    if (!props.txInputOutputs) {
         return (
             <Layout>
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
-                    <EmptyPageIcon message={"Fetching transaction.."}/>
+                    <EmptyPageIcon message={"Transaction details not available"}/>
                 </div>
             </Layout>
         )
@@ -61,11 +76,11 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                     <p className={'font-semibold'}>{convertToADA(tx.amount)}</p>
                                 </div>
                                 <div className={"flex gap-1 flex-wrap"}>
-                                    {tx.multiasset.map((t:any) => {
+                                    {tx.multiasset.map((t: any) => {
                                         const displayLimit = getTheLimitForTransactionListDisplay(Object.keys(t).length);
                                         return (
                                             <div key={t.hash} className={"flex items-center"}>
-                                                {Object.keys(t).slice(0,displayLimit).map((key:string) => {
+                                                {Object.keys(t).slice(0, displayLimit).map((key: string) => {
                                                     return <div key={t.hash} className={"flex items-center m-2"}>
                                                         <p className={'p-1 text-xs border-solid border-[1px] bg-blue-50 rounded-lg'}>{key}<span
                                                             className={"ml-2 text-green-800 font-bold"}>{convertToADA(parseInt(t[key]))}</span>
