@@ -6,12 +6,7 @@ import {
     RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
-import {
-    getNumberOfHiddenTransactionList,
-    getTheLimitForTransactionListDisplay,
-    Heading,
-    toMidDottedStr
-} from '@app/utils/string-utils';
+import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
 import ClockIcon from "@app/assets/svgs/clock-icon";
@@ -110,24 +105,23 @@ export default function TransactionEventList(props: PropType) {
 
     function RemoveEvent(props: { event: RemoveTxClientSideType, parentIndex: number }) {
         const event = props.event;
-        const displayLimit = getTheLimitForTransactionListDisplay(event.txHashes.length, 4);
         return (
             <>
                 <Layout>
-                    <div className={"flex justify-start"}>{renderBatchPill(event.action)}</div>
-                    <div className={"flex flex-col !text-sm justify-center items-center"}>
-                        {event.txHashes.slice(0, displayLimit).map((e, index) => {
-                            return (
-                                <Link key={index}
-                                      className={'flex flex-col mb-1 cursor-pointer text-sm text-blue-500'}
-                                      href={`/transactions/${e}`}
-                                      target={"_blank"}>
-                                    {toMidDottedStr(e, 10)}
-                                </Link>
-                            )
-                        })}
-                        <div
-                            className={"text-gray-500"}>{getNumberOfHiddenTransactionList(event.txHashes.length, displayLimit)}</div>
+                    <div className={"flex justify-between items-center"}>
+                        <>{renderBatchPill(event.action)}</>
+                        <div className={"flex flex-col !text-sm justify-center items-center"}>
+                            {event.txHashes.map((e, index) => {
+                                return (
+                                    <Link key={index}
+                                          className={'flex flex-col mb-1 cursor-pointer text-sm text-blue-500'}
+                                          href={`/transactions/${e}`}
+                                          target={"_blank"}>
+                                        {toMidDottedStr(e, 10)}
+                                    </Link>
+                                )
+                            })}
+                        </div>
                     </div>
                 </Layout>
             </>

@@ -4,13 +4,13 @@ import TableLayout from '@app/shared/table-layout';
 import {
     AddRejectTxClientSideType,
     MempoolTransactionListType,
-    MempoolTransactionResponseType, RemoveMintedTransactions,
-    RemoveTxClientSideType,
-    SocketEventResponseType
+    MempoolTransactionResponseType,
+    RemoveMintedTransactions,
+    RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 import {MempoolEventType} from '@app/constants/constants';
-import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import {getRelativeTime} from "@app/utils/cardano-utils";
 
 interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
@@ -18,8 +18,16 @@ interface PropType {
 
 export default function MempoolTransactionsList(props: PropType) {
     const event = props.event;
-
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionListType>>([]);
+
+    const getClientSideResponse = () => {
+        return currentMempoolTransactions.map(item => ({
+            hash: item.hash,
+            inputs: item.inputs,
+            outputs: item.outputs,
+            received_time: getRelativeTime(new Date(item.arrival_time))
+        }))
+    }
 
 
     const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
@@ -27,7 +35,7 @@ export default function MempoolTransactionsList(props: PropType) {
             hash: event.hash,
             inputs: event.tx.transaction.inputs,
             outputs: event.tx.transaction.outputs,
-            arrival_time: new Date(Date.now()).toISOString()
+            arrival_time: !!event?.arrivalTime ? event.arrivalTime.toString() : "",
         }
         const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(clientSideObject);
         setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
@@ -54,8 +62,9 @@ export default function MempoolTransactionsList(props: PropType) {
                 break;
             case MempoolEventType.Mint:
                 removeTransactionFromMempoolState((event as RemoveMintedTransactions).txHashes)
+                break;
             default:
-                //TODO: what to do when reject event
+                //TODO: logic on reject event
                 return;
         }
     }
@@ -70,8 +79,8 @@ export default function MempoolTransactionsList(props: PropType) {
     return (
         <div className={' w-full h-full p-4 bg-white border-2 overflow-auto '}>
             <Heading title={`Mempool Transactions (${currentMempoolTransactions.length})`}/>
-            {currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> :
-                <TableLayout data={currentMempoolTransactions}/>}
+            {/*{currentMempoolTransactions.length === 0 ? <EmptyPageIcon message={"Mempool is empty"}/> :*/}
+            <TableLayout data={getClientSideResponse()}/>
         </div>
     );
 }
