@@ -6,12 +6,7 @@ import {
     RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
-import {
-    getNumberOfHiddenTransactionList,
-    getTheLimitForTransactionListDisplay,
-    Heading,
-    toMidDottedStr
-} from '@app/utils/string-utils';
+import {Heading, toMidDottedStr} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
 import ClockIcon from "@app/assets/svgs/clock-icon";
