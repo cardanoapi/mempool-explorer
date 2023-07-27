@@ -1,7 +1,5 @@
-// import { Transaction, hash_transaction } from "@emurgo/cardano-serialization-lib-asmjs";
 import {Transaction} from './cborparser';
-import {Decoder, Encoder, addExtension} from "cbor-x";
-import {TransactionParser, TransactionInput, TransactionOutput, Value, Mint, ITransaction} from "./parser";
+import {addExtension, Decoder} from "cbor-x";
 
 type EventType = "mint" | "rollback" | "addTx" | "removeTx" | "rejectTx" | "disconnected" | "connected";
 
@@ -66,20 +64,19 @@ interface CardanoWebSocket {
 addExtension({
         Class: Transaction,
         tag: 24, // register our own extension code (a tag code)
-        encode(instance: Transaction, encode) {
+        encode(instance: Transaction) {
             return instance.transaction.inputs;
         },
         decode(data: Buffer) {
             console.debug("Decoding transaction", data.toString('hex'))
-            let instance = new Transaction(data);
-            return instance;
+            return new Transaction(data);
         }
     }
 );
 addExtension({
     Class: Date,
     tag: 1,
-    encode(instance: Date, encode) {
+    encode(instance: Date) {
         return Buffer.from(instance);
     },
     decode(data: number) {
@@ -171,7 +168,6 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
                         const _tx: Transaction = data[2][1];
                         const _txCount = data[2][0][0];
                         const _mempoolSize = data[2][0][1];
-                        const txhash = Buffer.from(data[1]).toString('hex');
                         this.consumers.rejectTx({
                             mempoolTxCount: _txCount,
                             mempoolSize: _mempoolSize,

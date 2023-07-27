@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-    AddressTransactionType, BlockDetailsType,
+    AddressTransactionType,
     MempoolTransactionResponseType,
     TransactionInputResponseType,
     TransactionOutputResponseType
