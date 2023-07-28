@@ -83,7 +83,6 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                 </div>
                                 <div className={"flex gap-1 flex-wrap"}>
                                     {tx.multiasset.map((t: any) => {
-                                        const displayLimit = getTheLimitForTransactionListDisplay(Object.keys(t).length);
                                         return (
                                             <div key={t.hash} className={"flex w-full flex-wrap"}>
                                                 {Object.keys(t).map((key: string) => {
@@ -93,7 +92,6 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                                         </p>
                                                     </div>
                                                 })}
-                                                {/*<>{getNumberOfHiddenTransactionList(Object.keys(t).length, displayLimit)}</>*/}
                                             </div>
                                         )
                                     })}
@@ -127,14 +125,17 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
             <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
             {props.isLoading ? <EmptyPageIcon message={"Fetching transaction details..."}/> :
                 <>
-                    <div className={'flex flex-col'}>
-                        <p className={'mr-1 font-semibold'}>Hash ID </p>
-                        <p className={'text-gray-500 font-xs'}>{tx?.hash}</p>
-                    </div>
-                    <div className={'flex flex-col gap-2'}>
-                        <Inputs/>
-                        <Outputs/>
-                    </div>
+                    {!!tx ?
+                        <>
+                            <div className={'flex flex-col'}>
+                                <p className={'mr-1 font-semibold'}>Hash ID </p>
+                                <p className={'text-gray-500 font-xs'}>{tx?.hash}</p>
+                            </div>
+                            <div className={'flex flex-col gap-2'}>
+                                <Inputs/>
+                                <Outputs/>
+                            </div>
+                        </> : <EmptyPageIcon message={"No transactions available"}/>}
                 </>
             }
         </Layout>

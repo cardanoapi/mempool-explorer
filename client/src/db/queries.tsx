@@ -143,7 +143,7 @@ export async function getBody(txHash: Buffer) {
     try {
         return prisma.tx_body.findFirst({
             where: {
-                hash: Buffer.from('5DCE2DC0F7ACF92F93E0B87CF90D391EFED2678017E6A67E9D6096B4E1A45801', 'hex')
+                hash: txHash
             }
         });
     } catch (e) {
@@ -207,7 +207,7 @@ export async function getCompeting(txHash: Buffer) {
 export async function getFollowups(txHash: Buffer) {
     const followHash = await prisma.tx_in.findMany({
         where: {
-            utxohash: Buffer.from("3CAE4D663271910906FDD83329AF291CA96B8C5659DBD3A16D9F37EFDBACC20E","hex")
+            utxohash: txHash
         },
         distinct: ["hash"],
         select: {
@@ -231,7 +231,7 @@ export async function getConfirmation(txHash: Buffer[]) {
         return prisma.tx_confirmed.findMany({
             where: {
                 tx_hash: {
-                    in: Buffer.from('5DCE2DC0F7ACF92F93E0B87CF90D391EFED2678017E6A67E9D6096B4E1A45801', 'hex')
+                    in: txHash
                 }
             }
         });

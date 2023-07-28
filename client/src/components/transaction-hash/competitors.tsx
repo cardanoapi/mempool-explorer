@@ -32,7 +32,7 @@ export default function Competitors(props: CompetitorPropType) {
             <Layout>
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1>
-                    <EmptyPageIcon message={"Fetching competing.."}/>
+                    <EmptyPageIcon message={"Fetching competitors.."}/>
                 </div>
             </Layout>
         )
@@ -57,8 +57,8 @@ export default function Competitors(props: CompetitorPropType) {
 
     return (
         <Layout className={"!overflow-y-scroll"}>
-            <Heading title={'Followups'}/>
-            {!competitors.length ? <EmptyPageIcon message={"No followups available!"}/> :
+            <Heading title={'Competitors'}/>
+            {!competitors.length ? <EmptyPageIcon message={"No Competitors available!"}/> :
                 <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
                     {competitors.map((tx) => (
                         <ItemCard key={tx.hash} transaction={tx}/>
