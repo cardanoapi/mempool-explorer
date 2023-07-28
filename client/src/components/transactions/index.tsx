@@ -30,11 +30,11 @@ export default function TransactionsContainer(props: myProps) {
         const sock = CardanoWebSocketImpl.createConnection(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws");
         sock.on("mint", (msg: MintMessage) => {
             console.log("mint", msg.slotNumber, msg.headerHash, msg.txHashes);
-            const removeActionAddedTransaction: RemoveMintedTransactions = {
+            const mintActionAddedTransaction: RemoveMintedTransactions = {
                 ...msg,
                 action: MempoolEventType.Mint
             }
-            setMempoolEvent(removeActionAddedTransaction)
+            // setMempoolEvent(mintActionAddedTransaction)
             setMintEvent(msg);
         });
         sock.on("addTx", (msg: AddTxMessage) => {

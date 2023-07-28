@@ -17,4 +17,14 @@ export enum MempoolLiveViewTableHeaderEnum {
     received_time = "Received Time"
 }
 
+export enum BlockDetailsTableInputType {
+    slotNo = "Slot No",
+    blockNo = "Block no",
+    time = "Time",
+    minerPool = "Miner Pool",
+    avg_tx_wait_time = "Avg. Tx Wait time",
+    headerHash = "Header hash",
+    txHashes = "Transaction hashes"
+}
+
 export const TransactionListMaxDisplayCount = 2;
