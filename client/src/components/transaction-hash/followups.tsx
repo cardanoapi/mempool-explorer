@@ -1,6 +1,5 @@
 import Layout from "@app/shared/layout";
-import {getTimeString, Heading, toMidDottedStr} from "@app/utils/string-utils";
-import {txs} from "@app/assets/mock-data/mock-data";
+import {Heading, toMidDottedStr} from "@app/utils/string-utils";
 import {useEffect, useState} from "react";
 import {convertFollowupsToClientSide} from "@app/utils/transaction-details-utils";
 import {useParams} from "next/navigation";

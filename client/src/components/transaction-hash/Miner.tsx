@@ -13,7 +13,6 @@ export default function Miner() {
 
     const {isLoading, showLoader, hideLoader, error, setError} = useLoader();
 
-    const [confirmation, setConfirmation] = useState();
 
     const getTransactionDetails = async () => {
         const response = await fetch(`/api/db/transaction/confirmation?hash=${router.id}`);
