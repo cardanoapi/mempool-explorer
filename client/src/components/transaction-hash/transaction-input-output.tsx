@@ -83,7 +83,6 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                 </div>
                                 <div className={"flex gap-1 flex-wrap"}>
                                     {tx.multiasset.map((t: any) => {
-                                        const displayLimit = getTheLimitForTransactionListDisplay(Object.keys(t).length);
                                         return (
                                             <div key={t.hash} className={"flex w-full flex-wrap"}>
                                                 {Object.keys(t).map((key: string) => {
@@ -93,7 +92,6 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                                         </p>
                                                     </div>
                                                 })}
-                                                {/*<>{getNumberOfHiddenTransactionList(Object.keys(t).length, displayLimit)}</>*/}
                                             </div>
                                         )
                                     })}
