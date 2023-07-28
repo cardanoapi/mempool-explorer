@@ -13,7 +13,6 @@ export default function Miner() {
 
     const {isLoading, showLoader, hideLoader, error, setError} = useLoader();
 
-    const [confirmation, setConfirmation] = useState();
 
     const getTransactionDetails = async () => {
         const response = await fetch(`/api/db/transaction/confirmation?hash=${router.id}`);
@@ -56,8 +55,8 @@ export default function Miner() {
             <>
                 {Object.keys(dataObj).map(key => (
                     <Layout key={key}>
-                        <p className={'text-gray-700 mr-1 font-semibold'}>{key}</p>
-                        <p className={'text-gray-500 font-xs'}>{toMidDottedStr(dataObj[key])}</p>
+                        <p className={'text-gray-600 mr-1'}>{key}</p>
+                        <p className={' font-xs font-semibold'}>{toMidDottedStr(dataObj[key])}</p>
                     </Layout>
                 ))}
             </>
@@ -68,7 +67,7 @@ export default function Miner() {
         <Layout className={"!max-h-full !overflow-y-scroll"}>
             <Heading title={"Miner"}/>
             {isLoading ? <EmptyPageIcon message={"Fetching miner info..."}/> :
-                <div className={'grid grid-cols-1 md:grid-cols-2'}>
+                <div className={'grid gap-2 grid-cols-1 md:grid-cols-2'}>
                     {TxDetail.map((tx) => (
                         <TransactionBlockInfo key={tx.block_hash} transaction={tx}/>
                     ))}

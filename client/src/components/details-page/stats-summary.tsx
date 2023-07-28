@@ -35,7 +35,8 @@ export default function StatsSummary() {
 
     useEffect(() => {
         getStatsFromDatabase().then(d => setStats(d))
-            .catch((e: any) => setError({
+            .catch((e: any) =>
+                setError({
                 message: e.message,
                 status: e.code
             })).finally(() => hideLoader())
@@ -44,11 +45,11 @@ export default function StatsSummary() {
 
     if (isLoading) return <Loader/>
 
-    if (error.status) return <ErrorPage errObj={error}/>;
+    if (error.status !== -1) return <ErrorPage errObj={error}/>;
     if (!stats || stats.length === 0) return <EmptyPageIcon message={""}/>;
 
     return (
-        <div className={"flex flex-col gap-2"}>
+        <div className={"flex flex-col items-center gap-2"}>
             {stats?.map((stat, idx) => (
                 <div key={idx}
                      className={"flex flex-col gap-2 border-b-[1px] items-start justify-center border-b-gray-300 last:border-none py-3 first:pt-0 last:pb-0"}>
