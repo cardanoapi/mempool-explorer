@@ -6,7 +6,7 @@ import {
     RemoveMintedTransactions,
     RemoveTxClientSideType
 } from '@app/types/transaction-details-response/socket-response-type';
-import {Heading, toMidDottedStr} from '@app/utils/string-utils';
+import {getTimeString, Heading, toMidDottedStr} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
 import ClockIcon from "@app/assets/svgs/clock-icon";
@@ -43,27 +43,6 @@ export default function TransactionEventList(props: PropType) {
         setAnimateNewItem(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.event])
-
-    // function updateTimeForEveryEventLog() {
-    //     eventLogList.map(event => {
-    //         return {
-    //             ...event,
-
-    //         }
-    //     })
-    // }
-
-    // setTimeout(updateTimeSinceArrival,1000)
-
-    function getTimeString(dateObj: Date) {
-        const hours = dateObj.getHours();
-        const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-        const seconds = dateObj.getSeconds().toString().padStart(2, "0");
-
-        let parsedHours = hours > 12 ? hours - 12 : hours;
-
-        return `${parsedHours.toString().padStart(2, "0")}:${minutes}:${seconds}`;
-    }
 
     function renderBatchPill(action: string) {
         const batchPillBaseStyle = 'rounded-md p-1 text-xs';

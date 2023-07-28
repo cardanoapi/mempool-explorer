@@ -11,23 +11,21 @@ import useLoader from '@app/components/loader/useLoader';
 import {Navbar} from '@app/components/navbar';
 import TransactionInputOutput from '@app/components/transaction-hash/transaction-input-output';
 import Layout from '@app/shared/layout';
-import {Heading, toMidDottedStr} from '@app/utils/string-utils';
-import {
-    convertFollowupsToClientSide,
-    convertToClientSideInputOutputObject
-} from '@app/utils/transaction-details-utils';
-import {TxDetail, txs} from "@app/assets/mock-data/mock-data";
+import {toMidDottedStr} from '@app/utils/string-utils';
+import Followups from "@app/components/transaction-hash/followups";
+import Miner from "@app/components/transaction-hash/Miner";
+import Competitors from "@app/components/transaction-hash/competitors";
 
 type TransactionDetailsInterface = {
-    inputoutput: any;
-    competitors: Array<any>;
+    tx: any;
+    competing: Array<any>;
     followups: Array<any>;
 };
 
 export default function TransactionDetails() {
     const router = useParams();
 
-    const {isLoading, hideLoader, error, setError} = useLoader();
+    const {isLoading, showLoader, hideLoader, error, setError} = useLoader();
 
     const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
 
@@ -39,20 +37,10 @@ export default function TransactionDetails() {
     };
 
     useEffect(() => {
+        showLoader();
         getTransactionDetails()
             .then((d) => {
-                let responseObjClone = Object.assign({}, d);
-                // console.log(responseObjClone);
-                let inputOutputObject = convertToClientSideInputOutputObject(d);
-                inputOutputObject = {...inputOutputObject, hash: router.id};
-                const followups = convertFollowupsToClientSide(responseObjClone, router.id.toLowerCase());
-                // console.log(followups);
-                const transactionDetailsObj: TransactionDetailsInterface = {
-                    inputoutput: [],
-                    competitors: [],
-                    followups: followups
-                };
-                setTransactionDetails(transactionDetailsObj);
+                setTransactionDetails(d);
             })
             .catch((e: any) => {
                 console.error(e);
@@ -81,68 +69,16 @@ export default function TransactionDetails() {
         )
     }
 
-    function TransactionBlockInfo(props: any) {
-        const dataObj = props.transaction;
-        return (
-            <>
-                {Object.keys(dataObj).map(key => (
-                    <Layout key={key}>
-                        <p className={'text-gray-700 mr-1 font-semibold'}>{key}</p>
-                        <p className={'text-gray-500 font-xs'}>{toMidDottedStr(dataObj[key])}</p>
-                    </Layout>
-                ))}
-            </>
-        )
-    }
-
-    function Competitors() {
-        return (
-            <Layout className={"!overflow-y-scroll"}>
-                <Heading title={'Competitors'}/>
-                <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
-                    {txs.map((tx) => (
-                        <ItemCard key={tx.hash_id} transaction={tx}/>
-                    ))}
-                </div>
-            </Layout>
-        );
-    }
-
-    function Followups() {
-        return (
-            <Layout className={"!overflow-y-scroll"}>
-                <Heading title={'Followups'}/>
-                <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
-                    {txs.map((tx) => (
-                        <ItemCard key={tx.hash_id} transaction={tx}/>
-                    ))}
-                </div>
-            </Layout>
-        );
-    }
-
-    function Miners() {
-        return (
-            <Layout className={"!max-h-full !overflow-y-scroll"}>
-                <Heading title={"Miner"}/>
-                <div className={'grid grid-cols-1 md:grid-cols-2'}>
-                    {TxDetail.map((tx) => (
-                        <TransactionBlockInfo key={tx.block_hash} transaction={tx}/>
-                    ))}
-                </div>
-            </Layout>
-        )
-    }
-
     return (
         <>
             <Navbar/>
             <div className={'calc-h-68'}>
                 <div className={'grid mx-4 grid-cols-1 md:grid-cols-2 gap-4 '}>
-                    <TransactionInputOutput txInputOutputs={transactionDetails?.inputoutput}/>
-                    <Miners/>
-                    <Competitors/>
-                    <Followups/>
+                    <TransactionInputOutput isLoading={isLoading} error={error}
+                                            txInputOutputs={transactionDetails?.tx}/>
+                    <Miner/>
+                    <Competitors isLoading={isLoading} error={error} competing={transactionDetails?.competing}/>
+                    <Followups isLoading={isLoading} error={error} followups={transactionDetails?.followups}/>
                 </div>
             </div>
         </>

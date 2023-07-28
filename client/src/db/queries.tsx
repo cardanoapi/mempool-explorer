@@ -1,10 +1,9 @@
 import {dbClient, syncClient} from "./prisma";
-import {PrismaClient} from "@prisma/client";
+import {Prisma, PrismaClient} from "@prisma/client";
+import {getLatestEpoch} from "@app/utils/cardano-utils";
 
 const prisma: PrismaClient = dbClient;
-const sync: PrismaClient= syncClient;
-import {Prisma} from '@prisma/client'
-import {getLatestEpoch} from "@app/utils/cardano-utils";
+const sync: PrismaClient = syncClient;
 
 export async function getTheLatestTransactionEpochOfAddress(pool_id: string) {
     let latestEpoch = await prisma.tx_confirmed.findFirst({
@@ -144,7 +143,7 @@ export async function getBody(txHash: Buffer) {
     try {
         return prisma.tx_body.findFirst({
             where: {
-                hash: txHash
+                hash: Buffer.from('5DCE2DC0F7ACF92F93E0B87CF90D391EFED2678017E6A67E9D6096B4E1A45801', 'hex')
             }
         });
     } catch (e) {
@@ -188,7 +187,6 @@ export async function getCompeting(txHash: Buffer) {
                 }
             })
             const competitors = compHashes.map(async (input) => {
-                console.log(input.hash)
                 const body = await prisma.tx_body.findUnique({
                     where: {
                         hash: input.hash
@@ -209,7 +207,7 @@ export async function getCompeting(txHash: Buffer) {
 export async function getFollowups(txHash: Buffer) {
     const followHash = await prisma.tx_in.findMany({
         where: {
-            utxohash: txHash
+            utxohash: Buffer.from("3CAE4D663271910906FDD83329AF291CA96B8C5659DBD3A16D9F37EFDBACC20E","hex")
         },
         distinct: ["hash"],
         select: {
@@ -225,16 +223,15 @@ export async function getFollowups(txHash: Buffer) {
         })
         return {'hash': input.hash, 'body': body?.txbody, 'version': body?.version};
     });
-    const follow = await Promise.all(followups);
-    return follow;
+    return await Promise.all(followups);
 }
 
-export async function getConfirmation(txHash:Buffer[]){
+export async function getConfirmation(txHash: Buffer[]) {
     try {
         return prisma.tx_confirmed.findMany({
-            where:{
-                tx_hash:{
-                    in: txHash
+            where: {
+                tx_hash: {
+                    in: Buffer.from('5DCE2DC0F7ACF92F93E0B87CF90D391EFED2678017E6A67E9D6096B4E1A45801', 'hex')
                 }
             }
         });
@@ -261,24 +258,24 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
         where 
             tx.hash in (${Prisma.join(txHashes)})`;
         return sync.$queryRaw(query);
-        
+
     } catch (e) {
         // return prisma.
         console.log("/api/db/transaction", e)
     }
 }
 
-export async function getArrivalTime(txHash: Buffer){
+export async function getArrivalTime(txHash: Buffer) {
     try {
         return prisma.tx_log.findFirst({
-            where:{
-                hash:txHash
+            where: {
+                hash: txHash
             },
-            select:{
-                received:true,
+            select: {
+                received: true,
             },
-            orderBy:{
-                received:"asc"
+            orderBy: {
+                received: "asc"
             }
         });
     } catch (e) {

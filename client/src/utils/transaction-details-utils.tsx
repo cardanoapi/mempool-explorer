@@ -8,14 +8,14 @@ export interface InputOutputObjType {
     outputs: Array<object>;
 }
 
-export function convertToClientSideInputOutputObject(response: any) {
+export function convertToClientSideInputOutputObject(tx: any) {
     let inputOutputsObj: InputOutputObjType = {
         hash: '',
         inputs: [],
         outputs: []
     };
 
-    const txBodyObject: Transaction = Transaction.from_bytes(response.tx.txbody);
+    const txBodyObject: Transaction = Transaction.from_bytes(tx.txbody);
     const transactionJson = JSON.parse(txBodyObject.to_json());
     txBodyObject.free();
 
@@ -69,39 +69,11 @@ export function convertToClientSideInputOutputObject(response: any) {
 
     inputOutputsObj = {...inputOutputsObj, outputs: outputs};
 
-
-    // console.log("inputs:",t.body.outputs)
-
-    // // for inputs
-    // const inputs = [];
-    // for (let i = 0; i < txBodyObject.body().inputs().len(); i++) {
-    //     const input = txBodyObject.body().inputs().get(i);
-    //     const format = {address: `${input.transaction_id().to_hex()}#${input.index().toString()}`};
-    //     inputs.push(format);
-    // }
-    //
-    // inputOutputsObj = {...inputOutputsObj, inputs: inputs};
-    //
-    // // for outputs
-    // const outputs = [];
-    // for (let i = 0; i < txBodyObject.body().outputs().len(); i++) {
-    //     const output = txBodyObject.body().outputs().get(i);
-    //     const address = output.address().to_hex();
-    //     const amount = output.amount().coin().to_str();
-    //     const outputObj = {
-    //         address: address,
-    //         amount: amount
-    //     };
-    //     outputs.push(outputObj);
-    // }
-    // inputOutputsObj = {...inputOutputsObj, outputs: outputs};
-    // txBodyObject.free();
-
     return inputOutputsObj;
 }
 
 export function convertFollowupsToClientSide(response: any, id: string) {
-    const followups = response.followups as Array<{ hash: Uint8Array; body: Uint8Array }>;
+    const followups = response as Array<{ hash: Uint8Array; body: Uint8Array }>;
     let allFollowups = [];
 
     for (let i = 0; i < followups.length; i++) {

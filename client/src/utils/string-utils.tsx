@@ -146,3 +146,13 @@ export const createLinkElementForBlockDetails = (arr: Array<MintMessage>) => {
         }
     })
 }
+
+export function getTimeString(dateObj: Date) {
+    const hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+    const seconds = dateObj.getSeconds().toString().padStart(2, "0");
+
+    let parsedHours = hours > 12 ? hours - 12 : hours;
+
+    return `${parsedHours.toString().padStart(2, "0")}:${minutes}:${seconds}`;
+}
