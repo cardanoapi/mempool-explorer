@@ -21,7 +21,6 @@ export default function Followups(props: FollowupPropType) {
     useEffect(() => {
         if (!props.followups) return;
         const followupsTemp = convertFollowupsToClientSide(props.followups, router.id.toLowerCase());
-        console.log("followups", followupsTemp)
         setFollowups(followupsTemp);
     }, [props, router.id])
 
