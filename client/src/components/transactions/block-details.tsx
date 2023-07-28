@@ -2,20 +2,40 @@ import TableLayout from '@app/shared/table-layout';
 import {createLinkElementForBlockDetails, Heading} from '@app/utils/string-utils';
 import {MintMessage} from '@app/lib/websocket';
 import {useEffect, useState} from 'react';
+import {BlockDetailsTableInputType} from "@app/constants/constants";
 
 interface BlockType {
     event: MintMessage;
 }
 
-export default function BlockDetails(props:BlockType) {
+export interface BlockDetailsInputType {
+    [BlockDetailsTableInputType.slotNo]: string;
+    [BlockDetailsTableInputType.blockNo]: string;
+    [BlockDetailsTableInputType.time]: string;
+    [BlockDetailsTableInputType.minerPool]: string;
+    [BlockDetailsTableInputType.avg_tx_wait_time]: string;
+    [BlockDetailsTableInputType.txHashes]: string[];
+    [BlockDetailsTableInputType.headerHash]: string;
+}
 
-    const [mintDetails, setMintDetails] = useState<Array<MintMessage>>([]);
+export default function BlockDetails(props: BlockType) {
+
+    const [mintDetails, setMintDetails] = useState<Array<BlockDetailsInputType>>([]);
 
     useEffect(() => {
-        if(!props.event) return;
-        setMintDetails([props.event,...mintDetails])
+        if (!props.event) return;
+        const mintObj: any = {
+            [BlockDetailsTableInputType.slotNo]: props.event.slotNumber,
+            [BlockDetailsTableInputType.blockNo]: "-",
+            [BlockDetailsTableInputType.time]: "-",
+            [BlockDetailsTableInputType.minerPool]: "-",
+            [BlockDetailsTableInputType.avg_tx_wait_time]: "-",
+            [BlockDetailsTableInputType.headerHash]: props.event.headerHash,
+            [BlockDetailsTableInputType.txHashes]: props.event.txHashes,
+        }
+        setMintDetails([mintObj, ...mintDetails])
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[props.event])
+    }, [props.event])
 
     return (
         <div className={'w-full h-full p-4 bg-white border-2 overflow-auto'}>

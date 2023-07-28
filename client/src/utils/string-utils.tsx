@@ -6,8 +6,8 @@ import {
     TransactionOutputResponseType
 } from "@app/types/transaction-details-response/socket-response-type";
 import React from "react";
-import {MintMessage} from "@app/lib/websocket";
-import {TransactionListMaxDisplayCount} from "@app/constants/constants";
+import {BlockDetailsTableInputType, TransactionListMaxDisplayCount} from "@app/constants/constants";
+import {BlockDetailsInputType} from "@app/components/transactions/block-details";
 
 export const toMidDottedStr = (str: string, leadingVisible = 9, firstIndex = 0) => {
     if (str === undefined || str.length < 15) return str;
@@ -125,24 +125,27 @@ function createLinkFromTransactionHashesArray(arr: Array<string>) {
     } else {
         endLength = displayLength;
     }
-    return arr.slice(0, endLength).map(e => (
-        <>
-            <Link key={e} target={"_blank"} className={"text-blue-500"} href={`/transactions/${e}`}>
-                {toMidDottedStr(e)}
-            </Link>
-            <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
-        </>
-    ))
+    return <>
+        {arr.slice(0, endLength).map(e => (
+            <>
+                <Link key={e} target={"_blank"} className={"text-blue-500"} href={`/transactions/${e}`}>
+                    {toMidDottedStr(e)}
+                </Link>
+            </>
+        ))
+        }
+        <p>{arr.length > displayLength && `and ${arr.length - endLength} more...`}</p>
+    </>
 }
 
 
-export const createLinkElementForBlockDetails = (arr: Array<MintMessage>) => {
-
+export const createLinkElementForBlockDetails = (arr: Array<BlockDetailsInputType>) => {
     return arr.map(obj => {
         return {
             ...obj,
-            headerHash: toMidDottedStr(obj.headerHash),
-            txHashes: <div className={"flex flex-col gap-2"}>{createLinkFromTransactionHashesArray(obj.txHashes)}</div>,
+            [BlockDetailsTableInputType.headerHash]: toMidDottedStr(obj[BlockDetailsTableInputType.headerHash]),
+            [BlockDetailsTableInputType.txHashes]: <div
+                className={"flex flex-col gap-2"}>{createLinkFromTransactionHashesArray(obj[BlockDetailsTableInputType.txHashes])}</div>,
         }
     })
 }
