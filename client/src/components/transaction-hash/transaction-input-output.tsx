@@ -125,14 +125,17 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
             <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
             {props.isLoading ? <EmptyPageIcon message={"Fetching transaction details..."}/> :
                 <>
-                    <div className={'flex flex-col'}>
-                        <p className={'mr-1 font-semibold'}>Hash ID </p>
-                        <p className={'text-gray-500 font-xs'}>{tx?.hash}</p>
-                    </div>
-                    <div className={'flex flex-col gap-2'}>
-                        <Inputs/>
-                        <Outputs/>
-                    </div>
+                    {!!tx ?
+                        <>
+                            <div className={'flex flex-col'}>
+                                <p className={'mr-1 font-semibold'}>Hash ID </p>
+                                <p className={'text-gray-500 font-xs'}>{tx?.hash}</p>
+                            </div>
+                            <div className={'flex flex-col gap-2'}>
+                                <Inputs/>
+                                <Outputs/>
+                            </div>
+                        </> : <EmptyPageIcon message={"No transactions available"}/>}
                 </>
             }
         </Layout>
