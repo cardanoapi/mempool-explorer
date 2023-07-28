@@ -28,13 +28,20 @@ interface UtxoType {
 
 interface TransactionOutputInputType {
     txInputOutputs: UtxoType;
+    isLoading: Boolean;
+    error: ErrorType;
+}
+
+export interface ErrorType {
+    status: number;
+    message: string;
 }
 
 export default function TransactionInputOutput(props: TransactionOutputInputType) {
 
     const router = useParams();
 
-    const [tx, setTxDetails] = useState({});
+    const [tx, setTxDetails] = useState<any>();
 
 
     useEffect(() => {
@@ -44,18 +51,17 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
         setTxDetails(inputOutputObject)
     }, [props.txInputOutputs, router.id])
 
-    if (!props.txInputOutputs) {
+    if (props.error.status !== -1) {
         return (
             <Layout>
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
-                    <EmptyPageIcon message={"Transaction details not available"}/>
+                    <EmptyPageIcon message={props.error.message}/>
                 </div>
             </Layout>
         )
     }
 
-    const txInputOutputs = props.txInputOutputs;
 
     function Layout(props: any) {
         return <div
@@ -67,7 +73,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
             <>
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold'}>Outputs</h1>
-                    {txInputOutputs?.outputs?.map((tx: OutputType, idx: number) => (
+                    {tx?.outputs?.map((tx: OutputType, idx: number) => (
                         <div key={tx.address} className={'flex mb-4 items-start'}>
                             <p className={'font-semibold mr-2'}>{idx}<span>.</span></p>
                             <div className={'flex flex-col text-sm'}>
@@ -79,15 +85,15 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                     {tx.multiasset.map((t: any) => {
                                         const displayLimit = getTheLimitForTransactionListDisplay(Object.keys(t).length);
                                         return (
-                                            <div key={t.hash} className={"flex items-center"}>
-                                                {Object.keys(t).slice(0, displayLimit).map((key: string) => {
+                                            <div key={t.hash} className={"flex w-full flex-wrap"}>
+                                                {Object.keys(t).map((key: string) => {
                                                     return <div key={t.hash} className={"flex items-center m-2"}>
                                                         <p className={'p-1 text-xs border-solid border-[1px] bg-blue-50 rounded-lg'}>{key}<span
                                                             className={"ml-2 text-green-800 font-bold"}>{convertToADA(parseInt(t[key]))}</span>
                                                         </p>
                                                     </div>
                                                 })}
-                                                <>{getNumberOfHiddenTransactionList(Object.keys(t).length, displayLimit)}</>
+                                                {/*<>{getNumberOfHiddenTransactionList(Object.keys(t).length, displayLimit)}</>*/}
                                             </div>
                                         )
                                     })}
@@ -104,7 +110,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
         return (
             <div className={'mr-40'}>
                 <h1 className={'font-semibold mb-2'}>Inputs</h1>
-                {txInputOutputs?.inputs?.map((tx: any, idx: number) => (
+                {tx?.inputs?.map((tx: any, idx: number) => (
                     <div key={tx.address} className={'flex gap-2 mb-4 items-center'}>
                         <p className={'font-semibold mr-2'}>{idx + 1}.</p>
                         <div className={'flex flex-col text-sm'}>
@@ -118,16 +124,20 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
     return (
         <Layout>
-            <div className={'flex flex-col'}>
-                <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
-                <p className={'mr-1 font-semibold'}>Hash ID </p>
-                <p className={'text-gray-500 font-xs'}>{txInputOutputs?.hash}</p>
-            </div>
-
-            <div className={'flex flex-col gap-2'}>
-                <Inputs/>
-                <Outputs/>
-            </div>
+            <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
+            {props.isLoading ? <EmptyPageIcon message={"Fetching transaction details..."}/> :
+                <>
+                    <div className={'flex flex-col'}>
+                        <p className={'mr-1 font-semibold'}>Hash ID </p>
+                        <p className={'text-gray-500 font-xs'}>{tx?.hash}</p>
+                    </div>
+                    <div className={'flex flex-col gap-2'}>
+                        <Inputs/>
+                        <Outputs/>
+                    </div>
+                </>
+            }
         </Layout>
-    );
+    )
+        ;
 }

@@ -5,16 +5,12 @@ import {useEffect, useState} from "react";
 import {convertFollowupsToClientSide} from "@app/utils/transaction-details-utils";
 import {useParams} from "next/navigation";
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import {ErrorType} from "@app/components/transaction-hash/transaction-input-output";
 
 interface FollowupPropType {
     followups: any;
-    arrival_time: any;
-}
-
-interface ClientsideFollowups {
-    hash: string;
-    fee: string;
-    consumes: number;
+    isLoading: Boolean;
+    error: ErrorType;
 }
 
 export default function Followups(props: FollowupPropType) {
@@ -25,22 +21,23 @@ export default function Followups(props: FollowupPropType) {
     useEffect(() => {
         if (!props.followups) return;
         const followupsTemp = convertFollowupsToClientSide(props.followups, router.id.toLowerCase());
+        console.log("followups", followupsTemp)
         setFollowups(followupsTemp);
     }, [props, router.id])
 
-    if (!props.followups) {
+    if (props.isLoading) {
         return (
             <Layout>
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1>
-                    <EmptyPageIcon message={"Followups details not available"}/>
+                    <EmptyPageIcon message={"Fetching followups.."}/>
                 </div>
             </Layout>
         )
     }
 
     function ItemCard(props: any) {
-        const dataObj = {...props.transaction, arrival_time: getTimeString(props.arrival_time)};
+        const dataObj = props.transaction;
         return (
             <Layout>
                 {Object.keys(dataObj).map(key => (
@@ -55,14 +52,17 @@ export default function Followups(props: FollowupPropType) {
         )
     }
 
+
     return (
         <Layout className={"!overflow-y-scroll"}>
             <Heading title={'Followups'}/>
-            <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
-                {followups.map((tx) => (
-                    <ItemCard key={tx.hash} transaction={tx} arrival_time={props.arrival_time}/>
-                ))}
-            </div>
+            {!followups.length ? <EmptyPageIcon message={"No followups available!"}/> :
+                <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
+                    {followups.map((tx) => (
+                        <ItemCard key={tx.hash} transaction={tx}/>
+                    ))}
+                </div>
+            }
         </Layout>
     );
 }

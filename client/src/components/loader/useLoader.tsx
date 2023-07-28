@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
+import {ErrorType} from "@app/components/transaction-hash/transaction-input-output";
 
 const useLoader = () => {
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState({
+    const [error, setError] = useState<ErrorType>({
         message: "",
-        status: undefined,
+        status: -1,
     });
 
     const showLoader = () => {
