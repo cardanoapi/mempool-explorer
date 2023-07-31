@@ -57,7 +57,7 @@ export const syncClient = new PrismaClient({
     db:{
       url : process.env.DBSYNC_DATABASE_URL?
           process.env.DBSYNC_DATABASE_URL
-          : `postgresql://${readEnv('SRC_PGUSER',os.userInfo().username)}:${escape(readEnv('SRC_PGPASSWORD'))}@${readEnv('SRC_PGHOST',process.env.NODE_ENV=='development'?'localhost':'postgres')}:${readEnv('SRC_PGPORT','5432')}/${readEnv('SRC_PGDATABASE')}?schema=public&application_name=mempool-webapp`
+          : `postgresql://${readEnv('NEXT_PUBLIC_SRC_PGUSER',os.userInfo().username)}:${escape(readEnv('NEXT_PUBLIC_SRC_PGPASSWORD'))}@${readEnv('NEXT_PUBLIC_SRC_PGHOST',process.env.NODE_ENV=='development'?'localhost':'postgres')}:${readEnv('NEXT_PUBLIC_SRC_PGPORT','5432')}/${readEnv('NEXT_PUBLIC_SRC_PGDATABASE')}?schema=public&application_name=mempool-webapp`
     }
   }
 });
