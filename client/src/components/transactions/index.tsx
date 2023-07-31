@@ -15,19 +15,16 @@ import TransactionEventList from './transaction-hash-list';
 
 import CardanoWebSocketImpl, {AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage} from "@app/lib/websocket";
 import {MempoolEventType} from '@app/constants/constants';
+import environments from "@app/configs/environments";
 
-interface myProps {
-    ws: string;
-}
-
-export default function TransactionsContainer(props: myProps) {
+export default function TransactionsContainer() {
 
     const [mempoolEvent, setMempoolEvent] = useState<AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions>();
 
     const [mintEvent, setMintEvent] = useState<MintMessage>();
 
     useEffect(() => {
-        const sock = CardanoWebSocketImpl.createConnection(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws");
+        const sock = CardanoWebSocketImpl.createConnection(environments.WS_URL);
         sock.on("mint", (msg: MintMessage) => {
             console.log("mint", msg.slotNumber, msg.headerHash, msg.txHashes);
             const mintActionAddedTransaction: RemoveMintedTransactions = {

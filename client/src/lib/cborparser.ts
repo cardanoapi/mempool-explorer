@@ -66,8 +66,7 @@ export class Transaction {
     multiAssetParsing(value: any) {
         if (Array.isArray(value)) {
             const multiAssets = this.assetMapParse(value[1]);
-            const assets = [{'lovelace': value[0]}, ...multiAssets];
-            return assets;
+            return [{'lovelace': value[0]}, ...multiAssets];
         } else {
             return [{'lovelace': value}];
         }
