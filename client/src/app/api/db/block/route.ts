@@ -6,6 +6,7 @@ import {getUrlObject, transformToClientSideData} from "@app/utils/cardano-utils"
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
+    console.log("GET: ", req.url)
     try {
         const urlObject = getUrlObject(req.url);
         const id = urlObject.searchParams.get("id") as string;

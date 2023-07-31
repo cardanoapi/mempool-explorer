@@ -17,6 +17,7 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
 
 
 export async function GET(req: Request) {
+    console.log("GET: ", req.url)
     const urlObject = getUrlObject(req.url);
     const id = urlObject.searchParams.get("id") as string;
     const pageNumber = parseInt(<string>urlObject.searchParams.get("pageNumber"));
