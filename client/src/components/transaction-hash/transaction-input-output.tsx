@@ -1,9 +1,4 @@
-import {
-    convertToADA,
-    getNumberOfHiddenTransactionList,
-    getTheLimitForTransactionListDisplay,
-    toMidDottedStr
-} from '@app/utils/string-utils';
+import {convertToADA, toMidDottedStr} from '@app/utils/string-utils';
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
 import {useEffect, useState} from "react";
 import {convertToClientSideInputOutputObject} from "@app/utils/transaction-details-utils";
