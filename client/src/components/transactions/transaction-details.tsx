@@ -18,27 +18,42 @@ interface PropType {
 
 export default function MempoolTransactionsList(props: PropType) {
     const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
-    const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionListType>>([]);
+    const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<any>>([]);
 
     const getClientSideResponse = () => {
         return currentMempoolTransactions.map(item => ({
             [MempoolLiveViewTableHeaderEnum.hash]: item.hash,
             [MempoolLiveViewTableHeaderEnum.inputs]: item.inputs,
             [MempoolLiveViewTableHeaderEnum.outputs]: item.outputs,
-            [MempoolLiveViewTableHeaderEnum.received_time]: getRelativeTime(new Date(item.arrival_time))
+            [MempoolLiveViewTableHeaderEnum.received_time]: item.received_time
         }))
     }
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentMempoolTransactions(prevState => {
+                return prevState.map(obj => {
+                    return {
+                        ...obj,
+                        received_time: getRelativeTime(new Date(obj.arrival_time))
+                    }
+                })
+            })
+        }, 1000)
+        return () => clearTimeout(timer);
+    }, [])
+
 
     const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
-        const clientSideObject: MempoolTransactionResponseType = {
+        const clientSideObject: any = {
             hash: event.hash,
             inputs: event.tx.transaction.inputs,
             outputs: event.tx.transaction.outputs,
             arrival_time: !!event?.arrivalTime ? event.arrivalTime.toString() : "",
+            received_time: !!event?.arrivalTime ? getRelativeTime(new Date(event.arrivalTime)) : getRelativeTime(new Date())
         }
         const transformedClientSideObject = createLinkElementsForCurrentMempoolTransactions(clientSideObject);
-        setCurrentMempoolTransactions([...currentMempoolTransactions, transformedClientSideObject]);
+        setCurrentMempoolTransactions([transformedClientSideObject, ...currentMempoolTransactions]);
     };
 
     const removeTransactionFromMempoolState = (hashes: Array<string>) => {

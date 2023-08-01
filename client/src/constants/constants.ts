@@ -14,7 +14,8 @@ export enum MempoolLiveViewTableHeaderEnum {
     hash = "Transaction hash",
     inputs = "Inputs",
     outputs = "Outputs",
-    received_time = "Received Time"
+    received_time = "Received Time",
+    arrival_time = "Arrival Time"
 }
 
 export enum BlockDetailsTableInputType {
