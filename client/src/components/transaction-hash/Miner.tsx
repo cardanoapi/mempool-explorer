@@ -10,6 +10,7 @@ import {copyToClipboard} from "@app/utils/utils";
 import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 
 import 'react-toastify/dist/ReactToastify.css';
+import {DateTimeCustomoptions} from "@app/constants/constants";
 
 
 enum MinerEnum {
@@ -42,14 +43,13 @@ export default function Miner() {
         showLoader();
         getTransactionDetails()
             .then((d) => {
-                console.log("confirmation", d[0])
-                //TODO: decode and convert to client side obj
+                const date = new Date(d[0]?.block_time);
                 const clientSideObj = {
                     [MinerEnum.block_no]: d[0].block_no.toString(),
                     [MinerEnum.epoch]: d[0].epoch.toString(),
                     [MinerEnum.slot_no]: parseInt(d[0].slot_no).toString(),
                     [MinerEnum.block_hash]: Buffer.from(d[0].block_hash).toString("hex"),
-                    [MinerEnum.block_time]: d[0].block_time.toString(),
+                    [MinerEnum.block_time]: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(date),
                     [MinerEnum.pool_id]: d[0].pool_id.toString(),
                     [MinerEnum.tx_hash]: Buffer.from(d[0].tx_hash).toString("hex"),
                 }
@@ -85,7 +85,7 @@ export default function Miner() {
                         <div className={"flex gap-2 mt-2 justify-between items-center"}>
                             <p className={'font-xs font-semibold'}>{dataObj[key]}</p>
                             <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(dataObj[key])}>
-                                <CopyToClipboard />
+                                <CopyToClipboard/>
                             </div>
                         </div>
 

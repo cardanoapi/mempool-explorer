@@ -28,4 +28,14 @@ export enum BlockDetailsTableInputType {
     txHashes = "Transaction hashes"
 }
 
+export const DateTimeCustomoptions: any = {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+};
+
 export const TransactionListMaxDisplayCount = 2;
