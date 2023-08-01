@@ -1,5 +1,5 @@
 import Layout from "@app/shared/layout";
-import {Heading, toMidDottedStr} from "@app/utils/string-utils";
+import {Heading} from "@app/utils/string-utils";
 import {useEffect, useState} from "react";
 import {useParams} from "next/navigation";
 import {checkForErrorResponse} from "@app/components/loader/error";

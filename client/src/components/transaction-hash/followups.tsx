@@ -5,6 +5,10 @@ import {convertFollowupsToClientSide} from "@app/utils/transaction-details-utils
 import {useParams} from "next/navigation";
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
 import {ErrorType} from "@app/components/transaction-hash/transaction-input-output";
+import {Buffer} from "buffer";
+import {checkForErrorResponse} from "@app/components/loader/error";
+import {decode} from "cbor-x";
+import useLoader from "@app/components/loader/useLoader";
 
 interface FollowupPropType {
     followups: any;
@@ -15,12 +19,76 @@ interface FollowupPropType {
 export default function Followups(props: FollowupPropType) {
     const router = useParams();
 
-    const [followups, setFollowups] = useState<Array<any>>([])
+    const [followups, setFollowups] = useState<Array<any>>([]);
+
+    const {setError, showLoader, hideLoader} = useLoader();
+
+    const getConfirmation = async (queryString: string) => {
+        const response = await fetch(`/api/db/transaction/confirmation?${queryString}`);
+        await checkForErrorResponse(response)
+        const arrayBuffer = await response.arrayBuffer();
+        return decode(new Uint8Array(arrayBuffer));
+    }
+
+    function addConfirmationStatusToIncomingApiResponse(apiResponse:any,confirmationResponse:any) {
+        return apiResponse.map((tx: any) => {
+            let confirmation_status = false;
+            // iterate through each confirmation response and check the tx hash tallying
+            for (let i = 0; i < confirmationResponse.length; i++) {
+                const txHash = Buffer.from(tx.hash).toString('hex');
+                const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex')
+                if (txHash === confirmationHash) {
+                    confirmation_status = true;
+                    break;
+                }
+            }
+            return {
+                ...tx,
+                confirmation_status: confirmation_status
+            }
+        })
+    }
+
+    async function getTransactionHashesOfEachFollowups() {
+        const hashes = props.followups.map((tx: any) => "hash=" + Buffer.from(tx.hash).toString('hex'))
+        const confirmationQueryString = hashes.join("&");
+        try {
+            const confirmationResponse = await getConfirmation(confirmationQueryString);
+            const responseWithConfirmationStatus = addConfirmationStatusToIncomingApiResponse(props.followups,confirmationResponse)
+            // const responseWithConfirmationStatus = props.followups.map((tx: any) => {
+            //     let confirmation_status = false;
+            //     // iterate through each confirmation response and check the tx hash tallying
+            //     for (let i = 0; i < confirmationResponse.length; i++) {
+            //         const txHash = Buffer.from(tx.hash).toString('hex');
+            //         const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex')
+            //         if (txHash === confirmationHash) {
+            //             confirmation_status = true;
+            //             break;
+            //         }
+            //     }
+            //     return {
+            //         ...tx,
+            //         confirmation_status: confirmation_status
+            //     }
+            // })
+            hideLoader();
+            return responseWithConfirmationStatus
+        } catch (e: any) {
+            setError({
+                message: e.message,
+                status: e.code
+            })
+        }
+    }
 
     useEffect(() => {
         if (!props.followups) return;
-        const followupsTemp = convertFollowupsToClientSide(props.followups, router.id.toLowerCase());
-        setFollowups(followupsTemp);
+        showLoader();
+        getTransactionHashesOfEachFollowups().then(data => {
+            const followupsTemp = convertFollowupsToClientSide(data, router.id.toLowerCase());
+            setFollowups(followupsTemp);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props, router.id])
 
     if (props.isLoading) {
