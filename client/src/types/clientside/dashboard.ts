@@ -1,10 +1,19 @@
-/** mempool types **/
-import {MempoolLiveViewTableHeaderEnum} from "@app/constants/constants";
+import {AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage} from "@app/lib/websocket";
 
-export interface MempoolTransactionClientsideType {
-    [MempoolLiveViewTableHeaderEnum.hash]: string;
-    [MempoolLiveViewTableHeaderEnum.inputs]: Array<string>;
-    [MempoolLiveViewTableHeaderEnum.outputs]: Array<string>;
-    [MempoolLiveViewTableHeaderEnum.received_time]: string;
-    [MempoolLiveViewTableHeaderEnum.arrival_time]: string;
+export interface MempoolTransactionResponseType {
+    hash: string | JSX.Element;
+    inputs: Array<string> | JSX.Element;
+    outputs: Array<string> | JSX.Element
+    received_time: string;
+    arrival_time: string;
 }
+
+interface ActionType {
+    action: string;
+}
+
+export type AddRejectTxClientSideType = (AddTxMessage | RejectTxMessage) & ActionType;
+
+export type RemoveTxClientSideType = RemoveTxMessage & ActionType;
+
+export type RemoveMintedTransactions = MintMessage & ActionType;

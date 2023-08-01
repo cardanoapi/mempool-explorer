@@ -1,16 +1,15 @@
 import {useEffect, useState} from 'react';
 
 import TableLayout from '@app/shared/table-layout';
-import {
-    AddRejectTxClientSideType,
-    MempoolTransactionListType,
-    MempoolTransactionResponseType,
-    RemoveMintedTransactions,
-    RemoveTxClientSideType
-} from '@app/types/transaction-details-response/socket-response-type';
 import {createLinkElementsForCurrentMempoolTransactions, Heading} from '@app/utils/string-utils';
 import {MempoolEventType, MempoolLiveViewTableHeaderEnum} from '@app/constants/constants';
 import {getRelativeTime} from "@app/utils/cardano-utils";
+import {
+    AddRejectTxClientSideType,
+    MempoolTransactionResponseType,
+    RemoveMintedTransactions,
+    RemoveTxClientSideType
+} from "@app/types/clientside/dashboard";
 
 interface PropType {
     event: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions | undefined;
@@ -18,7 +17,7 @@ interface PropType {
 
 export default function MempoolTransactionsList(props: PropType) {
     const event = props.event as AddRejectTxClientSideType | RemoveTxClientSideType;
-    const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<any>>([]);
+    const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionResponseType>>([]);
 
     const getClientSideResponse = () => {
         return currentMempoolTransactions.map(item => ({
@@ -45,7 +44,7 @@ export default function MempoolTransactionsList(props: PropType) {
 
 
     const addTransactionToMempoolState = (event: AddRejectTxClientSideType) => {
-        const clientSideObject: any = {
+        const clientSideObject: MempoolTransactionResponseType = {
             hash: event.hash,
             inputs: event.tx.transaction.inputs,
             outputs: event.tx.transaction.outputs,

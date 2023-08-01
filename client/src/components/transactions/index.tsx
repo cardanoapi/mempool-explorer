@@ -3,11 +3,6 @@
 import {useEffect, useState} from 'react';
 
 import BlockDetails from '@app/components/transactions/block-details';
-import {
-    AddRejectTxClientSideType,
-    RemoveMintedTransactions,
-    RemoveTxClientSideType
-} from '@app/types/transaction-details-response/socket-response-type';
 
 import MempoolTransactionsList from './transaction-details';
 import TransactionEventList from './transaction-hash-list';
@@ -16,6 +11,11 @@ import TransactionEventList from './transaction-hash-list';
 import CardanoWebSocketImpl, {AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage} from "@app/lib/websocket";
 import {MempoolEventType} from '@app/constants/constants';
 import environments from "@app/configs/environments";
+import {
+    AddRejectTxClientSideType,
+    RemoveMintedTransactions,
+    RemoveTxClientSideType
+} from "@app/types/clientside/dashboard";
 
 export default function TransactionsContainer() {
 

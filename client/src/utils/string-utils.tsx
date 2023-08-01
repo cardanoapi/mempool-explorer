@@ -1,13 +1,13 @@
 import Link from "next/link";
 import {
     AddressTransactionType,
-    MempoolTransactionResponseType,
     TransactionInputResponseType,
     TransactionOutputResponseType
 } from "@app/types/transaction-details-response/socket-response-type";
 import React from "react";
 import {BlockDetailsTableInputType, TransactionListMaxDisplayCount} from "@app/constants/constants";
 import {BlockDetailsInputType} from "@app/components/transactions/block-details";
+import {MempoolTransactionResponseType} from "@app/types/clientside/dashboard";
 
 export const toMidDottedStr = (str: string, leadingVisible = 9, firstIndex = 0) => {
     if (str === undefined || str.length < 15) return str;
@@ -106,11 +106,12 @@ function convertOutputArrayToReactElement(arr: Array<TransactionOutputResponseTy
 export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTransactionResponseType) => {
     const inputs: any = obj.inputs;
     const outputs: any = obj.outputs;
+    const hash = obj.hash as string;
     return {
         ...obj,
-        hash: <Link key={obj.hash} target={"_blank"} className={"text-blue-500 mb-[2px]"}
-                    href={`/transactions/${obj.hash}`}>
-            {toMidDottedStr(obj.hash)}
+        hash: <Link key={hash} target={"_blank"} className={"text-blue-500 mb-[2px]"}
+                    href={`/transactions/${hash}`}>
+            {toMidDottedStr(hash)}
         </Link>,
         inputs: <div className={"flex flex-col gap-2"}>{convertInputArrayToReactElement(inputs)}</div>,
         outputs: <div className={"flex flex-col gap-2"}>{convertOutputArrayToReactElement(outputs)}</div>
