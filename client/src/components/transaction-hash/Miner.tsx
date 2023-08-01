@@ -6,6 +6,22 @@ import {checkForErrorResponse} from "@app/components/loader/error";
 import {decode} from "cbor-x";
 import useLoader from "@app/components/loader/useLoader";
 import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
+import {copyToClipboard} from "@app/utils/utils";
+import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
+
+import 'react-toastify/dist/ReactToastify.css';
+
+
+enum MinerEnum {
+    block_hash = "Block Hash",
+    block_no = "Block Number",
+    block_time = "Block Time",
+    epoch = "Epoch",
+    in_addrs = "Address",
+    pool_id = "Pool Id",
+    slot_no = "Slot Number",
+    tx_hash = "Transaction Hash"
+}
 
 export default function Miner() {
     const router = useParams();
@@ -26,8 +42,18 @@ export default function Miner() {
         showLoader();
         getTransactionDetails()
             .then((d) => {
-                console.log("confirmation", d)
-                setMiner(d);
+                console.log("confirmation", d[0])
+                //TODO: decode and convert to client side obj
+                const clientSideObj = {
+                    [MinerEnum.block_no]: d[0].block_no.toString(),
+                    [MinerEnum.epoch]: d[0].epoch.toString(),
+                    [MinerEnum.slot_no]: parseInt(d[0].slot_no).toString(),
+                    [MinerEnum.block_hash]: Buffer.from(d[0].block_hash).toString("hex"),
+                    [MinerEnum.block_time]: d[0].block_time.toString(),
+                    [MinerEnum.pool_id]: d[0].pool_id.toString(),
+                    [MinerEnum.tx_hash]: Buffer.from(d[0].tx_hash).toString("hex"),
+                }
+                setMiner(clientSideObj);
             })
             .catch((e: any) => {
                 console.error(e);
@@ -56,7 +82,13 @@ export default function Miner() {
                 {Object.keys(dataObj).map(key => (
                     <Layout key={key}>
                         <p className={'text-gray-600 mr-1'}>{key}</p>
-                        <p className={' font-xs font-semibold'}>{toMidDottedStr(dataObj[key])}</p>
+                        <div className={"flex gap-2 mt-2 justify-between items-center"}>
+                            <p className={'font-xs font-semibold'}>{dataObj[key]}</p>
+                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(dataObj[key])}>
+                                <CopyToClipboard />
+                            </div>
+                        </div>
+
                     </Layout>
                 ))}
             </>
@@ -69,10 +101,10 @@ export default function Miner() {
             {isLoading ? <EmptyPageIcon message={"Fetching miner info..."}/> :
                 <>
                     {!!miner ?
-                        <div className={'grid gap-2 grid-cols-1 md:grid-cols-2'}>
+                        <div className={'flex flex-wrap gap-2'}>
                             <TransactionBlockInfo key={miner?.block_hash} transaction={miner}/>
                         </div> :
-                        <EmptyPageIcon message={"Miner not available"}/>
+                        <EmptyPageIcon message={"The transaction is not available on the blockchain"}/>
                     }
                 </>
             }

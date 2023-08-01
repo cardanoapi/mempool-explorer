@@ -15,6 +15,7 @@ import {toMidDottedStr} from '@app/utils/string-utils';
 import Followups from "@app/components/transaction-hash/followups";
 import Miner from "@app/components/transaction-hash/Miner";
 import Competitors from "@app/components/transaction-hash/competitors";
+import {ToastContainer} from "react-toastify";
 
 type TransactionDetailsInterface = {
     tx: any;
@@ -73,6 +74,7 @@ export default function TransactionDetails() {
         <>
             <Navbar/>
             <div className={'calc-h-68'}>
+                <ToastContainer position={'bottom-right'} autoClose={2000}/>
                 <div className={'grid mx-4 grid-cols-1 md:grid-cols-2 gap-4 '}>
                     <TransactionInputOutput isLoading={isLoading} error={error}
                                             txInputOutputs={transactionDetails?.tx}/>

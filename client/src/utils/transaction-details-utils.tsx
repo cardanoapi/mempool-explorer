@@ -87,7 +87,7 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         let consumes = 0;
 
         for (let i = 0; i < txBodyObject.inputs().len(); i++) {
-            console.log(txBodyObject.inputs().get(i).transaction_id());
+            // console.log(txBodyObject.inputs().get(i).transaction_id());
             const input = txBodyObject.inputs().get(i).transaction_id().to_hex();
             if (input === id) consumes++;
         }
