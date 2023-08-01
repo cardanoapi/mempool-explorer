@@ -103,7 +103,7 @@ export default function MempoolTransactionsList(props: PropType) {
                             className={"text-black font-bold"}>{!!event?.mempoolTxCount ? event.mempoolTxCount : 0}</span>
                         </p>
                     </div>
-                    <p className={"text-sm text-gray-500"}>Local Tx count:&nbsp;<span
+                    <p className={"text-sm text-gray-500"}>Browser Tx count:&nbsp;<span
                         className={"text-black font-bold"}>{currentMempoolTransactions.length}</span></p>
                 </div>
             </div>

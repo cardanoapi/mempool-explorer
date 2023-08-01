@@ -19,6 +19,7 @@ interface Transaction {
 }
 
 const convertToAppropriateDate = (dateString: string) => {
+    if (!dateString) return "N/A";
     const date: any = new Date(dateString);
 
 // Extract the components of the date
@@ -65,7 +66,7 @@ export const convertToTableData = (data: Array<Transaction>) => {
         return {
             ...item,
             slot_no: item.slot_no.toString(10),
-            wait_time: parseFloat(item.wait_time),
+            wait_time: !item.wait_time ? "N/A" : parseFloat(item.wait_time),
             confirmation_time: convertToAppropriateDate(item.confirmation_time.toString()),
             block_hash: toMidDottedStr(Buffer.from(item.block_hash).toString('hex')),
             tx_hash: Buffer.from(item.tx_hash).toString('hex'),

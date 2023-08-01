@@ -45,13 +45,13 @@ export default function Miner() {
             .then((d) => {
                 const date = new Date(d[0]?.block_time);
                 const clientSideObj = {
-                    [MinerEnum.block_no]: d[0].block_no.toString(),
-                    [MinerEnum.epoch]: d[0].epoch.toString(),
+                    [MinerEnum.block_no]: d[0]?.block_no.toString(),
+                    [MinerEnum.epoch]: d[0]?.epoch.toString(),
                     [MinerEnum.slot_no]: parseInt(d[0].slot_no).toString(),
-                    [MinerEnum.block_hash]: Buffer.from(d[0].block_hash).toString("hex"),
+                    [MinerEnum.block_hash]: Buffer.from(d[0]?.block_hash).toString("hex"),
                     [MinerEnum.block_time]: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(date),
-                    [MinerEnum.pool_id]: d[0].pool_id.toString(),
-                    [MinerEnum.tx_hash]: Buffer.from(d[0].tx_hash).toString("hex"),
+                    [MinerEnum.pool_id]: d[0]?.pool_id.toString(),
+                    [MinerEnum.tx_hash]: Buffer.from(d[0]?.tx_hash).toString("hex"),
                 }
                 setMiner(clientSideObj);
             })
