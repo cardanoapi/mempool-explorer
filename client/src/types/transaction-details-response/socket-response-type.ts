@@ -1,4 +1,4 @@
-import { AddTxMessage, RejectTxMessage, RemoveTxMessage, MintMessage } from "@app/lib/websocket";
+import {AddTxMessage, RejectTxMessage, RemoveTxMessage, MintMessage} from "@app/lib/websocket";
 import React from "react";
 
 export interface SocketEventResponseType {
@@ -11,34 +11,13 @@ export interface SocketEventResponseType {
     arrival_time: string;
 }
 
-interface ActionType {
-    action: string;
-}
-
-export type AddRejectTxClientSideType = (AddTxMessage | RejectTxMessage) & ActionType;
-
-export type RemoveTxClientSideType = RemoveTxMessage & ActionType;
-
-export type RemoveMintedTransactions = MintMessage & ActionType;
-
-export type MintClientSideType = MintMessage & ActionType;
-
-export type MempoolEventType = AddRejectTxClientSideType | RemoveTxClientSideType;
-
-export interface MempoolTransactionResponseType {
-    hash: string ;
-    inputs: Array<string> ;
-    outputs: Array<string> ;
-    arrival_time: string;
-}
-
 export interface AmountType {
     lovelace: number;
 }
 
 export interface TransactionOutputResponseType {
     address: string;
-    amount: Array <AmountType>;
+    amount: Array<AmountType>;
 }
 
 export interface TransactionInputResponseType {
@@ -46,17 +25,10 @@ export interface TransactionInputResponseType {
     index: number;
 }
 
-export interface MempoolTransactionListType {
-    hash: string | React.ReactElement;
-    inputs: Array<string> | React.ReactElement ;
-    outputs: Array<string> | React.ReactElement ;
-    arrival_time: string;
-}
-
 export interface AddressTransactionType {
     block_hash: string;
     block_no: string;
-    confirmation_time:string;
+    confirmation_time: string;
     epoch: number;
     slot_no: string;
     tx_hash: React.ReactElement;

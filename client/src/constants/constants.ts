@@ -14,7 +14,8 @@ export enum MempoolLiveViewTableHeaderEnum {
     hash = "Transaction hash",
     inputs = "Inputs",
     outputs = "Outputs",
-    received_time = "Received Time"
+    received_time = "Received Time",
+    arrival_time = "Arrival Time"
 }
 
 export enum BlockDetailsTableInputType {
@@ -26,5 +27,15 @@ export enum BlockDetailsTableInputType {
     headerHash = "Header hash",
     txHashes = "Transaction hashes"
 }
+
+export const DateTimeCustomoptions: any = {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+};
 
 export const TransactionListMaxDisplayCount = 2;

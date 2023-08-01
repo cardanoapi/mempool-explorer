@@ -4,6 +4,7 @@ import {getUrlObject} from "@app/utils/cardano-utils";
 import { getConfirmationDetails } from "@app/db/queries";
 
 export async function GET(req:any ) {
+    console.log("GET: ", req.url)
     try {
         const urlObject = getUrlObject(req.url);
         const hashes = urlObject.searchParams.getAll("hash");

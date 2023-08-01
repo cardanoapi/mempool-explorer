@@ -17,7 +17,7 @@ FROM prod AS builder
 ARG BASE_DEPLOY_PATH=
 RUN yarn install --frozen-lockfile
 COPY --chown=node:node . .
-RUN yarn prisma:generate && NEXT_PUBLIC_WS_URL=/ws && NEXT_PUBLIC_CARDANO_NETWORK=mainnet && NEXT_PUBLIC_SRC_PGHOST=172.31.0.7 && NEXT_PUBLIC_SRC_PGPORT=8432 && NEXT_PUBLIC_SRC_PGDATABASE=dbsync_preprod &&  NEXT_PUBLIC_SRC_PGUSER=postgres && NEXT_PUBLIC_SRC_PGPASSWORD='6pYx*U#bv!aCrU4aCaajS9^V^z' && yarn build
+RUN yarn prisma:generate && NEXT_PUBLIC_WS_URL=/ws  NEXT_PUBLIC_CARDANO_NETWORK=mainnet yarn build
 RUN rm -rf ./.next/cache/* && mkdir moveTarget && mv ./prisma  entrypoint.sh next.config.js package.json public/ ./moveTarget/
 
 

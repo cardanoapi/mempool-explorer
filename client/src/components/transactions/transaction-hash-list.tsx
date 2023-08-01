@@ -1,15 +1,15 @@
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
 import {MempoolEventType} from '@app/constants/constants';
 import Layout from '@app/shared/layout';
-import {
-    AddRejectTxClientSideType,
-    RemoveMintedTransactions,
-    RemoveTxClientSideType
-} from '@app/types/transaction-details-response/socket-response-type';
 import {getTimeString, Heading, toMidDottedStr} from '@app/utils/string-utils';
 import {useEffect, useState} from 'react';
 import Link from "next/link";
 import ClockIcon from "@app/assets/svgs/clock-icon";
+import {
+    AddRejectTxClientSideType,
+    RemoveMintedTransactions,
+    RemoveTxClientSideType
+} from "@app/types/clientside/dashboard";
 
 
 export interface PropType {

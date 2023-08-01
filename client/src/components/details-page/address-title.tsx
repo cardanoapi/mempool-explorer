@@ -7,20 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import CardanoIcon from '@app/assets/svgs/cardano-icon';
 import CopyToClipboard from '@app/assets/svgs/copy-to-clipboard';
 import LinkIcon from '@app/assets/svgs/link-icon';
+import {copyToClipboard} from "@app/utils/utils";
 
 export default function AddressTitle() {
     const router = useParams();
-
-    function copyToClipboard() {
-        navigator.clipboard
-            .writeText(router.id)
-            .then(() => {
-                toast.info('Text copied to clipboard');
-            })
-            .catch((error) => {
-                toast.error('Could not copy to clipboard');
-            });
-    }
 
     function generateCardanoScanLink() {
         const baseUrl = 'https://cardanoscan.io/';
@@ -43,7 +33,7 @@ export default function AddressTitle() {
                         <p className={'text-gray-500 text-sm'}>Address</p>
                         <div className={'flex items-center'}>
                             <p className={'font-bold mr-1'}>{router.id}</p>
-                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard()}>
+                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(router.id)}>
                                 <CopyToClipboard />
                             </div>
                             <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()}>

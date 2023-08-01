@@ -73,7 +73,7 @@ export function convertToClientSideInputOutputObject(tx: any) {
 }
 
 export function convertFollowupsToClientSide(response: any, id: string) {
-    const followups = response as Array<{ hash: Uint8Array; body: Uint8Array }>;
+    const followups = response as Array<{ hash: Uint8Array; body: Uint8Array, confirmation_status: Boolean }>;
     let allFollowups = [];
 
     for (let i = 0; i < followups.length; i++) {
@@ -87,12 +87,16 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         let consumes = 0;
 
         for (let i = 0; i < txBodyObject.inputs().len(); i++) {
-            console.log(txBodyObject.inputs().get(i).transaction_id());
+            // console.log(txBodyObject.inputs().get(i).transaction_id());
             const input = txBodyObject.inputs().get(i).transaction_id().to_hex();
             if (input === id) consumes++;
         }
 
-        followupObj = {...followupObj, consumes: consumes};
+        followupObj = {
+            ...followupObj,
+            consumes: consumes,
+            confirmation_status: followups[i].confirmation_status ? "Confirmed" : "Not confirmed"
+        };
         txObject.free();
         allFollowups.push(followupObj);
     }

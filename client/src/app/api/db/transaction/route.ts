@@ -4,6 +4,7 @@ import {encode} from "cbor-x";
 import {getUrlObject} from "@app/utils/cardano-utils";
 
 export async function GET(req: any) {
+    console.log("GET: ", req.url)
     try {
         const urlObject = getUrlObject(req.url);
         const hash = urlObject.searchParams.get("hash") as string;
@@ -12,8 +13,8 @@ export async function GET(req: any) {
         let txbody = await getBody(txHash);
         let followups = await getFollowups(txHash);
         let confirmation = await getConfirmation([txHash]);
-        let competing  = await getCompeting(txHash);
-        const detail = {tx:txbody, arrivalTime:arrivalTime?.received, followups, competing};
+        let competing = await getCompeting(txHash);
+        const detail = {tx: txbody, arrivalTime: arrivalTime?.received, followups, competing};
         const serializedBuffer = encode(detail);
         const response = new NextResponse(serializedBuffer);
         response.headers.set("Content-Type", "application/cbor")
