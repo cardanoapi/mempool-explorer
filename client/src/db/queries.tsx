@@ -134,7 +134,7 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
             )
         }
     } catch (e) {
-        console.log("/api/db/block ", e)
+        console.log("aggregration blocks query: ", e)
     }
 }
 

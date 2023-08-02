@@ -24,7 +24,7 @@ export default function Followups(props: FollowupPropType) {
     const {setError, showLoader, hideLoader} = useLoader();
 
     const getConfirmation = async (queryString: string) => {
-        const response = await fetch(`/api/db/transaction/confirmation?${queryString}`);
+        const response = await fetch(`/api/v1/tx/confirmation?${queryString}`);
         await checkForErrorResponse(response)
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));

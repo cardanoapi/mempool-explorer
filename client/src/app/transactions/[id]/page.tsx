@@ -31,7 +31,7 @@ export default function TransactionDetails() {
     const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
 
     const getTransactionDetails = async () => {
-        const response = await fetch(`/api/db/transaction?hash=${router.id}`);
+        const response = await fetch(`/api/v1/tx/${router.id}`);
         await checkForErrorResponse(response);
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));
