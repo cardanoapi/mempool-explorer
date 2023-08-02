@@ -32,7 +32,7 @@ export default function Miner() {
     const [miner, setMiner] = useState<any>(null);
 
     const getTransactionDetails = async () => {
-        const response = await fetch(`/api/db/transaction/confirmation?hash=${router.id}`);
+        const response = await fetch(`/api/v1/tx/confirmation?hash=${router.id}`);
         await checkForErrorResponse(response);
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));
@@ -47,7 +47,7 @@ export default function Miner() {
                 const clientSideObj = {
                     [MinerEnum.block_no]: d[0]?.block_no.toString(),
                     [MinerEnum.epoch]: d[0]?.epoch.toString(),
-                    [MinerEnum.slot_no]: parseInt(d[0].slot_no).toString(),
+                    [MinerEnum.slot_no]: parseInt(d[0]?.slot_no).toString(),
                     [MinerEnum.block_hash]: Buffer.from(d[0]?.block_hash).toString("hex"),
                     [MinerEnum.block_time]: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(date),
                     [MinerEnum.pool_id]: d[0]?.pool_id.toString(),

@@ -2,12 +2,35 @@ import {getArrivalTime, getBody, getCompeting, getConfirmation, getFollowups} fr
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {getUrlObject} from "@app/utils/cardano-utils";
+import {parse} from "url";
+
+/**
+ * @swagger
+ * /api/v1/tx/{hash}:
+ *   get:
+ *     summary: get transaction details of a transaction hash
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *         application/cbor: {}
+ *     parameters:
+ *       - in: path
+ *         name: hash
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: transaction hash of a transaction
+ */
 
 export async function GET(req: any) {
     console.log("GET: ", req.url)
     try {
-        const urlObject = getUrlObject(req.url);
-        const hash = urlObject.searchParams.get("hash") as string;
+        const parsedUrl = parse(req.url, true);
+        const pathname = parsedUrl.pathname as string;
+        const hash = pathname.split('/').pop() as string;
+        // const urlObject = getUrlObject(req.url);
+        // const hash = urlObject.searchParams.get("hash") as string;
         const txHash = Buffer.from(hash, 'hex');
         let arrivalTime = await getArrivalTime(txHash);
         let txbody = await getBody(txHash);
@@ -20,7 +43,7 @@ export async function GET(req: any) {
         response.headers.set("Content-Type", "application/cbor")
         return response;
     } catch (e: any) {
-        console.log("/api/db/transactions", e);
+        console.log(req.url, e);
         return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
     }
 }

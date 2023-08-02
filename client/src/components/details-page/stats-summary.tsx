@@ -27,7 +27,7 @@ export default function StatsSummary() {
     const router = useParams();
 
     const getStatsFromDatabase = async () => {
-        const response = await fetch(`/api/db/block?id=${router.id}`);
+        const response = await fetch(`/api/v1/tx/stats?query=${router.id}`);
         await checkForErrorResponse(response)
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));
@@ -37,9 +37,9 @@ export default function StatsSummary() {
         getStatsFromDatabase().then(d => setStats(d))
             .catch((e: any) =>
                 setError({
-                message: e.message,
-                status: e.code
-            })).finally(() => hideLoader())
+                    message: e.message,
+                    status: e.code
+                })).finally(() => hideLoader())
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router.id])
 

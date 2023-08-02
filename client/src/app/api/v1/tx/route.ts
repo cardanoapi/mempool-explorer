@@ -16,10 +16,34 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
 }
 
 
+/**
+ * @swagger
+ * /api/v1/tx:
+ *   get:
+ *     summary: get transaction list of address or pool
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *         application/cbor: {}
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The identifier for the address or pool.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The page number for pagination
+ */
 export async function GET(req: Request) {
     console.log("GET: ", req.url)
     const urlObject = getUrlObject(req.url);
-    const id = urlObject.searchParams.get("id") as string;
+    const id = urlObject.searchParams.get("query") as string;
     const pageNumber = parseInt(<string>urlObject.searchParams.get("pageNumber"));
     let data: any;
     try {
@@ -33,7 +57,7 @@ export async function GET(req: Request) {
         response.headers.set("Content-Type", "application/cbor")
         return response;
     } catch (e: any) {
-        console.log("/api/db/", e);
+        console.log(req.url, e);
         return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
     }
 }
