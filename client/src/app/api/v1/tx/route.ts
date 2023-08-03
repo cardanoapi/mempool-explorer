@@ -2,6 +2,7 @@ import {getAddressDetails, getPoolDetails, getTheLatestTransactionEpochOfAddress
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {convertToTableData, getLatestEpoch, getUrlObject} from "@app/utils/cardano-utils";
+import {convertBuffersToString} from "@app/utils/utils";
 
 
 async function getTransactionHistoryOfPool(id: string, pageNumber: number) {
@@ -25,7 +26,7 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
  *       200:
  *         description: Success
  *         content:
- *         application/cbor: {}
+ *           application/json: {}
  *     parameters:
  *       - in: query
  *         name: query
@@ -51,6 +52,10 @@ export async function GET(req: Request) {
             data = await getTransactionHistoryOfPool(id, pageNumber)
         } else {
             data = await getTransactionHistoryOfAddress(id, pageNumber)
+        }
+        if (req.headers.get("accept") === "application/json") {
+            const r = convertBuffersToString(data)
+            return NextResponse.json(r)
         }
         const serializedBuffer = encode(convertToTableData(data));
         const response = new NextResponse(serializedBuffer);
