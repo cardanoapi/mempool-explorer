@@ -3,6 +3,7 @@ import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {getUrlObject} from "@app/utils/cardano-utils";
 import {parse} from "url";
+import {convertBuffersToString} from "@app/utils/utils";
 
 /**
  * @swagger
@@ -13,7 +14,7 @@ import {parse} from "url";
  *       200:
  *         description: Success
  *         content:
- *         application/cbor: {}
+ *           application/json: {}
  *     parameters:
  *       - in: path
  *         name: hash
@@ -35,9 +36,12 @@ export async function GET(req: any) {
         let arrivalTime = await getArrivalTime(txHash);
         let txbody = await getBody(txHash);
         let followups = await getFollowups(txHash);
-        let confirmation = await getConfirmation([txHash]);
+        // let confirmation = await getConfirmation([txHash]);
         let competing = await getCompeting(txHash);
         const detail = {tx: txbody, arrivalTime: arrivalTime?.received, followups, competing};
+        if (req.headers.get("accept") === "application/json") {
+            return NextResponse.json(convertBuffersToString(detail))
+        }
         const serializedBuffer = encode(detail);
         const response = new NextResponse(serializedBuffer);
         response.headers.set("Content-Type", "application/cbor")

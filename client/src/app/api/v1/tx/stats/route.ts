@@ -2,6 +2,7 @@ import {encode} from "cbor-x";
 import {NextResponse} from "next/server";
 import {getAggregrationForLastThreeBlocks} from "@app/db/queries";
 import {getUrlObject, transformToClientSideData} from "@app/utils/cardano-utils";
+import {convertBuffersToString} from "@app/utils/utils";
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic'
  *       200:
  *         description: Success
  *         content:
- *         application/cbor: {}
+ *           application/json: {}
  *     parameters:
  *       - in: query
  *         name: query
@@ -30,6 +31,10 @@ export async function GET(req: Request) {
         const urlObject = getUrlObject(req.url);
         const id = urlObject.searchParams.get("query") as string;
         let data = await getAggregrationForLastThreeBlocks(id);
+        if (req.headers.get("accept") === "application/json") {
+            const r = convertBuffersToString(await transformToClientSideData(data));
+            return NextResponse.json(r)
+        }
         const transformedData = await transformToClientSideData(data);
         const serializedBuffer = encode(transformedData);
         const response = new NextResponse(serializedBuffer);
