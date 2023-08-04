@@ -1,9 +1,19 @@
-import {getArrivalTime, getBody, getCompeting, getConfirmation, getFollowups} from "@app/db/queries";
+import {getArrivalTime, getBody, getCompeting, getFollowups} from "@app/db/queries";
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
-import {getUrlObject} from "@app/utils/cardano-utils";
 import {parse} from "url";
 import {convertBuffersToString} from "@app/utils/utils";
+
+
+async function fetchTheArrivalTime(arr: Array<any>) {
+    return Promise.all(arr.map(async item => {
+        const arrivalTime = await getArrivalTime(item.hash);
+        return {
+            ...item,
+            arrivalTime: !!arrivalTime?.received ? arrivalTime.received.toString() : "N/A"
+        }
+    }))
+}
 
 /**
  * @swagger
@@ -36,8 +46,10 @@ export async function GET(req: any) {
         let arrivalTime = await getArrivalTime(txHash);
         let txbody = await getBody(txHash);
         let followups = await getFollowups(txHash);
+        followups = await fetchTheArrivalTime(followups);
         // let confirmation = await getConfirmation([txHash]);
         let competing = await getCompeting(txHash);
+        competing = await fetchTheArrivalTime(competing)
         const detail = {tx: txbody, arrivalTime: arrivalTime?.received, followups, competing};
         if (req.headers.get("accept") === "application/json") {
             return NextResponse.json(convertBuffersToString(detail))

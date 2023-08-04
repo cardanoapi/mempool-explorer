@@ -1,6 +1,7 @@
 import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
 import {Buffer} from 'buffer';
-import {toMidDottedStr} from "@app/utils/string-utils";
+import {getTimeString, toMidDottedStr} from "@app/utils/string-utils";
+import {DateTimeCustomoptions} from "@app/constants/constants";
 
 export interface InputOutputObjType {
     hash: string;
@@ -73,13 +74,22 @@ export function convertToClientSideInputOutputObject(tx: any) {
 }
 
 export function convertFollowupsToClientSide(response: any, id: string) {
-    const followups = response as Array<{ hash: Uint8Array; body: Uint8Array, confirmation_status: Boolean }>;
+    const followups = response as Array<{
+        hash: Uint8Array;
+        body: Uint8Array,
+        confirmation_status: Boolean,
+        arrivalTime: string
+    }>;
     let allFollowups = [];
 
     for (let i = 0; i < followups.length; i++) {
         let followupObj = {};
         const hash = Buffer.from(followups[i].hash).toString('hex');
-        followupObj = {...followupObj, hash: hash};
+        followupObj = {
+            ...followupObj,
+            hash: hash,
+            arrivalTime: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(followups[i].arrivalTime))
+        };
         const txObject = Transaction.from_bytes(followups[i].body);
         const txBodyObject = txObject.body();
         followupObj = {...followupObj, fee: txBodyObject.fee().to_js_value()};
