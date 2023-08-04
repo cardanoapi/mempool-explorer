@@ -1,6 +1,6 @@
 import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
 import {Buffer} from 'buffer';
-import {getTimeString, toMidDottedStr} from "@app/utils/string-utils";
+import {toMidDottedStr} from "@app/utils/string-utils";
 import {DateTimeCustomoptions} from "@app/constants/constants";
 
 export interface InputOutputObjType {
@@ -78,6 +78,7 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         hash: Uint8Array;
         body: Uint8Array,
         confirmation_status: Boolean,
+        confirmation_time: string,
         arrivalTime: string
     }>;
     let allFollowups = [];
@@ -97,15 +98,16 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         let consumes = 0;
 
         for (let i = 0; i < txBodyObject.inputs().len(); i++) {
-            // console.log(txBodyObject.inputs().get(i).transaction_id());
             const input = txBodyObject.inputs().get(i).transaction_id().to_hex();
             if (input === id) consumes++;
         }
 
         followupObj = {
+            hash: followups[i].hash,
+            consumes: `#${consumes}`,
             ...followupObj,
-            consumes: consumes,
-            confirmation_status: followups[i].confirmation_status ? "Confirmed" : "Not confirmed"
+            confirmation_status: followups[i].confirmation_status ? "Confirmed" : "Not confirmed",
+            confirmation_time: followups[i].confirmation_time
         };
         txObject.free();
         allFollowups.push(followupObj);

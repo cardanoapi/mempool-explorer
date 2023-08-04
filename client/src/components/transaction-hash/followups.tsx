@@ -9,6 +9,7 @@ import {Buffer} from "buffer";
 import {checkForErrorResponse} from "@app/components/loader/error";
 import {decode} from "cbor-x";
 import useLoader from "@app/components/loader/useLoader";
+import {DateTimeCustomoptions} from "@app/constants/constants";
 
 interface FollowupPropType {
     followups: any;
@@ -33,18 +34,21 @@ export default function Followups(props: FollowupPropType) {
     function addConfirmationStatusToIncomingApiResponse(apiResponse: any, confirmationResponse: any) {
         return apiResponse.map((tx: any) => {
             let confirmation_status = false;
+            let confirmation_time = "N/A";
             // iterate through each confirmation response and check the tx hash tallying
             for (let i = 0; i < confirmationResponse.length; i++) {
                 const txHash = Buffer.from(tx.hash).toString('hex');
                 const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex')
                 if (txHash === confirmationHash) {
                     confirmation_status = true;
+                    confirmation_time = confirmationResponse[i].block_time
                     break;
                 }
             }
             return {
                 ...tx,
-                confirmation_status: confirmation_status
+                confirmation_status: confirmation_status,
+                confirmation_time: confirmation_status ? new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(confirmation_time)) : "N/A"
             }
         })
     }
@@ -90,15 +94,20 @@ export default function Followups(props: FollowupPropType) {
         const dataObj = props.transaction;
         return (
             <Layout>
-                {Object.keys(dataObj).map(key => (
-                    <div key={key} className={'flex flex-col'}>
-                        <div className={'flex items-center mt-1 text-sm gap-1'}>
-                            <p className={'text-gray-600 mr-1'}>{key}</p>
-                            <p className={'text-gray-500 font-xs font-bold'}>{key === "hash" ? toMidDottedStr(dataObj[key]) : dataObj[key]}</p>
-                        </div>
+                <div className={"flex justify-between gap-1"}>
+                    <div className={"flex flex-col"}>
+                        {Object.keys(dataObj).map(key => (
+                            <div key={key} className={'flex items-center mt-1 text-sm gap-1'}>
+                                {key !== "confirmation_status" && <p className={'text-gray-600 mr-1'}>{key}</p>}
+                                {key !== "confirmation_status" &&
+                                    <p className={'text-gray-500 font-xs font-bold'}>{key === "hash" ? toMidDottedStr(dataObj[key]) : dataObj[key]}</p>}
+                            </div>
+                        ))}
                     </div>
-                ))}
+                    {dataObj["confirmation_status"] ? <div className={"text-green-600"}>&#10003;</div> : ""}
+                </div>
             </Layout>
+
         )
     }
 

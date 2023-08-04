@@ -62,7 +62,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
     function Layout(props: any) {
         return <div
-            className={'border-solid bg-white border-[1px] border-[#bfbfbf] p-4 rounded-md'}>{props.children}</div>;
+            className={'bg-white p-4 rounded-md'}>{props.children}</div>;
     }
 
     function Outputs() {

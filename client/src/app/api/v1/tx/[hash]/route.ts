@@ -50,7 +50,7 @@ export async function GET(req: any) {
         // let confirmation = await getConfirmation([txHash]);
         let competing = await getCompeting(txHash);
         competing = await fetchTheArrivalTime(competing)
-        const detail = {tx: txbody, arrivalTime: arrivalTime?.received, followups, competing};
+        const detail = {tx: txbody, arrivalTime: arrivalTime?.received ?? "N/A", followups, competing};
         if (req.headers.get("accept") === "application/json") {
             return NextResponse.json(convertBuffersToString(detail))
         }
