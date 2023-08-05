@@ -55,6 +55,9 @@ export default function Followups(props: FollowupPropType) {
 
     async function getTransactionHashesOfEachFollowups() {
         const hashes = props?.followups.map((tx: any) => "hash=" + Buffer.from(tx.hash).toString('hex'))
+        if (!hashes.length) {
+            return props.followups
+        }
         const confirmationQueryString = hashes.join("&");
         try {
             const confirmationResponse = await getConfirmation(confirmationQueryString);
@@ -107,7 +110,6 @@ export default function Followups(props: FollowupPropType) {
                     {dataObj["confirmation_status"] ? <div className={"text-green-600"}>&#10003;</div> : ""}
                 </div>
             </Layout>
-
         )
     }
 

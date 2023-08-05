@@ -24,25 +24,30 @@ enum MinerEnum {
     tx_hash = "Transaction Hash"
 }
 
-export default function Miner() {
-    const router = useParams();
+interface MinerPropsType {
+    hash: string;
+}
 
+export default function Miner(props: MinerPropsType) {
     const {isLoading, showLoader, hideLoader, error, setError} = useLoader();
 
     const [miner, setMiner] = useState<any>(null);
 
     const getTransactionDetails = async () => {
-        const response = await fetch(`/api/v1/tx/confirmation?hash=${router.id}`);
+        const response = await fetch(`/api/v1/tx/confirmation?hash=${props.hash}`);
         await checkForErrorResponse(response);
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));
     };
 
     useEffect(() => {
-        if (!router.id) return;
+        if (!props.hash) return;
         showLoader();
         getTransactionDetails()
             .then((d) => {
+                if (!d.length) {
+                    setMiner([])
+                }
                 const date = new Date(d[0]?.block_time);
                 const clientSideObj = {
                     [MinerEnum.block_no]: d[0]?.block_no.toString(),
@@ -64,7 +69,14 @@ export default function Miner() {
             })
             .finally(() => hideLoader());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router.id]);
+    }, [props.hash]);
+
+    if (Array.isArray(miner) && !miner.length) {
+        return <Layout className={"!max-h-full !overflow-y-scroll"}>
+            <Heading title={"Miner"}/>
+            <EmptyPageIcon message={"Transaction has not been mined yet"}/>
+        </Layout>
+    }
 
     if (error.status !== -1) {
         return (

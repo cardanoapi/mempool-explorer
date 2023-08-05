@@ -3,7 +3,7 @@ import {bech32} from 'bech32';
 import environments from "@app/configs/environments";
 import {Network} from "@app/constants/constants";
 
-export class Transaction {
+export class CborTransactionParser {
     transaction;
 
     constructor(cbortx: Buffer) {
@@ -39,10 +39,12 @@ export class Transaction {
         this.transaction = transaction;
     }
 
+    getTransaction() {
+        return this.transaction;
+    }
 
     getInput(tx: any) {
         return tx[0].get(0);
-
     }
 
     assetMapParse(assetMap: any) {
@@ -105,6 +107,5 @@ export class Transaction {
                 return ret;
             }
         });
-
     }
 }

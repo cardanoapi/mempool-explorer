@@ -5,6 +5,7 @@ import {convertToClientSideInputOutputObject} from "@app/utils/transaction-detai
 import {useParams} from "next/navigation";
 import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 import {copyToClipboard} from "@app/utils/utils";
+import {ToastContainer} from "react-toastify";
 
 interface MultiAssetType {
     hash: string;
@@ -42,7 +43,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
 
     useEffect(() => {
-        if (!props.txInputOutputs) return;
+        if (!props?.txInputOutputs) return;
         let inputOutputObject = convertToClientSideInputOutputObject(props.txInputOutputs);
         inputOutputObject = {...inputOutputObject, hash: router.id};
         setTxDetails(inputOutputObject)
@@ -71,7 +72,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                 <div className={'flex flex-col'}>
                     <h1 className={'font-semibold'}>Outputs</h1>
                     {tx?.outputs?.map((tx: OutputType, idx: number) => (
-                        <div key={tx.address} className={'flex mb-4 items-start'}>
+                        <div key={idx} className={'flex mb-4 items-start'}>
                             <p className={'font-semibold mr-2'}>{idx}<span>.</span></p>
                             <div className={'flex flex-col text-sm'}>
                                 <div className={"flex items-center gap-2"}>
@@ -82,7 +83,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                                 </div>
                                 <p className={'font-bold text-lg'}>{convertToADA(tx.amount)}</p>
                                 <div className={"flex gap-1 mt-2 flex-wrap"}>
-                                    {tx.multiasset.map((t: any) => {
+                                    {tx?.multiasset?.map((t: any) => {
                                         return (
                                             <div key={t.hash} className={"flex w-full flex-wrap"}>
                                                 {Object.keys(t).map((key: string) => {
@@ -125,12 +126,13 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
     return (
         <Layout>
+            <ToastContainer position={'bottom-right'} autoClose={2000}/>
             <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
             <div className={'flex flex-col mb-2'}>
                 <p className={'mr-1 font-semibold'}>Hash ID </p>
                 <div className={"flex items-center gap-2 mb-2"}>
                     <p className={'text-gray-500 font-xs'}>{router.id.toLowerCase()}</p>
-                    <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(tx?.hash)}>
+                    <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(router.id)}>
                         <CopyToClipboard/>
                     </div>
                 </div>
@@ -138,7 +140,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
             {props.isLoading ? <EmptyPageIcon message={"Fetching transaction details..."}/> :
                 <>
                     {!!tx ?
-                        <div className={'overflow-x-scroll'}>
+                        <div>
                             <div className={'flex flex-col'}>
                                 <Inputs/>
                                 <Outputs/>
