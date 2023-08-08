@@ -9,10 +9,10 @@ import {BlockDetailsTableInputType, TransactionListMaxDisplayCount} from "@app/c
 import {BlockDetailsInputType} from "@app/components/transactions/block-details";
 import {MempoolTransactionResponseType} from "@app/types/clientside/dashboard";
 
-export const toMidDottedStr = (str: string, leadingVisible = 15, firstIndex = 0) => {
+export const toMidDottedStr = (str: string, leadingVisible = 12, firstIndex = 0) => {
     if (str === undefined || str.length < 15) return str;
     const total = str.toString().length;
-    const trailingLength = 15;
+    const trailingLength = 12;
     const leadingStr = str.toString().substring(firstIndex, leadingVisible);
     const trailingStr = str.toString().substring(total - trailingLength);
     return `${leadingStr}...${trailingStr}`;

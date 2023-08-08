@@ -6,6 +6,7 @@ import {useParams} from "next/navigation";
 import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 import {copyToClipboard} from "@app/utils/utils";
 import {ToastContainer} from "react-toastify";
+import Link from "next/link";
 
 interface MultiAssetType {
     hash: string;
@@ -118,13 +119,22 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                         <p className={'font-semibold mr-2'}>{idx + 1}.</p>
                         <div className={'flex flex-col text-sm'}>
                             <div className={"flex items-center gap-2"}>
-                                <p className={'text-blue-500'}>{!!props?.inputResolvedAddress[tx?.address]?.address ? toMidDottedStr(props.inputResolvedAddress[tx.address].address, 14) : tx.address}</p>
+                                {!!props?.inputResolvedAddress[tx?.address]?.address ?
+                                    <Link href={`/${props.inputResolvedAddress[tx.address].address}`} target={"_blank"}>
+                                        <p className={'text-blue-500'}>{toMidDottedStr(props.inputResolvedAddress[tx.address].address, 14)}</p>
+                                    </Link> :
+                                    <Link href={`/transactions/${tx.address.split("#")[0]}`} target={"_blank"}
+                                          className={"text-gray-600"}>
+                                        {tx.address}
+                                    </Link>
+                                }
                                 <div className={'cursor-pointer mr-2'}
                                      onClick={() => copyToClipboard(!!props?.inputResolvedAddress[tx?.address]?.address ? props.inputResolvedAddress[tx.address].address : tx.address)}>
                                     <CopyToClipboard/>
                                 </div>
                             </div>
-                            <p className={'font-bold text-lg'}>{props?.inputResolvedAddress[tx?.address]?.value?.lovelace ? convertToADA(props.inputResolvedAddress[tx.address].value.lovelace) : "N/A"}</p>
+                            {props?.inputResolvedAddress[tx?.address]?.value?.lovelace &&
+                                <p className={'font-bold text-lg'}>{convertToADA(props.inputResolvedAddress[tx.address].value.lovelace)}</p>}
                         </div>
                     </div>
                 ))}
