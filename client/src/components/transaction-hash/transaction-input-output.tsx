@@ -26,6 +26,7 @@ interface UtxoType {
 
 interface TransactionOutputInputType {
     txInputOutputs: UtxoType;
+    inputResolvedAddress: any;
     isLoading: Boolean;
     error: ErrorType;
 }
@@ -76,7 +77,7 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                             <p className={'font-semibold mr-2'}>{idx}<span>.</span></p>
                             <div className={'flex flex-col text-sm'}>
                                 <div className={"flex items-center gap-2"}>
-                                    <p className={'text-blue-500'}>{tx.address}</p>
+                                    <p className={'text-blue-500'}>{toMidDottedStr(tx.address)}</p>
                                     <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(tx.address)}>
                                         <CopyToClipboard/>
                                     </div>
@@ -116,7 +117,14 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                     <div key={tx.address} className={'flex gap-2 mb-4 items-center'}>
                         <p className={'font-semibold mr-2'}>{idx + 1}.</p>
                         <div className={'flex flex-col text-sm'}>
-                            <p className={'text-blue-500'}>{tx.address}</p>
+                            <div className={"flex items-center gap-2"}>
+                                <p className={'text-blue-500'}>{!!props?.inputResolvedAddress[tx?.address]?.address ? toMidDottedStr(props.inputResolvedAddress[tx.address].address, 14) : tx.address}</p>
+                                <div className={'cursor-pointer mr-2'}
+                                     onClick={() => copyToClipboard(!!props?.inputResolvedAddress[tx?.address]?.address ? props.inputResolvedAddress[tx.address].address : tx.address)}>
+                                    <CopyToClipboard/>
+                                </div>
+                            </div>
+                            <p className={'font-bold text-lg'}>{props?.inputResolvedAddress[tx?.address]?.value?.lovelace ? convertToADA(props.inputResolvedAddress[tx.address].value.lovelace) : "N/A"}</p>
                         </div>
                     </div>
                 ))}

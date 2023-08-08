@@ -3,6 +3,9 @@ import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {parse} from "url";
 import {convertBuffersToString} from "@app/utils/utils";
+import {dbClient} from "@app/db/prisma";
+import {Prisma} from "@prisma/client";
+import {CborTransactionParser} from "@app/lib/cborparser";
 
 
 async function fetchTheArrivalTime(arr: Array<any>) {
@@ -13,6 +16,29 @@ async function fetchTheArrivalTime(arr: Array<any>) {
             arrivalTime: !!arrivalTime?.received ? arrivalTime.received.toString() : "N/A"
         }
     }))
+}
+
+async function getAddressFromTxHashAndIndex(inputId: string, index: number) {
+    const hash = Buffer.from(inputId, "hex");
+    const query = Prisma.sql`select address, value from tx_out where hash=${hash} and index=${index}`;
+    return dbClient.$queryRaw(query);
+}
+
+async function addAddressFieldsToResponse(txBody: any) {
+    if (!txBody?.txbody) return;
+    const parsedTransaction = new CborTransactionParser(txBody.txbody);
+    const transactions = parsedTransaction.getTransaction();
+    let transactionToAddressObj: any = {};
+    if (Array.isArray(transactions.inputs) && !!transactions.inputs.length) {
+        for (let i = 0; i < transactions.inputs.length; i++) {
+            const hash: string = transactions.inputs[i].hash;
+            const index: number = transactions.inputs[i].index;
+            const key = `${hash}#${index}`;
+            const value: any = await getAddressFromTxHashAndIndex(hash, index);
+            transactionToAddressObj[key] = !!value ? value[0] : "";
+        }
+    }
+    return transactionToAddressObj;
 }
 
 /**
@@ -45,12 +71,19 @@ export async function GET(req: any) {
         const txHash = Buffer.from(hash, 'hex');
         let arrivalTime = await getArrivalTime(txHash);
         let txbody = await getBody(txHash);
+        const resolvedTransactionToAddressObj = await addAddressFieldsToResponse(txbody);
         let followups = await getFollowups(txHash);
         followups = await fetchTheArrivalTime(followups);
         // let confirmation = await getConfirmation([txHash]);
         let competing = await getCompeting(txHash);
         competing = await fetchTheArrivalTime(competing)
-        const detail = {tx: txbody, arrivalTime: arrivalTime?.received?.toString() ?? "N/A", followups, competing};
+        const detail = {
+            tx: txbody,
+            arrivalTime: arrivalTime?.received?.toString() ?? "N/A",
+            followups,
+            competing,
+            inputAddress: resolvedTransactionToAddressObj
+        };
         if (req.headers.get("accept") === "application/json") {
             return NextResponse.json(convertBuffersToString(detail))
         }

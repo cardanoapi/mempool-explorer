@@ -38,9 +38,7 @@ export function convertToClientSideInputOutputObject(tx: any) {
 
         if (output.amount.length === 2) {
             const policyId = output.amount[1].currSymbol;
-            console.log('policy id: ', policyId)
             if (Array.isArray(output?.amount[1]?.numberOfAsset)) {
-                console.log("assets: ", output.amount[1].numberOfAsset)
                 const assetsList = output.amount[1].numberOfAsset;
                 for (let i = 0; i < assetsList.length; i++) {
                     let transformedObj: any = {};
@@ -63,89 +61,6 @@ export function convertToClientSideInputOutputObject(tx: any) {
     inputOutputsObj = {...inputOutputsObj, outputs: outputs}
 
     return inputOutputsObj;
-
-    // let multiasset: any = [];
-    // if (typeof output.amount.multiasset === "object") {
-    //     const transformedObj: any = {};
-    //     const obj = output.amount.multiasset;
-    //     for (const key in obj) {
-    //         const value = obj[key];
-    //         if (typeof value === 'object' && !Array.isArray(value)) {
-    //             for (const nestedKey in value) {
-    //                 transformedObj[`${toMidDottedStr(key)}.${toMidDottedStr(nestedKey)}`] = value[nestedKey];
-    //             }
-    //         }
-    //     }
-    //     multiasset = [...multiasset, transformedObj];
-    // } else {
-    //     multiasset = output?.amount?.multiasset.map((obj: any) => {
-    //         const transformedObj: any = {};
-    //         for (const key in obj) {
-    //             const value = obj[key];
-    //             if (typeof value === 'object' && !Array.isArray(value)) {
-    //                 for (const nestedKey in value) {
-    //                     transformedObj[`${key}.${nestedKey}`] = value[nestedKey];
-    //                 }
-    //             }
-    //         }
-    //     })
-    // }
-
-    // const txBodyObject: Transaction = Transaction.from_bytes(tx.txbody);
-    // const transactionJson = JSON.parse(txBodyObject.to_json());
-    // txBodyObject.free();
-    //
-    // const inputs = [];
-    // for (let i = 0; i < transactionJson.body.inputs.length; i++) {
-    //     const input = transactionJson.body.inputs[i];
-    //     const format = {address: `${input.transaction_id}#${input.index}`}
-    //     inputs.push(format)
-    // }
-    // inputOutputsObj = {...inputOutputsObj, inputs: inputs}
-    //
-    // const outputs = [];
-    // for (let i = 0; i < transactionJson.body.outputs.length; i++) {
-    //     const output = transactionJson.body.outputs[i];
-    //     const address = output.address;
-    //     const amount = output.amount.coin;
-    //     let multiasset: any = [];
-    //     if (typeof output.amount.multiasset === "object") {
-    //         const transformedObj: any = {};
-    //         const obj = output.amount.multiasset;
-    //         for (const key in obj) {
-    //             const value = obj[key];
-    //             if (typeof value === 'object' && !Array.isArray(value)) {
-    //                 for (const nestedKey in value) {
-    //                     transformedObj[`${toMidDottedStr(key)}.${toMidDottedStr(nestedKey)}`] = value[nestedKey];
-    //                 }
-    //             }
-    //         }
-    //         multiasset = [...multiasset, transformedObj];
-    //     } else {
-    //         multiasset = output?.amount?.multiasset.map((obj: any) => {
-    //             const transformedObj: any = {};
-    //             for (const key in obj) {
-    //                 const value = obj[key];
-    //                 if (typeof value === 'object' && !Array.isArray(value)) {
-    //                     for (const nestedKey in value) {
-    //                         transformedObj[`${key}.${nestedKey}`] = value[nestedKey];
-    //                     }
-    //                 }
-    //             }
-    //         })
-    //     }
-    //
-    //     const outputObj = {
-    //         address: address,
-    //         amount: amount,
-    //         multiasset: multiasset
-    //     }
-    //     outputs.push(outputObj)
-    // }
-    //
-    // inputOutputsObj = {...inputOutputsObj, outputs: outputs};
-    //
-    // return inputOutputsObj;
 }
 
 export function convertFollowupsToClientSide(response: any, id: string) {

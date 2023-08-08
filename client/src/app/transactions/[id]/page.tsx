@@ -14,14 +14,13 @@ import Followups from "@app/components/transaction-hash/followups";
 import Miner from "@app/components/transaction-hash/Miner";
 import Competitors from "@app/components/transaction-hash/competitors";
 import {ToastContainer} from "react-toastify";
-import EmptyPageIcon from "@app/assets/svgs/empty-page-icon";
-import {copyToClipboard} from "@app/utils/utils";
-import CopyToClipboard from "@app/assets/svgs/copy-to-clipboard";
 
 type TransactionDetailsInterface = {
     tx: any;
+    arrivalTime: string;
     competing: Array<any>;
     followups: Array<any>;
+    inputAddress: any;
 };
 
 export default function TransactionDetails() {
@@ -61,7 +60,7 @@ export default function TransactionDetails() {
             <>
                 <div className={'grid calc-h-68 mx-4 grid-cols-1 md:grid-cols-2 gap-4 '}>
                     <TransactionInputOutput isLoading={isLoading} error={error}
-                                            txInputOutputs={transactionDetails?.tx}/>
+                                            txInputOutputs={transactionDetails?.tx} inputResolvedAddress={transactionDetails?.inputAddress}/>
                     <Miner hash={router.id}/>
                     <Competitors isLoading={isLoading} error={error} competing={transactionDetails?.competing}/>
                     <Followups isLoading={isLoading} error={error} followups={transactionDetails?.followups}/>
