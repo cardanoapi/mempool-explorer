@@ -1,4 +1,4 @@
-import {getAddressDetails, getPoolDetails, getTheLatestTransactionEpochOfAddress} from "@app/db/queries";
+import {getAddressDetails, getPoolDetails, getTheLatestTransactionEpochOfAddress, listConfirmedTransactions} from "@app/db/queries";
 import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {convertToTableData, getLatestEpoch, getUrlObject} from "@app/utils/cardano-utils";
@@ -44,31 +44,23 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
 export async function GET(req: Request) {
     console.log("GET: ", req.url)
     const urlObject = getUrlObject(req.url);
-    const id = urlObject.searchParams.get("query") as string;
-    const pageNumber = parseInt(urlObject.searchParams.get("pageNumber") as string);
-    let data: any;
+    const start_date_ = urlObject.searchParams.get("from") as string;
+    if(!start_date_){
+        return NextResponse.json({message: "Required parameter from is missing"},{status: 400})
+
+    }
+    const start_date= start_date_? new Date(start_date_):new Date()
+    const limit = parseInt(urlObject.searchParams.get("limit") as string) || 100;
+    
+    if(limit> 1000 || limit <0){
+        return NextResponse.json({message: "Range for limit is (10,1000)"},{status: 400})
+    }
+
     try {
-        if (id.startsWith("pool")) {
-            data = await getTransactionHistoryOfPool(id, pageNumber)
-        } else {
-            data = await getTransactionHistoryOfAddress(id, pageNumber)
-        }
-        if (req.headers.get("accept") === "application/json") {
-            const r = convertBuffersToString(data)
-            return NextResponse.json(r)
-        }
-        const serializedBuffer = encode(convertToTableData(data));
-        const response = new NextResponse(serializedBuffer);
-        response.headers.set("Content-Type", "application/cbor")
-        return response;
+        const result=await listConfirmedTransactions(start_date,limit)
+        return NextResponse.json(convertBuffersToString(result))
     } catch (e: any) {
         console.log(req.url, e);
         return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
     }
-}
-
-async function listTransactions(){
-    
-
-
 }

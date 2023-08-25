@@ -265,6 +265,45 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
     }
 }
 
+export async function listConfirmedTransactions(start_date: Date, limit: number=1000) {
+    const query = Prisma.sql`
+        select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no , ph.view  pool_id
+            , b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
+        from tx join block b on b.id = tx.block_id
+            left join slot_leader sl on b.slot_leader_id = sl.id
+            left join pool_hash ph on sl.pool_hash_id = ph.id
+        where b.time >= ${start_date}
+        order by b.time asc
+        limit ${limit};`;
+  
+    const results:any[]=await sync.$queryRaw(query);
+    const hashes=results.map(x=>{
+        return x.tx_hash
+    })
+    results.forEach(r=>r.tx_hash=r.tx_hash.toString('hex'))
+
+    const arrival_query = Prisma.sql` select min(received) as arrival_time , hash  from tx_log    
+            where  hash in (${Prisma.join(hashes)})  group by hash `;
+
+    interface QueryResult{
+        hash:Buffer;
+        arrival_time:Date
+    }
+    const arrival_times:QueryResult[]=await prisma.$queryRaw(arrival_query)
+
+    const lookup : Record<string,Date>={}
+    arrival_times.map((v: any)=>{
+        lookup[v.hash.toString('hex')]=v.arrival_time
+    })
+
+    return results.map((v)=>{
+        return {
+            ...v,
+            arrival_time:lookup[v.tx_hash].toISOString()
+        }
+    })
+}
+
 export async function getArrivalTime(txHash: Buffer) {
     try {
         return prisma.tx_log.findFirst({

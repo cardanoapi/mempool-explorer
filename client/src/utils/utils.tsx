@@ -24,7 +24,8 @@ export function convertBuffersToString(obj: any) {
     if (obj.constructor.name === "String") return obj.toString();
 
     if (obj.constructor.name === "Date") {
-        return obj.toString();
+        return obj.toISOString()
+        
     }
 
     if (Array.isArray(obj)) {
