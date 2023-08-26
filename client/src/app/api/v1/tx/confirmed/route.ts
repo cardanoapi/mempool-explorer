@@ -45,8 +45,15 @@ export async function GET(req: Request) {
     console.log("GET: ", req.url)
     const urlObject = getUrlObject(req.url);
     const start_date_ = urlObject.searchParams.get("from") as string;
+    const pool_ = urlObject.searchParams.get("pool") as string;
+
     if(!start_date_){
         return NextResponse.json({message: "Required parameter from is missing"},{status: 400})
+
+    }
+    if(pool_){
+        if(!pool_.startsWith('pool'))
+            return NextResponse.json({message: "Required parameter from is missing"},{status: 400})
 
     }
     const start_date= start_date_? new Date(start_date_):new Date()
@@ -57,7 +64,7 @@ export async function GET(req: Request) {
     }
 
     try {
-        const result=await listConfirmedTransactions(start_date,limit)
+        const result=await listConfirmedTransactions(start_date,pool_,limit)
         return NextResponse.json(convertBuffersToString(result))
     } catch (e: any) {
         console.log(req.url, e);

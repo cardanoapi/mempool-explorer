@@ -265,7 +265,22 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
 
 
 export async function listConfirmedTransactions(start_date: Date,pool?:string, limit: number=1000) {
-    const query = Prisma.sql`
+    let query ;
+    if(pool){
+        query=Prisma.sql`
+        select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no ,
+            b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
+        from tx join block b on b.id = tx.block_id
+            left join slot_leader sl on b.slot_leader_id = sl.id
+            left join pool_hash ph on sl.pool_hash_id = ph.id
+        where 
+            b.time >= ${start_date}
+            and 
+            ph.view = ${pool}
+        order by b.time asc
+        limit ${limit};`;
+    }else{
+        query=Prisma.sql`
         select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no , ph.view  pool_id
             , b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
         from tx join block b on b.id = tx.block_id
@@ -274,6 +289,8 @@ export async function listConfirmedTransactions(start_date: Date,pool?:string, l
         where b.time >= ${start_date}
         order by b.time asc
         limit ${limit};`;
+    }
+
   
     const results:any[]=await sync.$queryRaw(query);
     const hashes=results.map(x=>{
