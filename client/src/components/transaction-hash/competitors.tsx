@@ -1,9 +1,5 @@
 import {useEffect, useState} from "react";
-import {checkForErrorResponse} from "@app/components/loader/error";
-import {decode} from "cbor-x";
-import useLoader from "@app/components/loader/useLoader";
-import {useParams, useRouter} from "next/navigation";
-import {Transaction} from "@emurgo/cardano-serialization-lib-asmjs";
+import {useParams} from "next/navigation";
 import {ErrorType} from "@app/components/transaction-hash/transaction-input-output";
 import {convertFollowupsToClientSide} from "@app/utils/transaction-details-utils";
 import Layout from "@app/shared/layout";

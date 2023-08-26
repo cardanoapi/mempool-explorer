@@ -9,6 +9,7 @@ import {Buffer} from "buffer";
 import {checkForErrorResponse} from "@app/components/loader/error";
 import {decode} from "cbor-x";
 import useLoader from "@app/components/loader/useLoader";
+import {DateTimeCustomoptions} from "@app/constants/constants";
 
 interface FollowupPropType {
     followups: any;
@@ -30,47 +31,37 @@ export default function Followups(props: FollowupPropType) {
         return decode(new Uint8Array(arrayBuffer));
     }
 
-    function addConfirmationStatusToIncomingApiResponse(apiResponse:any,confirmationResponse:any) {
+    function addConfirmationStatusToIncomingApiResponse(apiResponse: any, confirmationResponse: any) {
         return apiResponse.map((tx: any) => {
             let confirmation_status = false;
+            let confirmation_time = "N/A";
             // iterate through each confirmation response and check the tx hash tallying
             for (let i = 0; i < confirmationResponse.length; i++) {
                 const txHash = Buffer.from(tx.hash).toString('hex');
                 const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex')
                 if (txHash === confirmationHash) {
                     confirmation_status = true;
+                    confirmation_time = confirmationResponse[i].block_time
                     break;
                 }
             }
             return {
                 ...tx,
-                confirmation_status: confirmation_status
+                confirmation_status: confirmation_status,
+                confirmation_time: confirmation_status ? new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(confirmation_time)) : "N/A"
             }
         })
     }
 
     async function getTransactionHashesOfEachFollowups() {
-        const hashes = props.followups.map((tx: any) => "hash=" + Buffer.from(tx.hash).toString('hex'))
+        const hashes = props?.followups.map((tx: any) => "hash=" + Buffer.from(tx.hash).toString('hex'))
+        if (!hashes.length) {
+            return props.followups
+        }
         const confirmationQueryString = hashes.join("&");
         try {
             const confirmationResponse = await getConfirmation(confirmationQueryString);
-            const responseWithConfirmationStatus = addConfirmationStatusToIncomingApiResponse(props.followups,confirmationResponse)
-            // const responseWithConfirmationStatus = props.followups.map((tx: any) => {
-            //     let confirmation_status = false;
-            //     // iterate through each confirmation response and check the tx hash tallying
-            //     for (let i = 0; i < confirmationResponse.length; i++) {
-            //         const txHash = Buffer.from(tx.hash).toString('hex');
-            //         const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex')
-            //         if (txHash === confirmationHash) {
-            //             confirmation_status = true;
-            //             break;
-            //         }
-            //     }
-            //     return {
-            //         ...tx,
-            //         confirmation_status: confirmation_status
-            //     }
-            // })
+            const responseWithConfirmationStatus = addConfirmationStatusToIncomingApiResponse(props.followups, confirmationResponse)
             hideLoader();
             return responseWithConfirmationStatus
         } catch (e: any) {
@@ -82,7 +73,7 @@ export default function Followups(props: FollowupPropType) {
     }
 
     useEffect(() => {
-        if (!props.followups) return;
+        if (!Array.isArray(props.followups)) return;
         showLoader();
         getTransactionHashesOfEachFollowups().then(data => {
             const followupsTemp = convertFollowupsToClientSide(data, router.id.toLowerCase());
@@ -106,14 +97,18 @@ export default function Followups(props: FollowupPropType) {
         const dataObj = props.transaction;
         return (
             <Layout>
-                {Object.keys(dataObj).map(key => (
-                    <div key={key} className={'flex flex-col'}>
-                        <div className={'flex items-center mt-1 text-sm gap-1'}>
-                            <p className={'text-gray-600 mr-1'}>{key}</p>
-                            <p className={'text-gray-500 font-xs font-bold'}>{typeof dataObj[key] === "number" ? dataObj[key] : toMidDottedStr(dataObj[key])}</p>
-                        </div>
+                <div className={"flex justify-between gap-1"}>
+                    <div className={"flex flex-col"}>
+                        {Object.keys(dataObj).map(key => (
+                            <div key={key} className={'flex items-center mt-1 text-sm gap-1'}>
+                                {key !== "confirmation_status" && <p className={'text-gray-600 mr-1'}>{key}</p>}
+                                {key !== "confirmation_status" &&
+                                    <p className={'text-gray-500 font-xs font-bold'}>{key === "hash" ? toMidDottedStr(dataObj[key]) : dataObj[key]}</p>}
+                            </div>
+                        ))}
                     </div>
-                ))}
+                    {dataObj["confirmation_status"] ? <div className={"text-green-600"}>&#10003;</div> : ""}
+                </div>
             </Layout>
         )
     }
@@ -122,7 +117,7 @@ export default function Followups(props: FollowupPropType) {
     return (
         <Layout className={"!overflow-y-scroll"}>
             <Heading title={'Followups'}/>
-            {!followups.length ? <EmptyPageIcon message={"No followups available!"}/> :
+            {!followups?.length ? <EmptyPageIcon message={"No followups available!"}/> :
                 <div className={'grid grid-cols-1 md:grid-cols-2 gap-4'}>
                     {followups.map((tx) => (
                         <ItemCard key={tx.hash} transaction={tx}/>

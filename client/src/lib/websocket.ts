@@ -1,4 +1,4 @@
-import {Transaction} from './cborparser';
+import {CborTransactionParser as Transaction} from './cborparser';
 import {addExtension, Decoder} from "cbor-x";
 
 type EventType = "mint" | "rollback" | "addTx" | "removeTx" | "rejectTx" | "disconnected" | "connected";
