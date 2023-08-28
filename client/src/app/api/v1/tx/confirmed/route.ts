@@ -19,9 +19,9 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
 
 /**
  * @swagger
- * /api/v1/tx:
+ * /api/v1/tx/confirmed:
  *   get:
- *     summary: get transaction list of address or pool
+ *     summary: get transaction list
  *     responses:
  *       200:
  *         description: Success
@@ -29,18 +29,25 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
  *           application/json: {}
  *     parameters:
  *       - in: query
- *         name: query
+ *         name: pool
  *         schema:
  *           type: string
- *         required: true
- *         description: The identifier for the address or pool.
+ *         required: false
+ *         description: Filter transactions for this pool only
  *       - in: query
- *         name: page
+ *         name: from
  *         schema:
- *           type: integer
+ *           type: datetime
  *         required: true
- *         description: The page number for pagination
+ *         description: List transactions starting from this date/time
+  *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *         required: false
+ *         description: Return only this no of result. [max 1000]
  */
+
 export async function GET(req: Request) {
     console.log("GET: ", req.url)
     const urlObject = getUrlObject(req.url);
@@ -56,7 +63,13 @@ export async function GET(req: Request) {
             return NextResponse.json({message: "Required parameter from is missing"},{status: 400})
 
     }
-    const start_date= start_date_? new Date(start_date_):new Date()
+    const start_date= Date.parse(start_date_)
+    //@ts-ignore
+    if(isNaN(start_date)){
+        return NextResponse.json({message: "Invalid date format. valid example: " + (new Date()).toISOString()},{status: 400})
+
+    }
+
     const limit = parseInt(urlObject.searchParams.get("limit") as string) || 100;
     
     if(limit> 1000 || limit <0){

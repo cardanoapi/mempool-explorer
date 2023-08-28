@@ -265,6 +265,7 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
 
 
 export async function listConfirmedTransactions(start_date: Date,pool?:string, limit: number=1000) {
+    console.log("listConfirmedTransactions", !!start_date, start_date, pool,limit )
     let query ;
     if(pool){
         query=Prisma.sql`
@@ -315,7 +316,7 @@ export async function listConfirmedTransactions(start_date: Date,pool?:string, l
     return results.map((v)=>{
         return {
             ...v,
-            arrival_time:lookup[v.tx_hash].toISOString()
+            arrival_time:lookup[v.tx_hash]?.toISOString()
         }
     })
 }
