@@ -77,7 +77,7 @@ export async function GET(req: Request) {
     }
 
     try {
-        const result=await listConfirmedTransactions(start_date,pool_,limit)
+        const result=await listConfirmedTransactions(new Date(start_date),pool_,limit)
         return NextResponse.json(convertBuffersToString(result))
     } catch (e: any) {
         console.log(req.url, e);
