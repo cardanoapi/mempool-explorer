@@ -294,6 +294,9 @@ export async function listConfirmedTransactions(start_date: Date,pool?:string, l
 
   
     const results:any[]=await sync.$queryRaw(query);
+    if(results.length==0){
+        return []
+    }
     const hashes=results.map(x=>{
         return x.tx_hash
     })
