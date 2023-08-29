@@ -37,7 +37,7 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
  *       - in: query
  *         name: from
  *         schema:
- *           type: datetime
+ *           type: date-time
  *         required: true
  *         description: List transactions starting from this date/time
   *       - in: query
