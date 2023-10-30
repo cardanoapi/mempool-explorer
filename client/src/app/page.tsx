@@ -1,7 +1,6 @@
-import {Navbar} from "@app/components/navbar";
-import TransactionsContainer from "@app/components/transactions";
-import environments from "@app/configs/environments";
-
+import { Navbar } from '@app/components/navbar';
+import TransactionsContainer from '@app/components/transactions';
+import environments from '@app/configs/environments';
 
 export default function Home() {
     return (
