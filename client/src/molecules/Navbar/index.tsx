@@ -16,7 +16,7 @@ export default function Navbar() {
     const router = useRouter();
 
     return (
-        <nav className="flex items-center justify-between gap-2 h-22 px-10">
+        <nav className="flex items-center justify-between gap-2 h-22 px-10 border-b-[1px] border-[#4A4A4A]">
             <Link href="/" tabIndex={-1} className="flex items-center gap-2 font-semibold text-xl text-white">
                 <BrandIcon />
                 <p>Mempool</p>
