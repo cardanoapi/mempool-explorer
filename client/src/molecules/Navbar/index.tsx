@@ -11,15 +11,17 @@ import GradientButton from '@app/atoms/Button/GradientButton';
 import BrandIcon from '@app/atoms/Icon/Brand';
 import SearchIcon from '@app/atoms/Icon/Search';
 import WalletIcon from '@app/atoms/Icon/Wallet';
+import { useIsMobile } from '@app/lib/hooks/useBreakpoint';
 
 export default function Navbar() {
     const router = useRouter();
+    const isMobile = useIsMobile();
 
     return (
-        <nav className="flex items-center justify-between gap-2 h-22 px-10 border-b-[1px] border-[#4A4A4A]">
+        <nav className="flex items-center justify-between gap-2 h-[68px] px-4 md:h-22 md:px-10 border-b-[1px] border-[#4A4A4A]">
             <Link href="/" tabIndex={-1} className="flex items-center gap-2 font-semibold text-xl text-white">
                 <BrandIcon />
-                <p>Mempool</p>
+                <p className="hidden md:block">Mempool</p>
             </Link>
             <Box sx={{ flexGrow: 1 }}>
                 <TextField
@@ -31,7 +33,7 @@ export default function Navbar() {
                             </InputAdornment>
                         ),
                         sx: {
-                            height: '48px',
+                            height: isMobile ? '36px' : '48px',
                             background: '#292929',
                             borderWidth: '1px',
                             borderColor: 'transparent',
@@ -44,7 +46,7 @@ export default function Navbar() {
                             paddingY: '12px',
                             fontFamily: 'IBM Plex Mono',
                             fontWeight: 500,
-                            fontSize: '16px',
+                            fontSize: isMobile ? '14px' : '16px',
                             caretColor: '#E6E6E6',
                             '&:focus-within fieldset, &:focus-visible fieldset': {
                                 border: '1px solid #E6E6E6 !important'
@@ -52,7 +54,7 @@ export default function Navbar() {
                         }
                     }}
                     fullWidth
-                    className="flex items-center !font-ibm"
+                    className="flex items-center !font-ibm !text-sm md:text-base"
                     onKeyDown={(e) => {
                         // @ts-ignore
                         if (e.key === 'Enter' && !!e.target.value) {
@@ -62,8 +64,8 @@ export default function Navbar() {
                     }}
                 />
             </Box>
-            <GradientButton size="large" startIcon={<WalletIcon />} onClick={() => {}}>
-                Connect Wallet
+            <GradientButton size={isMobile ? 'medium' : 'large'} startIcon={<WalletIcon />} onClick={() => {}}>
+                <span className="hidden md:block">Connect Wallet</span>
             </GradientButton>
         </nav>
     );

@@ -10,7 +10,7 @@ interface IBreadcrumbsProps {
 
 export default function Breadcrumbs({ text }: IBreadcrumbsProps) {
     return (
-        <MuiBreadcrumbs separator="•" aria-label="breadcrumb" className="!text-[#B9B9B9] !text-sm !font-normal">
+        <MuiBreadcrumbs separator="•" aria-label="breadcrumb" className="!text-[#B9B9B9] !text-xs md:!text-sm !font-normal">
             <Link href="/" className="!cursor-pointer hover:!text-white">
                 Dashboard
             </Link>

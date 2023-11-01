@@ -14,12 +14,12 @@ interface IBannerTitleProps {
 export default function BannerTitle({ Icon, breadCrumbText, title, children, className = '' }: IBannerTitleProps) {
     return (
         <GradientBanner>
-            <div className="p-10">
+            <div className="px-4 py-6 md:px-10 md:py-10">
                 <Breadcrumbs text={breadCrumbText} />
                 <div className="mt-6 mb-4 h-9 w-9 rounded bg-gradient-to-r from-[#FF9141] to-[#FFC296] flex items-center justify-center">
                     <Icon />
                 </div>
-                <p className="text-2xl font-medium">{title}</p>
+                <p className="text-xl md:text-2xl font-medium">{title}</p>
             </div>
             <div className={className}>{children}</div>
         </GradientBanner>

@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Button as MuiButton, SxProps, Theme } from '@mui/material';
 
+import { useIsMobile } from '@app/lib/hooks/useBreakpoint';
+
 import { IButtonProps } from './props';
 
 export default function Button({
@@ -21,14 +23,16 @@ export default function Button({
     variant = 'contained',
     ...props
 }: IButtonProps) {
+    const isMobile = useIsMobile();
+
     // TODO: Update styles based on variants and sizes
     const smallSx: SxProps<Theme> = {};
     const mediumSx: SxProps<Theme> = {};
     const largeSx: SxProps<Theme> = {
-        height: '48px',
+        height: isMobile ? '36px' : '48px',
         minWidth: '182px',
         paddingX: '16px',
-        paddingY: '12px'
+        paddingY: '12px',
     };
 
     const textVariant: SxProps<Theme> = size === 'large' ? { ...largeSx, ...sx } : size === 'medium' ? { ...mediumSx, ...sx } : { ...smallSx, ...sx };
