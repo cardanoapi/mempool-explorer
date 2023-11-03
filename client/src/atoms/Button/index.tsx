@@ -32,7 +32,7 @@ export default function Button({
         height: isMobile ? '36px' : '48px',
         minWidth: '182px',
         paddingX: '16px',
-        paddingY: '12px',
+        paddingY: '12px'
     };
 
     const textVariant: SxProps<Theme> = size === 'large' ? { ...largeSx, ...sx } : size === 'medium' ? { ...mediumSx, ...sx } : { ...smallSx, ...sx };

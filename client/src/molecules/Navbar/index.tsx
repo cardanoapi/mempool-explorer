@@ -33,7 +33,7 @@ export default function Navbar() {
                             </InputAdornment>
                         ),
                         sx: {
-                            height: isMobile ? '36px' : '48px',
+                            height: '36px',
                             background: '#292929',
                             borderWidth: '1px',
                             borderColor: 'transparent',
@@ -46,7 +46,7 @@ export default function Navbar() {
                             paddingY: '12px',
                             fontFamily: 'IBM Plex Mono',
                             fontWeight: 500,
-                            fontSize: isMobile ? '14px' : '16px',
+                            fontSize: '14px',
                             caretColor: '#E6E6E6',
                             '&:focus-within fieldset, &:focus-visible fieldset': {
                                 border: '1px solid #E6E6E6 !important'
@@ -64,7 +64,7 @@ export default function Navbar() {
                     }}
                 />
             </Box>
-            <GradientButton size={isMobile ? 'medium' : 'large'} startIcon={<WalletIcon />} onClick={() => {}}>
+            <GradientButton size="large" startIcon={<WalletIcon />} onClick={() => {}}>
                 <span className="hidden md:block">Connect Wallet</span>
             </GradientButton>
         </nav>
