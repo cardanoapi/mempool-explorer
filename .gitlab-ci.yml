@@ -35,8 +35,8 @@ deploy-dev:
           - develop
     script:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  kuber_dev_mempool-explorer-webapp
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  kuber_dev_mempool-websocket
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool_explorer_webapp
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  mempool_explorer_websocket
 
 
 deploy-release:
