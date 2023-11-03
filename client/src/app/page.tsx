@@ -1,12 +1,12 @@
-import GradientTypography from '@app/atoms/GradientTypography';
+import { Navbar } from '@app/components/navbar';
 import TransactionsContainer from '@app/components/transactions';
-import Navbar from '@app/molecules/Navbar';
+import environments from '@app/configs/environments';
 
 export default function Home() {
     return (
-        <main className="w-full min-h-screen">
+        <main className={'flex flex-1 flex-col bg-[#f2f2f2] !text-black min-h-screen max-h-screen'}>
             <Navbar />
-            <GradientTypography className="!text-3xl">Dashboard</GradientTypography>
+            <TransactionsContainer />
         </main>
     );
 }
