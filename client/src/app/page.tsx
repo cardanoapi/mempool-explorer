@@ -1,12 +1,13 @@
-import { Navbar } from '@app/components/navbar';
-import TransactionsContainer from '@app/components/transactions';
-import environments from '@app/configs/environments';
+import DashboardBanner from '@app/molecules/DashboardBanner';
+import DashboardMempoolBanner from '@app/molecules/DashboardMempoolBanner';
+import Navbar from '@app/molecules/Navbar';
 
 export default function Home() {
     return (
-        <main className={'flex flex-1 flex-col bg-[#f2f2f2] !text-black min-h-screen max-h-screen'}>
+        <main className="w-full min-h-screen">
             <Navbar />
-            <TransactionsContainer />
+            <DashboardBanner />
+            <DashboardMempoolBanner />
         </main>
     );
 }
