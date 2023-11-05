@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import PlayIcon from '@app/atoms/Icon/Play';
 import { MempoolEventType, MempoolLiveViewTableHeaderEnum } from '@app/constants/constants';
+import { MintMessage } from '@app/lib/websocket';
 import BannerStatCard from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
 import Navbar from '@app/molecules/Navbar';
@@ -16,8 +17,9 @@ import { createLinkElementsForCurrentMempoolTransactions } from '@app/utils/stri
 
 interface ILiveMempoolProps {
     mempoolEvent?: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions;
+    mintEvent?: MintMessage;
 }
-export default function LiveMempool({ mempoolEvent }: ILiveMempoolProps) {
+export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolProps) {
     const [eventLogList, setEventLogList] = useState<Array<typeof mempoolEvent>>([]);
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionResponseType>>([]);
 
@@ -116,15 +118,8 @@ export default function LiveMempool({ mempoolEvent }: ILiveMempoolProps) {
                         }))}
                     />
                 </div>
-                <LatestBlockList
-                    tableTitle="Latest Blocks"
-                    data={currentMempoolTransactions.map((item) => ({
-                        [MempoolLiveViewTableHeaderEnum.hash]: item.hash,
-                        [MempoolLiveViewTableHeaderEnum.inputs]: item.inputs,
-                        [MempoolLiveViewTableHeaderEnum.outputs]: item.outputs,
-                        [MempoolLiveViewTableHeaderEnum.received_time]: item.received_time
-                    }))}
-                />
+                {/* TODO: Fix data for this */}
+                <LatestBlockList tableTitle="Latest Blocks" mintEvent={mintEvent} />
             </div>
         </main>
     );

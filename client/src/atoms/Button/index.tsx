@@ -29,7 +29,7 @@ export default function Button({
     const smallSx: SxProps<Theme> = {};
     const mediumSx: SxProps<Theme> = {};
     const largeSx: SxProps<Theme> = {
-        height: isMobile ? '36px' : '48px',
+        height: '48px',
         minWidth: '182px',
         paddingX: '16px',
         paddingY: '12px'

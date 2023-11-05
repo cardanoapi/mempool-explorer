@@ -33,7 +33,7 @@ export default function Navbar() {
                             </InputAdornment>
                         ),
                         sx: {
-                            height: '36px',
+                            height: '48px',
                             background: '#292929',
                             borderWidth: '1px',
                             borderColor: 'transparent',
