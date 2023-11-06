@@ -1,6 +1,7 @@
 import React from 'react';
 
 import GradientBanner from '@app/atoms/GradientBanner';
+import LineChart from '@app/atoms/LineChart';
 
 interface IDashboardBannerProps {
     readonly className?: string;
@@ -51,7 +52,9 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
                             </div>
                         </div>
                     </div>
-                    <div className="min-h-[355px] px-4 py-4 md:px-10 md:py-8">{/* Add chartjs here */}</div>
+                    <div className="md:min-h-[355px] px-4 py-4 md:px-10 md:py-8">
+                        <LineChart labels={['Oct 30', 'Oct 31', 'Nov 01', 'Nov 02', 'Nov 03', 'Nov 04', 'Nov 05']} data={[1.6, 2.8, 1.3, 3.5, 2.4, 1.9, 2.2]} tickText="sec" />
+                    </div>
                 </div>
             </div>
         </GradientBanner>
