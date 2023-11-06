@@ -11,6 +11,8 @@ build
 public
 
 .eslintrc.json
+.yarnrc
+.yarnrc.yml
 package.json
 package-lock.json
 tsconfig.json

@@ -24,7 +24,7 @@ export default function DashboardMempoolBanner() {
                     </div>
                     <div>
                         <p className="text-sm font-normal text-[#E6E6E6]">Average Size</p>
-                        <p className="text-2xl font-medium text-[#E6E6E6]">2.00 Kb</p>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">2.00 Kb</p> 
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">

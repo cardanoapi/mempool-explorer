@@ -1,40 +1,61 @@
-# Install dependencies only when needed
-FROM node:18-alpine AS base
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-#RUN apk add --no-cache libc6-compat
-WORKDIR /home/node
+# Use a smaller base image
+FROM node:18-slim AS base
 
+# Set the working directory for the app
+WORKDIR /home/node/app
 
-FROM base AS prod
-RUN apk add --no-cache python3 g++ make
-USER  node
+# Enable corepack
+RUN corepack enable
+
+# Switch to the existing root user to install dependencies
+USER root
+
+# Install build dependencies using apt-get
+RUN apt-get update && apt-get install -y build-essential python3
+
+# Copy package.json and yarn.lock separately to leverage Docker layer caching
 COPY package.json yarn.lock ./
-RUN yarn install --prod --frozen-lockfile
 
+# Copy the application code
+COPY . .
 
-# Rebuild the source code only when needed
-FROM prod AS builder
-ARG BASE_DEPLOY_PATH=
-RUN yarn install --frozen-lockfile
-COPY --chown=node:node . .
-RUN yarn prisma:generate && NEXT_PUBLIC_WS_URL=/ws  NEXT_PUBLIC_CARDANO_NETWORK=mainnet yarn build
-RUN rm -rf ./.next/cache/* && mkdir moveTarget && mv ./prisma  entrypoint.sh next.config.js package.json public/ ./moveTarget/
+# Set the node version to the latest stable release
+RUN yarn set version berry
 
+# Manually install node-gyp
+RUN yarn dlx node-gyp
 
-# Production image, copy all the files and run next
-FROM base
+# Clear Yarn cache
+RUN yarn cache clean
+
+# Install node dependencies
+RUN yarn workspaces focus
+
+# Rebuild the source code
+RUN yarn prisma:generate && \
+    NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet yarn build
+
+# Remove unnecessary files
+RUN rm -rf ./.next/cache/* && \
+    mkdir moveTarget && \
+    mv ./prisma entrypoint.sh next.config.js next-i18next.config.js next-sitemap.config.js package.json public/ ./moveTarget/
+
+# Create a production-ready image
+FROM node:18-slim
+
+# Set environment variables
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
+
+# Set the working directory for the app
+WORKDIR /home/node/app
+
+# Copy only necessary files from the builder stage
+COPY --from=base /home/node/app/node_modules ./node_modules
+COPY --from=base /home/node/app/.next ./.next
+COPY --from=base /home/node/app/moveTarget/ ./
+
+# Expose the necessary port
 EXPOSE 3000
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry.
-ENTRYPOINT "./entrypoint.sh"
-
-# You only need to copy next.config.js if you are NOT using the default configuration
-# COPY --from=builder /app/next.config.js ./
-COPY --from=prod     /home/node/node_modules ./node_modules
-COPY --from=builder  /home/node/moveTarget/   ./
-RUN yarn prisma:generate
-COPY --from=builder  /home/node/.next ./.next
-VOLUME /home/node/.next/cache
+# Define the entrypoint command
+ENTRYPOINT ["./entrypoint.sh"]

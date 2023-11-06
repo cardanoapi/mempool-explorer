@@ -2,6 +2,16 @@
 
 const runtimeCaching = require('next-pwa/cache');
 const withPlugins = require('next-compose-plugins');
+const { withPlausibleProxy } = require('next-plausible');
+const withBundleAnalyzer = require('@next/bundle-analyzer');
+
+const plausiblePlugin = withPlausibleProxy;
+
+// To analyze the bundle, run `ANALYZE="true" npm run build`
+const bundleAnalyzer = withBundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true' || process.env.ANALYZE === true,
+    openAnalyzer: true
+});
 
 const { i18n } = require('./next-i18next.config');
 
@@ -74,4 +84,6 @@ const nextConfigWithPWA = withPWA({
     })
 });
 
-module.exports = nextConfigWithPWA;
+module.exports = withPlugins([[plausiblePlugin, bundleAnalyzer]], nextConfigWithPWA);
+
+// module.exports = nextConfigWithPWA;

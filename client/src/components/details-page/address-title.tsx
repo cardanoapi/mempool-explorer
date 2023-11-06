@@ -7,19 +7,19 @@ import 'react-toastify/dist/ReactToastify.css';
 import CardanoIcon from '@app/assets/svgs/cardano-icon';
 import CopyToClipboard from '@app/assets/svgs/copy-to-clipboard';
 import LinkIcon from '@app/assets/svgs/link-icon';
-import {copyToClipboard} from "@app/utils/utils";
+import { copyToClipboard } from '@app/utils/utils';
 
 export default function AddressTitle() {
     const router = useParams();
 
     function generateCardanoScanLink() {
         const baseUrl = 'https://cardanoscan.io/';
-        if (router.id.startsWith('addr')) {
-            const addr = Address.from_bech32(router.id);
+        if (((router?.id as string) || '').startsWith('addr')) {
+            const addr = Address.from_bech32((router?.id as string) || '');
             const hex = Buffer.from(addr.to_bytes()).toString('hex');
             return baseUrl + 'address' + `/${hex}`;
-        } else if (router.id.startsWith('pool')) {
-            return baseUrl + 'pool/' + router.id;
+        } else if (((router?.id as string) || '').startsWith('pool')) {
+            return baseUrl + 'pool/' + (router?.id || '');
         }
     }
 
@@ -32,8 +32,8 @@ export default function AddressTitle() {
                     <div className={'flex flex-col items-start'}>
                         <p className={'text-gray-500 text-sm'}>Address</p>
                         <div className={'flex items-center'}>
-                            <p className={'font-bold mr-1'}>{router.id}</p>
-                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(router.id)}>
+                            <p className={'font-bold mr-1'}>{router?.id}</p>
+                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard((router?.id as string) || '')}>
                                 <CopyToClipboard />
                             </div>
                             <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()}>

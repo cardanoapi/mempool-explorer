@@ -17,6 +17,8 @@ public/sitemap-*.xml
 
 **/docker-compose.yml
 
+.yarnrc
+
 # PWA files
 **/public/sw.js
 **/public/workbox-*.js
