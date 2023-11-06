@@ -1,5 +1,6 @@
 import DashboardBanner from '@app/molecules/DashboardBanner';
 import DashboardMempoolBanner from '@app/molecules/DashboardMempoolBanner';
+import DashboardStakePoolsBanner from '@app/molecules/DashboardStakePoolsBanner';
 import Navbar from '@app/molecules/Navbar';
 
 export default function Home() {
@@ -8,6 +9,8 @@ export default function Home() {
             <Navbar />
             <DashboardBanner />
             <DashboardMempoolBanner />
+            <DashboardBanner />
+            <DashboardStakePoolsBanner />
         </main>
     );
 }
