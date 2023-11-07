@@ -22,7 +22,7 @@ export default function TransactionHistory() {
     const [transactions, setTransactions] = useState<Array<AddressTransactionType>>([]);
 
     const getDataFromDatabase = async (pageNumber: number) => {
-        const response = await fetch(`/api/v1/tx?query=${router.id}&pageNumber=${pageNumber}`);
+        const response = await fetch(`/api/v1/tx?query=${router?.id}&pageNumber=${pageNumber}`);
         await checkForErrorResponse(response);
         const arrayBuffer = await response.arrayBuffer();
         return decode(new Uint8Array(arrayBuffer));

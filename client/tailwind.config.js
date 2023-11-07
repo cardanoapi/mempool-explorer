@@ -1,14 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ['./src/pages/**/*.{js,ts,jsx,tsx,mdx}', './src/components/**/*.{js,ts,jsx,tsx,mdx}', './src/app/**/*.{js,ts,jsx,tsx,mdx}'],
+    content: ['src/**/*.{js,ts,jsx,tsx,mdx}'],
     theme: {
         extend: {
+            screens: {
+                xs: '360px',
+                '2xs': '480px',
+                sm: '640px',
+                md: '768px',
+                lg: '1024px',
+                xl: '1280px',
+                '2xl': '1536px'
+            },
+            blur: {
+                color: '218px'
+            },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
             },
             colors: {
-                'cardano': '#0C1420',
+                // New colors
+                black: '#0D0D0D',
+                'dark-gray': '#666666',
+                white: '#E6E6E6',
+
+                // Old colors
+                cardano: '#0C1420'
+            },
+            height: {
+                22: '88px'
+            },
+            fontFamily: {
+                ibm: ['IBM Plex Mono', 'Open Sans', 'monospace']
             }
         }
     },
