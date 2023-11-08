@@ -2,7 +2,7 @@ stages:
     - build
     - deploy
 services:
-  - dind
+    - dind
 build-client:
     stage: build
     image: docker
@@ -18,26 +18,25 @@ build-client:
 build-server:
     stage: build
     image: docker
-    script: 
+    script:
         - docker info
         - if [ ! -z "$CI_COMMIT_TAG" ]; then COMMON_TAG="release";  elif [ "$CI_COMMIT_REF_NAME" == "master" ]; then COMMON_TAG="latest"; else COMMON_TAG=$CI_COMMIT_REF_SLUG; fi
         - if [ ! -z "$CI_COMMIT_TAG" ]; then IMAGE_IDENTIFIER="$CI_COMMIT_TAG"; else IMAGE_IDENTIFIER=$CI_COMMIT_SHA; fi
         - cd server && docker build -t "$CI_REGISTRY_IMAGE:server-$IMAGE_IDENTIFIER" -t "$CI_REGISTRY_IMAGE:server-$COMMON_TAG" .
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
         - docker push "$CI_REGISTRY_IMAGE:server-$IMAGE_IDENTIFIER"
-        - docker push "$CI_REGISTRY_IMAGE:server-$COMMON_TAG"    
+        - docker push "$CI_REGISTRY_IMAGE:server-$COMMON_TAG"
 
 deploy-dev:
     stage: deploy
     image: docker:latest
     only:
         refs:
-          - develop
+            - develop
     script:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool_explorer_webapp
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  mempool_explorer_websocket
-
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool-explorer-webapp
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  mempool-explorer-websocket
 
 deploy-release:
     stage: deploy
@@ -48,4 +47,3 @@ deploy-release:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
         - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG  cardanoapi_mempool-explorer-webapp
         - docker --host 172.31.0.7:2376 service update --with-registry-auth --image ${CI_REGISTRY_IMAGE}:server-${CI_COMMIT_TAG}  cardanoapi_mempool-websocket
-
