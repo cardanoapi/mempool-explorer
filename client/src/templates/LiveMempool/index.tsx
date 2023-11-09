@@ -96,7 +96,6 @@ export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolPro
 
     return (
         <main className="w-full min-h-screen">
-            <Navbar />
             <BannerTitle Icon={PlayIcon} breadCrumbText="Live Mempool" title="Live Mempool">
                 <div className="mt-10 h-[1px]" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">

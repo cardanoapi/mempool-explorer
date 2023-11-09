@@ -50,6 +50,7 @@
         "next-sitemap": "^3.1.21",
         "next-swagger-doc": "^0.4.0",
         "next-themes": "^0.2.0",
+        "nextjs-toploader": "^1.6.4",
         "nprogress": "^0.2.0",
         "overlayscrollbars": "1.13.2",
         "overlayscrollbars-react": "^0.3.0",
