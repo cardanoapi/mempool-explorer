@@ -280,8 +280,8 @@ export async function listConfirmedTransactions(start_date: Date,pool?:string, l
             ph.view = ${pool}
         order by b.time asc
         limit ${limit};`;
-    }else{
-        query=Prisma.sql`
+    } else {
+        query = Prisma.sql`
         select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no , ph.view  pool_id
             , b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
         from tx join block b on b.id = tx.block_id
@@ -339,5 +339,19 @@ export async function getArrivalTime(txHash: Buffer) {
         });
     } catch (e) {
         console.log("/api/db/transaction", e)
+    }
+}
+
+export async function getCurrentEpochInfo() {
+    try {
+        const query = Prisma.sql`
+        select no, tx_count
+        from epoch
+        order by no desc
+        limit 1;`;
+        const results: any[] = await sync.$queryRaw(query);
+        return results[0]
+    } catch (e) {
+        console.log("/api/db/epoch", e)
     }
 }
