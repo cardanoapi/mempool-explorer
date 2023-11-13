@@ -7,7 +7,6 @@ import { MempoolEventType, MempoolLiveViewTableHeaderEnum } from '@app/constants
 import { MintMessage } from '@app/lib/websocket';
 import BannerStatCard from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
-import Navbar from '@app/molecules/Navbar';
 import LatestBlockList from '@app/organisms/LatestBlockList';
 import LiveMempoolList from '@app/organisms/LiveMempoolList';
 import MempoolTransactionList from '@app/organisms/MempoolTransactionList';
@@ -16,8 +15,8 @@ import { getRelativeTime } from '@app/utils/cardano-utils';
 import { createLinkElementsForCurrentMempoolTransactions } from '@app/utils/string-utils';
 
 interface ILiveMempoolProps {
-    mempoolEvent?: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions;
-    mintEvent?: MintMessage;
+    readonly mempoolEvent?: AddRejectTxClientSideType | RemoveTxClientSideType | RemoveMintedTransactions;
+    readonly mintEvent?: MintMessage;
 }
 export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolProps) {
     const [eventLogList, setEventLogList] = useState<Array<typeof mempoolEvent>>([]);
@@ -105,7 +104,7 @@ export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolPro
                 </div>
             </BannerTitle>
             <div className="min-h-screen">
-                <div className="grid grid-cols-1 xl:grid-cols-2">
+                <div className="grid grid-cols-1 xl:h-[50vh] xl:overflow-hidden xl:grid-cols-2">
                     <LiveMempoolList tableTitle="Events" eventLogList={eventLogList} />
                     <MempoolTransactionList
                         tableTitle="Mempool Transactions"
@@ -117,7 +116,6 @@ export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolPro
                         }))}
                     />
                 </div>
-                {/* TODO: Fix data for this */}
                 <LatestBlockList tableTitle="Latest Blocks" mintEvent={mintEvent} />
             </div>
         </main>
