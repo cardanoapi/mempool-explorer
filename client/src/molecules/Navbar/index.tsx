@@ -18,7 +18,7 @@ export default function Navbar() {
     const isMobile = useIsMobile();
 
     return (
-        <nav className="flex items-center justify-between gap-2 h-[68px] px-4 md:h-22 md:px-10 border-b-[1px] border-[#4A4A4A]">
+        <nav className="flex items-center z-10 bg-[#0D0D0D] !backdrop-blur-3xl justify-between gap-2 h-[68px] px-4 md:h-22 md:px-10 border-b-[1px] border-[#4A4A4A]">
             <Link href="/" tabIndex={-1} className="flex items-center gap-2 font-semibold text-xl text-white">
                 <BrandIcon />
                 <p className="hidden md:block">Mempool</p>
@@ -56,10 +56,14 @@ export default function Navbar() {
                     fullWidth
                     className="flex items-center !font-ibm !text-sm md:text-base"
                     onKeyDown={(e) => {
-                        // @ts-ignore
-                        if (e.key === 'Enter' && !!e.target.value) {
-                            // @ts-ignore
-                            router.push(`/${e.target.value}`);
+                        if (e.key === 'Enter' && !!(e.target as HTMLInputElement).value) {
+                            if ((e.target as HTMLInputElement).value.startsWith('addr')) {
+                                router.push(`/${(e.target as HTMLInputElement).value}`);
+                            } else if ((e.target as HTMLInputElement).value.startsWith('pool')) {
+                                router.push(`/pool/${(e.target as HTMLInputElement).value}`);
+                            } else {
+                                router.push(`/transactions/${(e.target as HTMLInputElement).value}`);
+                            }
                         }
                     }}
                 />

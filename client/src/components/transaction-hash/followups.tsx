@@ -89,7 +89,7 @@ export default function Followups(props: FollowupPropType) {
         return (
             <Layout>
                 <div className={'flex flex-col'}>
-                    <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1>
+                    {/* <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1> */}
                     <EmptyPageIcon message={'Fetching followups..'} />
                 </div>
             </Layout>
@@ -117,7 +117,6 @@ export default function Followups(props: FollowupPropType) {
 
     return (
         <Layout className={'!overflow-y-scroll'}>
-            <Heading title={'Followups'} />
             {!followups?.length ? (
                 <EmptyPageIcon message={'No followups available!'} />
             ) : (

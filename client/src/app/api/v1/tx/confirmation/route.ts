@@ -1,8 +1,10 @@
-import {NextResponse} from "next/server";
-import {encode} from "cbor-x";
-import {getUrlObject} from "@app/utils/cardano-utils";
-import {getConfirmationDetails} from "@app/db/queries";
-import {convertBuffersToString} from "@app/utils/utils";
+import { NextResponse } from 'next/server';
+
+import { encode } from 'cbor-x';
+
+import { getConfirmationDetails } from '@app/db/queries';
+import { getUrlObject } from '@app/utils/cardano-utils';
+import { convertBuffersToString } from '@app/utils/utils';
 
 /**
  * @swagger
@@ -24,24 +26,24 @@ import {convertBuffersToString} from "@app/utils/utils";
  */
 
 export async function GET(req: any) {
-    console.log("GET: ", req.url)
+    console.log('GET: ', req.url);
     try {
         const urlObject = getUrlObject(req.url);
-        const hashes = urlObject.searchParams.getAll("hash");
+        const hashes = urlObject.searchParams.getAll('hash');
         const hashbytes = hashes.map((hash: string) => {
             return Buffer.from(hash, 'hex');
         });
         const confirmation = await getConfirmationDetails(hashbytes);
-        if (req.headers.get("accept") === "application/json") {
-            const r = convertBuffersToString(confirmation)
-            return NextResponse.json(r)
+        if (req.headers.get('accept') === 'application/json') {
+            const r = convertBuffersToString(confirmation);
+            return NextResponse.json(r);
         }
         const serializedBuffer = encode(confirmation);
         const response = new NextResponse(serializedBuffer);
-        response.headers.set("Content-Type", "application/cbor")
+        response.headers.set('Content-Type', 'application/cbor');
         return response;
     } catch (e: any) {
         console.log(req.url, e);
-        return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
+        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
     }
 }

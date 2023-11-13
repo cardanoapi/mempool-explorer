@@ -1,10 +1,12 @@
-import {encode} from "cbor-x";
-import {NextResponse} from "next/server";
-import {getAggregrationForLastThreeBlocks} from "@app/db/queries";
-import {getUrlObject, transformToClientSideData} from "@app/utils/cardano-utils";
-import {convertBuffersToString} from "@app/utils/utils";
+import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic'
+import { encode } from 'cbor-x';
+
+import { getAggregrationForLastThreeBlocks } from '@app/db/queries';
+import { getUrlObject, transformToClientSideData } from '@app/utils/cardano-utils';
+import { convertBuffersToString } from '@app/utils/utils';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * @swagger
@@ -26,22 +28,22 @@ export const dynamic = 'force-dynamic'
  */
 
 export async function GET(req: Request) {
-    console.log("GET: ", req.url)
+    console.log('GET: ', req.url);
     try {
         const urlObject = getUrlObject(req.url);
-        const id = urlObject.searchParams.get("query") as string;
+        const id = urlObject.searchParams.get('query') as string;
         let data = await getAggregrationForLastThreeBlocks(id);
-        if (req.headers.get("accept") === "application/json") {
+        if (req.headers.get('accept') === 'application/json') {
             const r = convertBuffersToString(await transformToClientSideData(data));
-            return NextResponse.json(r)
+            return NextResponse.json(r);
         }
         const transformedData = await transformToClientSideData(data);
         const serializedBuffer = encode(transformedData);
         const response = new NextResponse(serializedBuffer);
-        response.headers.set("Content-Type", "application/cbor")
+        response.headers.set('Content-Type', 'application/cbor');
         return response;
     } catch (e: any) {
         console.log(req.url, e);
-        return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
+        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
     }
 }

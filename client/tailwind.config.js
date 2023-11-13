@@ -29,7 +29,8 @@ module.exports = {
                 cardano: '#0C1420'
             },
             height: {
-                22: '88px'
+                22: '88px',
+                'calc-88': 'calc(100vh - 88px)'
             },
             fontFamily: {
                 ibm: ['IBM Plex Mono', 'Open Sans', 'monospace']
