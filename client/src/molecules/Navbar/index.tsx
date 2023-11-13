@@ -56,10 +56,14 @@ export default function Navbar() {
                     fullWidth
                     className="flex items-center !font-ibm !text-sm md:text-base"
                     onKeyDown={(e) => {
-                        // @ts-ignore
-                        if (e.key === 'Enter' && !!e.target.value) {
-                            // @ts-ignore
-                            router.push(`/${e.target.value}`);
+                        if (e.key === 'Enter' && !!(e.target as HTMLInputElement).value) {
+                            if ((e.target as HTMLInputElement).value.startsWith('addr')) {
+                                router.push(`/${(e.target as HTMLInputElement).value}`);
+                            } else if ((e.target as HTMLInputElement).value.startsWith('pool')) {
+                                router.push(`/pool/${(e.target as HTMLInputElement).value}`);
+                            } else {
+                                router.push(`/transactions/${(e.target as HTMLInputElement).value}`);
+                            }
                         }
                     }}
                 />
