@@ -4,9 +4,9 @@ import { Address, BaseAddress, PoolMetadata, PoolMetadataHash } from '@emurgo/ca
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import CardanoIcon from '@app/assets/svgs/cardano-icon';
-import CopyToClipboard from '@app/assets/svgs/copy-to-clipboard';
 import LinkIcon from '@app/assets/svgs/link-icon';
+import CardanoIcon from '@app/atoms/Icon/Cardano';
+import CopyIcon from '@app/atoms/Icon/Copy';
 import { copyToClipboard } from '@app/utils/utils';
 
 export default function AddressTitle() {
@@ -24,25 +24,22 @@ export default function AddressTitle() {
     }
 
     return (
-        <>
-            <ToastContainer position={'bottom-right'} autoClose={2000} />
-            <div className={'flex flex-col justify-center items-center'}>
-                <div className={'flex items-center gap-2 mb-4'}>
-                    <CardanoIcon />
-                    <div className={'flex flex-col items-start'}>
-                        <p className={'text-gray-500 text-sm'}>Address</p>
-                        <div className={'flex items-center'}>
-                            <p className={'font-bold mr-1'}>{router?.id}</p>
-                            <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard((router?.id as string) || '')}>
-                                <CopyToClipboard />
-                            </div>
-                            <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()}>
-                                <LinkIcon />
-                            </a>
+        <div className={'flex flex-col justify-center items-center'}>
+            <div className={'flex items-center gap-2 mb-4'}>
+                <CardanoIcon />
+                <div className={'flex flex-col items-start'}>
+                    <p className={'text-gray-500 text-sm'}>Address</p>
+                    <div className={'flex items-center'}>
+                        <p className={'font-bold mr-1'}>{router?.id}</p>
+                        <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard((router?.id as string) || '')}>
+                            <CopyIcon />
                         </div>
+                        <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()}>
+                            <LinkIcon />
+                        </a>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
