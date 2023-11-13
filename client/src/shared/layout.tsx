@@ -1,8 +1,6 @@
-export default function Layout(props: any) {
-    const {className, ...otherProps} = props;
+export default function Layout({ className = '', ...props }: any) {
     return (
-        <div {...otherProps}
-             className={'border-solid bg-white border-[1px] border-[#cecece] p-4 rounded-md ' + (className || '')}>
+        <div className={`px-4 py-6 lg:px-10 lg:py-8 ${className}`} {...props}>
             {props.children}
         </div>
     );

@@ -22,7 +22,7 @@ export default function LiveMempoolList({ tableTitle, eventLogList, className = 
     const tableColumns = ['Hash', 'Status'];
 
     return (
-        <div className={`w-full md:border-r-[1px] md:border-r-[#B9B9B9] ${className}`}>
+        <div className={`w-full md:border-r-[1px] md:border-r-[#B9B9B9] xl:scrollable-table overflow-auto ${className}`}>
             {tableTitle && <TableTitle title={tableTitle} />}
             <table className="table-auto w-full">
                 <TableHeader columns={tableColumns} />

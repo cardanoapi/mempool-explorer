@@ -1,9 +1,9 @@
 interface EmptyPropsType {
-    message: string | undefined;
+    readonly message: string | undefined;
 }
-export default function EmptyPageIcon(props:EmptyPropsType) {
+export default function EmptyPageIcon(props: EmptyPropsType) {
     return (
-        <div className={'flex flex-col justify-center items-center'}>
+        <div className="flex flex-col justify-center items-center">
             <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M85.3125 62.1875L92.8125 69.6875C93.4375 70.3125 93.75 71.5625 93.75 72.5C93.4375 73.4375 92.8125 74.375 91.875 74.6875L60.625 87.1875C59.375 87.8125 58.125 87.5 57.1875 86.5625L50 79.375L42.8125 86.5625C41.875 87.5 40.625 87.8125 39.375 87.1875L8.125 74.6875C7.1875 74.375 6.5625 73.4375 6.25 72.5C6.25 71.5625 6.5625 70.3125 7.1875 69.6875L14.6875 62.1875L6.875 51.875C6.25 51.25 6.25 50 6.25 49.0625C6.5625 48.125 7.1875 47.5 8.125 46.875L39.375 34.375C39.6875 34.375 40 34.0625 40.625 34.0625C41.5625 34.0625 42.5 34.375 43.125 35.3125L50 44.375L56.875 35.3125C57.5 34.375 58.4375 34.0625 59.375 34.0625C59.6875 34.0625 60.3125 34.0625 60.625 34.375L91.875 46.875C92.8125 47.1875 93.4375 48.125 93.75 49.0625C94.0625 50 93.75 50.9375 93.125 51.875L85.3125 62.1875ZM50 53.4375L27.1875 62.5L50 71.5625L72.8125 62.5L50 53.4375Z"
@@ -14,7 +14,7 @@ export default function EmptyPageIcon(props:EmptyPropsType) {
                     fill="#D5D5D5"
                 />
             </svg>
-            <p className={'text-gray-500'}>{props.message ? props.message: "No data available!"}</p>
+            <p className={'text-gray-500'}>{props.message ? props.message : 'No data available!'}</p>
         </div>
     );
 }

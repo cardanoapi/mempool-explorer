@@ -18,7 +18,7 @@ export default function Navbar() {
     const isMobile = useIsMobile();
 
     return (
-        <nav className="flex items-center justify-between gap-2 h-[68px] px-4 md:h-22 md:px-10 border-b-[1px] border-[#4A4A4A]">
+        <nav className="flex items-center z-10 bg-[#0D0D0D] !backdrop-blur-3xl justify-between gap-2 h-[68px] px-4 md:h-22 md:px-10 border-b-[1px] border-[#4A4A4A]">
             <Link href="/" tabIndex={-1} className="flex items-center gap-2 font-semibold text-xl text-white">
                 <BrandIcon />
                 <p className="hidden md:block">Mempool</p>
