@@ -1,9 +1,8 @@
-import {PrismaClient} from '@prisma/client';
-import * as os from 'os'
-
+import { PrismaClient } from '@prisma/client';
+import * as os from 'os';
 
 function readEnv(key: string, def: string = ''): string {
-    return process.env[key] || def
+    return process.env[key] || def;
 }
 
 function escape(password: string) {
@@ -16,7 +15,7 @@ function escape(password: string) {
         ']': '%5D',
         '@': '%40',
         '!': '%21',
-        '$': '%24',
+        $: '%24',
         '&': '%26',
         "'": '%27',
         '(': '%28',
@@ -39,38 +38,42 @@ function escape(password: string) {
     }
 
     return encodedPassword;
-
 }
 
 export const dbClient = new PrismaClient({
     datasources: {
         db: {
-            url: process.env.DATABASE_URL ?
-                process.env.DATABASE_URL
-                : `postgresql://${readEnv('PGUSER', os.userInfo().username)}:${escape(readEnv('PGPASSWORD'))}@${readEnv('PGHOST', process.env.NODE_ENV == 'development' ? 'localhost' : 'postgres')}:${readEnv('PGPORT', '5432')}/${readEnv('PGDATABASE')}?schema=public&application_name=mempool-webapp`
-        }
-    }
-})
-
-export const syncClient = new PrismaClient({
-    datasources: {
-        db: {
-            url: process.env.DBSYNC_DATABASE_URL ?
-                process.env.DBSYNC_DATABASE_URL
-                : `postgresql://${readEnv('SRC_PGUSER', os.userInfo().username)}:${escape(readEnv('SRC_PGPASSWORD'))}@${readEnv('SRC_PGHOST', process.env.NODE_ENV == 'development' ? 'localhost' : 'postgres')}:${readEnv('SRC_PGPORT', '5432')}/${readEnv('SRC_PGDATABASE')}?schema=public&application_name=mempool-webapp`
+            url: process.env.DATABASE_URL
+                ? process.env.DATABASE_URL
+                : `postgresql://${readEnv('PGUSER', os.userInfo().username)}:${escape(readEnv('PGPASSWORD'))}@${readEnv('PGHOST', process.env.NODE_ENV == 'development' ? 'localhost' : 'postgres')}:${readEnv('PGPORT', '5432')}/${readEnv(
+                      'PGDATABASE'
+                  )}?schema=public&application_name=mempool-webapp`
         }
     }
 });
 
-let isSetup = true
+export const syncClient = new PrismaClient({
+    datasources: {
+        db: {
+            url: process.env.DBSYNC_DATABASE_URL
+                ? process.env.DBSYNC_DATABASE_URL
+                : `postgresql://${readEnv('SRC_PGUSER', os.userInfo().username)}:${escape(readEnv('SRC_PGPASSWORD'))}@${readEnv('SRC_PGHOST', process.env.NODE_ENV == 'development' ? 'localhost' : 'postgres')}:${readEnv('SRC_PGPORT', '5432')}/${readEnv(
+                      'SRC_PGDATABASE'
+                  )}?schema=public&application_name=mempool-webapp`
+        }
+    }
+});
+
+let isSetup = true;
 
 export default async function setup() {
-    return dbClient.$queryRaw`SELECT version()`.then((res: any) => {
-        console.log("Connected:", res[0].version)
-        return dbClient
-    }).catch(e => {
-        console.error("Database Setup failed", e)
-        process.exit(1)
-    })
-
+    return dbClient.$queryRaw`SELECT version()`
+        .then((res: any) => {
+            console.log('Connected:', res[0].version);
+            return dbClient;
+        })
+        .catch((e) => {
+            console.error('Database Setup failed', e);
+            process.exit(1);
+        });
 }

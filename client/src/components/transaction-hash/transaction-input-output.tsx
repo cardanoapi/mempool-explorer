@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { ToastContainer } from 'react-toastify';
-
 import CopyToClipboard from '@app/assets/svgs/copy-to-clipboard';
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
 import { convertToADA, toMidDottedStr } from '@app/utils/string-utils';
@@ -69,46 +67,44 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
     function Outputs() {
         return (
-            <>
-                <div className={'flex flex-col'}>
-                    <h1 className={'font-semibold'}>Outputs</h1>
-                    {tx?.outputs?.map((tx: OutputType, idx: number) => (
-                        <div key={idx} className={'flex mb-4 items-start'}>
-                            <p className={'font-semibold mr-2'}>
-                                {idx}
-                                <span>.</span>
-                            </p>
-                            <div className={'flex flex-col text-sm'}>
-                                <div className={'flex items-center gap-2'}>
-                                    <p className={'text-blue-500'}>{toMidDottedStr(tx.address)}</p>
-                                    <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(tx.address)}>
-                                        <CopyToClipboard />
-                                    </div>
-                                </div>
-                                <p className={'font-bold text-lg'}>{convertToADA(tx.amount)}</p>
-                                <div className={'flex gap-1 mt-2 flex-wrap'}>
-                                    {tx?.multiasset?.map((t: any) => {
-                                        return (
-                                            <div key={t.hash} className={'flex w-full flex-wrap'}>
-                                                {Object.keys(t).map((key: string) => {
-                                                    return (
-                                                        <div key={t.hash} className={'flex items-center m-2'}>
-                                                            <div className={'p-1 text-xs text-green-800 font-bold border-solid border-[1px] bg-blue-50 rounded-lg'}>
-                                                                {parseInt(t[key])}
-                                                                <span className={'ml-2 text-black'}>{key}</span>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        );
-                                    })}
+            <div className={'flex flex-col'}>
+                <h1 className={'font-semibold'}>Outputs</h1>
+                {tx?.outputs?.map((tx: OutputType, idx: number) => (
+                    <div key={idx} className={'flex mb-4 items-start'}>
+                        <p className={'font-semibold mr-2'}>
+                            {idx}
+                            <span>.</span>
+                        </p>
+                        <div className={'flex flex-col text-sm'}>
+                            <div className={'flex items-center gap-2'}>
+                                <p className={'text-blue-500'}>{toMidDottedStr(tx.address)}</p>
+                                <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard(tx.address)}>
+                                    <CopyToClipboard />
                                 </div>
                             </div>
+                            <p className={'font-bold text-lg'}>{convertToADA(tx.amount)}</p>
+                            <div className={'flex gap-1 mt-2 flex-wrap'}>
+                                {tx?.multiasset?.map((t: any) => {
+                                    return (
+                                        <div key={t.hash} className={'flex w-full flex-wrap'}>
+                                            {Object.keys(t).map((key: string) => {
+                                                return (
+                                                    <div key={t.hash} className={'flex items-center m-2'}>
+                                                        <div className={'p-1 text-xs text-green-800 font-bold border-solid border-[1px] bg-blue-50 rounded-lg'}>
+                                                            {parseInt(t[key])}
+                                                            <span className={'ml-2 text-black'}>{key}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </>
+                    </div>
+                ))}
+            </div>
         );
     }
 
@@ -144,7 +140,6 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
 
     return (
         <Layout>
-            <ToastContainer position={'bottom-right'} autoClose={2000} />
             <h1 className={'font-semibold text-2xl mb-2'}>Cardano Transaction</h1>
             <div className={'flex flex-col mb-2'}>
                 <p className={'mr-1 font-semibold'}>Hash ID </p>

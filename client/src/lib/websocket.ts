@@ -1,7 +1,8 @@
-import {CborTransactionParser as Transaction} from './cborparser';
-import {addExtension, Decoder} from "cbor-x";
+import { Decoder, addExtension } from 'cbor-x';
 
-type EventType = "mint" | "rollback" | "addTx" | "removeTx" | "rejectTx" | "disconnected" | "connected";
+import { CborTransactionParser as Transaction } from './cborparser';
+
+type EventType = 'mint' | 'rollback' | 'addTx' | 'removeTx' | 'rejectTx' | 'disconnected' | 'connected';
 
 export interface AddTxMessage {
     mempoolTxCount: number;
@@ -40,19 +41,19 @@ interface CardanoWebSocket {
     wsUrl: string;
     ws: WebSocket;
 
-    on(event: "mint", callback: (mintMessage: MintMessage) => void): void
+    on(event: 'mint', callback: (mintMessage: MintMessage) => void): void;
 
-    on(event: "rollback", callback: (rollabckMessage: RollbackMessage) => void): void;
+    on(event: 'rollback', callback: (rollabckMessage: RollbackMessage) => void): void;
 
-    on(event: "addTx", callback: (addMessage: AddTxMessage) => void): void;
+    on(event: 'addTx', callback: (addMessage: AddTxMessage) => void): void;
 
-    on(event: "removeTx", callback: (removeMessage: RemoveTxMessage) => void): void;
+    on(event: 'removeTx', callback: (removeMessage: RemoveTxMessage) => void): void;
 
-    on(event: "rejectTx", callback: (rejectMessage: RejectTxMessage) => void): void;
+    on(event: 'rejectTx', callback: (rejectMessage: RejectTxMessage) => void): void;
 
-    on(event: "disconnected", callback: () => void): void;
+    on(event: 'disconnected', callback: () => void): void;
 
-    on(event: "connected", callback: () => void): void;
+    on(event: 'connected', callback: () => void): void;
 
     unsubscribe(event: EventType): void;
 
@@ -62,17 +63,16 @@ interface CardanoWebSocket {
 }
 
 addExtension({
-        Class: Transaction,
-        tag: 24, // register our own extension code (a tag code)
-        encode(instance: Transaction) {
-            return instance.transaction.inputs;
-        },
-        decode(data: Buffer) {
-            console.debug("Decoding transaction", data.toString('hex'))
-            return new Transaction(data);
-        }
+    Class: Transaction,
+    tag: 24, // register our own extension code (a tag code)
+    encode(instance: Transaction) {
+        return instance.transaction.inputs;
+    },
+    decode(data: Buffer) {
+        console.debug('Decoding transaction', data.toString('hex'));
+        return new Transaction(data);
     }
-);
+});
 addExtension({
     Class: Date,
     tag: 1,
@@ -82,8 +82,7 @@ addExtension({
     decode(data: number) {
         return new Date(data);
     }
-
-})
+});
 
 export default class CardanoWebSocketImpl implements CardanoWebSocket {
     wsUrl: string;
@@ -96,18 +95,18 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
         if (wsUrl.startsWith('http')) {
             wsUrl = 'ws' + wsUrl.substring(4);
         }
-        this.wsUrl = wsUrl
-        this.ws = new WebSocket(wsUrl)
+        this.wsUrl = wsUrl;
+        this.ws = new WebSocket(wsUrl);
 
         this.listenToWs();
-        this.consumers = {}
+        this.consumers = {};
     }
 
     public static createConnection(wsUrl: string): CardanoWebSocket {
         // if(CardanoWebSocketImpl.ins){
         //   return CardanoWebSocketImpl.ins
         // }
-        return CardanoWebSocketImpl.ins = new CardanoWebSocketImpl(wsUrl);
+        return (CardanoWebSocketImpl.ins = new CardanoWebSocketImpl(wsUrl));
     }
 
     public on(event: EventType, callback: CallableFunction): void {
@@ -120,20 +119,20 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
 
     public close() {
         this.ws.close();
-    };
+    }
 
     public reconnect() {
         this.ws = new WebSocket(this.wsUrl);
-    };
+    }
 
     private listenToWs() {
         const decoder = new Decoder();
-        this.ws.addEventListener("message", async (event: MessageEvent) => {
+        this.ws.addEventListener('message', async (event: MessageEvent) => {
             try {
                 // console.log(Buffer.from(await event.data.arrayBuffer()).toString('hex'));
                 const data = decoder.decode(Buffer.from(await event.data.arrayBuffer()));
                 switch (data[0]) {
-                    case "add":
+                    case 'add':
                         const tx: Transaction = data[3][1];
                         const txCount = data[3][0][0];
                         const mempoolSize = data[3][0][1];
@@ -149,7 +148,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
                         });
                         break;
 
-                    case "remove":
+                    case 'remove':
                         // console.log("remove");
                         // console.log(data);
                         const txHashes = data[1][1];
@@ -163,7 +162,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
                         });
                         break;
 
-                    case "reject":
+                    case 'reject':
                         // console.log("reject");
                         const _tx: Transaction = data[2][1];
                         const _txCount = data[2][0][0];
@@ -176,17 +175,17 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
                         });
                         break;
 
-                    case "rollback":
+                    case 'rollback':
                         // console.log("rollback");
                         // console.log(data);
                         const slotNumber = data[1];
                         const headerHash = data[2];
-                        this.consumers.rollback({slotNumber, headerHash} as RollbackMessage);
+                        this.consumers.rollback({ slotNumber, headerHash } as RollbackMessage);
                         break;
 
-                    case "mint":
-                        console.log("mint");
-                        console.log(data);
+                    case 'mint':
+                        // console.log("mint");
+                        // console.log(data);
                         const slotNumberMint: number = data[1];
                         const headerHashMint = Buffer.from(data[2]).toString('hex');
                         const txHashesMint = data[3];
@@ -202,7 +201,7 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
                         break;
                 }
             } catch (e) {
-                console.error("Decode Error: ", e);
+                console.error('Decode Error: ', e);
             }
         });
     }
