@@ -11,7 +11,6 @@ import TxIcon from '@app/atoms/Icon/Tx';
 import TableTitle from '@app/atoms/TableTitle';
 import { checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
-import Miner from '@app/components/transaction-hash/Miner';
 import Competitors from '@app/components/transaction-hash/competitors';
 import Followups from '@app/components/transaction-hash/followups';
 import { DateTimeCustomoptions } from '@app/constants/constants';
@@ -79,7 +78,6 @@ export default function TransactionDetails() {
                         [MinerEnum.pool_id]: d[0]?.pool_id.toString(),
                         [MinerEnum.tx_hash]: d[0]?.tx_hash ? Buffer.from(d[0].tx_hash).toString('hex') : ''
                     };
-                    console.log(clientSideObj);
                     setMiner(clientSideObj);
                 })
                 .catch((e: any) => {
@@ -104,9 +102,8 @@ export default function TransactionDetails() {
                         .finally(() => hideLoader());
                 });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router?.id]);
-
-    console.log(miner);
 
     return (
         <>
@@ -138,12 +135,11 @@ export default function TransactionDetails() {
                     <TxInputOutput isLoading={isLoading} error={error} txInputOutputs={transactionDetails?.tx} inputResolvedAddress={transactionDetails?.inputAddress} />
                 </div>
                 <div className="col-span-1 md:col-span-2 flex flex-col gap-4">
-                    <div className="">
+                    <div className="border-b-[1px] boder-b-[#666666]">
                         <TableTitle title="Competitors" className="px-4 py-6 lg:px-10 lg:py-8" />
                         <Competitors isLoading={isLoading} error={error} competing={transactionDetails?.competing} />
-                        {/* <Miner hash={router?.id || ''} /> */}
                     </div>
-                    <div className="">
+                    <div className="border-b-[1px] boder-b-[#666666]">
                         <TableTitle title="Follow" className="px-4 py-6 lg:px-10 lg:py-8" />
                         <Followups isLoading={isLoading} error={error} followups={transactionDetails?.followups} />
                     </div>
