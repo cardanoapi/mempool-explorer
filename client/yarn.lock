@@ -3751,6 +3751,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/nprogress@npm:^0.2.1":
+  version: 0.2.3
+  resolution: "@types/nprogress@npm:0.2.3"
+  checksum: cac0fe73aca79bc1472a1556f56303df72026f2fcd8dbe311fe84b1f46e454b9040c1e69223d94e3bf156a5986382170c52ebda19aa70f555f1b6855d8f744a6
+  languageName: node
+  linkType: hard
+
 "@types/overlayscrollbars@npm:^1.12.1":
   version: 1.12.3
   resolution: "@types/overlayscrollbars@npm:1.12.3"
@@ -5001,6 +5008,7 @@ __metadata:
     next-sitemap: "npm:^3.1.21"
     next-swagger-doc: "npm:^0.4.0"
     next-themes: "npm:^0.2.0"
+    nextjs-toploader: "npm:^1.6.4"
     nprogress: "npm:^0.2.0"
     overlayscrollbars: "npm:1.13.2"
     overlayscrollbars-react: "npm:^0.3.0"
@@ -10197,6 +10205,21 @@ __metadata:
   bin:
     next: dist/bin/next
   checksum: 7bb57eb1815e39c9e9c989d3dc0931e48595abadc7b9a84af3e6525f0c495f0c0f732deb0e2fbcd3f3e8940c4e7d1342d23f771127c675894f2cb4bb8b4e999b
+  languageName: node
+  linkType: hard
+
+"nextjs-toploader@npm:^1.6.4":
+  version: 1.6.4
+  resolution: "nextjs-toploader@npm:1.6.4"
+  dependencies:
+    "@types/nprogress": "npm:^0.2.1"
+    nprogress: "npm:^0.2.0"
+    prop-types: "npm:^15.8.1"
+  peerDependencies:
+    next: ">= 6.0.0"
+    react: ">= 16.0.0"
+    react-dom: ">= 16.0.0"
+  checksum: 16ac074113d93dd77760d409c933586537f399af62f034bb5569f63453734a55e2a10d9e3830fa2e89e88807e8684416cc0eeb356ccce23524204abf716ed21f
   languageName: node
   linkType: hard
 

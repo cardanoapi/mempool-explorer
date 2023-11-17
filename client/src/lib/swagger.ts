@@ -1,4 +1,4 @@
-import {createSwaggerSpec} from 'next-swagger-doc';
+import { createSwaggerSpec } from 'next-swagger-doc';
 
 export const getApiDocs = async () => {
     const spec = createSwaggerSpec({
@@ -7,7 +7,7 @@ export const getApiDocs = async () => {
             openapi: '3.0.0',
             info: {
                 title: 'Mempool Explorer API',
-                version: '1.0',
+                version: '1.0'
             },
             // components: {
             //     securitySchemes: {
@@ -18,8 +18,8 @@ export const getApiDocs = async () => {
             //         },
             //     },
             // },
-            security: [],
-        },
+            security: []
+        }
     });
     return spec;
 };

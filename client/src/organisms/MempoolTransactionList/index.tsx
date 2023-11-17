@@ -24,7 +24,7 @@ export default function MempoolTransactionList({ tableTitle, data, className = '
     const tableColumns = ['Hash', 'Inputs', 'Outputs', 'Received Time'];
 
     return (
-        <div className={`w-full md:border-r-[1px] md:border-r-[#B9B9B9] overflow-auto ${className}`}>
+        <div className={`w-full md:border-r-[1px] md:border-r-[#B9B9B9] xl:scrollable-table overflow-auto ${className}`}>
             {tableTitle && <TableTitle title={tableTitle} />}
             <table className="table-auto w-full">
                 <TableHeader columns={tableColumns} />

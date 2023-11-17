@@ -3,16 +3,17 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
+        "postinstall": "prisma generate",
         "clean": "rm -rf node_modules, .next, .next-dev, out, .cache",
         "format": "prettier --write .",
-        "dev": "cross-env NODE_OPTIONS='--inspect --max-old-space-size=8192' next dev",
-        "analyze": "cross-env NODE_OPTIONS='--max-old-space-size=8192' ANALYZE=true next build",
-        "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' next build",
+        "prisma:generate": "prisma generate",
+        "dev": "prisma generate && cross-env NODE_OPTIONS='--inspect --max-old-space-size=8192' next dev",
+        "analyze": "prisma generate && cross-env NODE_OPTIONS='--max-old-space-size=8192' ANALYZE=true next build",
+        "build": "prisma generate && cross-env NODE_OPTIONS='--max-old-space-size=8192' next build",
         "postbuild": "cross-env next-sitemap --config next-sitemap.config.js",
         "start": "next start",
         "lint": "next lint",
-        "test": "jest --watch",
-        "prisma:generate": "prisma generate"
+        "test": "jest --watch"
     },
     "dependencies": {
         "@emotion/react": "^11.10.4",
@@ -50,6 +51,7 @@
         "next-sitemap": "^3.1.21",
         "next-swagger-doc": "^0.4.0",
         "next-themes": "^0.2.0",
+        "nextjs-toploader": "^1.6.4",
         "nprogress": "^0.2.0",
         "overlayscrollbars": "1.13.2",
         "overlayscrollbars-react": "^0.3.0",

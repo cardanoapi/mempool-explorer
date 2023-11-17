@@ -38,7 +38,8 @@ body {
 
 /* width */
 ::-webkit-scrollbar {
-    width: 2px;
+    width: 2px !important;
+    height: 2px !important;
 }
 
 /* Track */
@@ -57,5 +58,16 @@ body {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #E6E6E6;
-    width: 2px;
+    width: 4px;
+}
+
+.scroll-sync-container {
+    overflow-x: auto;
+    display: flex;
+    gap: 1rem;
+}
+
+.scrollable-table {
+    max-height: 50vh;
+    overflow-y: auto;
 }

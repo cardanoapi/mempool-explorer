@@ -169,9 +169,11 @@ export default function DashboardMempoolBanner() {
                     </table>
                 </div>
                 <div className="p-4 lg:p-10">
-                    <GradientButton size="large" fullWidth onClick={() => router.push('/mempool')}>
-                        Show Live Data
-                    </GradientButton>
+                    <Link href="/mempool">
+                        <GradientButton size="large" fullWidth onClick={() => {}}>
+                            Show Live Data
+                        </GradientButton>
+                    </Link>
                 </div>
             </div>
         </div>

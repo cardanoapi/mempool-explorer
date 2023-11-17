@@ -29,7 +29,7 @@ export default function Competitors(props: CompetitorPropType) {
         return (
             <Layout>
                 <div className={'flex flex-col'}>
-                    <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1>
+                    {/* <h1 className={'font-semibold text-2xl mb-2'}>Followups</h1> */}
                     <EmptyPageIcon message={'Fetching competitors..'} />
                 </div>
             </Layout>
@@ -54,7 +54,6 @@ export default function Competitors(props: CompetitorPropType) {
 
     return (
         <Layout className={'!overflow-y-scroll'}>
-            <Heading title={'Competitors'} />
             {!competitors.length ? (
                 <EmptyPageIcon message={'No Competitors available!'} />
             ) : (
