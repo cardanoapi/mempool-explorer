@@ -15,6 +15,13 @@ export const toMidDottedStr = (str: string, leadingVisible = 12, firstIndex = 0)
     return `${leadingStr}...${trailingStr}`;
 };
 
+export const toEndDottedStr = (str: string | number, leadingVisible = 12, firstIndex = 0) => {
+    if (str === undefined) return str;
+    if (str.toString().length <= leadingVisible) return str.toString();
+    const leadingStr = str.toString().substring(firstIndex, leadingVisible);
+    return `${leadingStr}...`;
+};
+
 export const Heading = (props: any) => {
     return (
         <div className={'flex justify-between items-center'} style={{ justifyContent: 'space-between' }}>
