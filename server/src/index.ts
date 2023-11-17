@@ -1,3 +1,5 @@
+import { addExtension, Decoder } from "cbor-x";
+
 import * as express from "express";
 import {
   consumer as consumerMaker,
@@ -98,67 +100,94 @@ offset.fetchLatestOffsets(
               }
               txHashes = ["mint", cb[1][0], cb[1][1], txHashes];
             }
-            Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
-                  
-                  connection.send(cbor.encode(txHashes), (err) => {
-                      if(err){
-                          console.log("error sending message to client");
-                          delete connections[connection.id]; 
-                      }
-                  });
+            Object.values(connections).forEach((connection: WebSocket & { id: number }) => {
+
+              connection.send(cbor.encode(txHashes), (err) => {
+                if (err) {
+                  console.log("error sending message to client");
+                  delete connections[connection.id];
+                }
               });
+            });
           }
-          else{
-              let cborlen = Buffer.from([0x83]);
-              let totaldata;
-              msg.key = msg.key.toString();
-              const key = (msg.key as string).split(':');
-              const cborkey = cbor.encode(key[0]);
-              if((msg.key as string).startsWith("add")){  
-                  let addTx = EventType.from_add(msg.key, msg.value); 
-                  localMempool.addTx(addTx.txhash, addTx.txbody); 
-                  const query = await  dbClient.tx_log.findFirst({
-                    where:{
-                      hash:Buffer.from(key[1], 'hex')
-                    },
-                    select:{
-                      received:true
-                    }
-                  })
-                  let received;
-                  if(query){
-                    received = cbor.encode(query.received.getTime());
-                  }
-                  else{
-                    received = cbor.encode(new Date().getTime());
-                  }
-                  totaldata = Buffer.concat([Buffer.from([0x84]), cborkey, received , cbor.encode(key[1]), (msg.value as Buffer)]);
+          else {
+            let cborlen = Buffer.from([0x83]);
+            let totaldata;
+            msg.key = msg.key.toString();
+            const key = (msg.key as string).split(':');
+            const cborkey = cbor.encode(key[0]);
+            if ((msg.key as string).startsWith("add")) {
+              let addTx = EventType.from_add(msg.key, msg.value);
+              localMempool.addTx(addTx.txhash, addTx.txbody);
+              const query = await dbClient.tx_log.findFirst({
+                where: {
+                  hash: Buffer.from(key[1], 'hex')
+                },
+                select: {
+                  received: true
+                }
+              })
+              let received;
+              if (query) {
+                received = cbor.encode(query.received.getTime());
               }
-              else if((msg.key as string).startsWith("remove")){
-                  cborlen = Buffer.from([0x82]);
-                  let removeTx = EventType.from_remove(msg.key, msg.value);
-                  localMempool.removeTx(removeTx.txhashList);
-                  totaldata = Buffer.concat([cborlen, cborkey, (msg.value as Buffer)]);
+              else {
+                received = cbor.encode(new Date().getTime());
               }
-              else if((msg.key as string).startsWith("reject")){
-                  totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
-                  const isPresent = localMempool.rejectTx(key[1]);
-                  if(isPresent){
-                      return;
-                  }
-                  // publish this event to the client
-              }
-              
-              Object.values(connections).forEach((connection:WebSocket & {id:number}) => {
-                  
-                  connection.send(totaldata, (err) => {
-                      if(err){
-                          console.log("error sending message to client");
-                          delete connections[connection.id]; 
-                      }
-                  });
-              });
+              totaldata = Buffer.concat([Buffer.from([0x84]), cborkey, received, cbor.encode(key[1]), (msg.value as Buffer)]);
             }
+            else if ((msg.key as string).startsWith("remove")) {
+              cborlen = Buffer.from([0x82]);
+              let removeTx = EventType.from_remove(msg.key, msg.value);
+              localMempool.removeTx(removeTx.txhashList);
+              totaldata = Buffer.concat([cborlen, cborkey, (msg.value as Buffer)]);
+            }
+            else if ((msg.key as string).startsWith("reject")) {
+              totaldata = Buffer.concat([cborlen, cborkey, cbor.encode(key[1]), (msg.value as Buffer)]);
+              const isPresent = localMempool.rejectTx(key[1]);
+              if (isPresent) {
+                return;
+              }
+              // publish this event to the client
+            }
+
+            const decoder = new Decoder();
+            const data = decoder.decode(totaldata)
+            const event_type = data[0];
+            // TODO : Refactor/merge with above if-else code
+            let mempoolSize;
+            let received_index = 0;
+            let received = new Date();
+
+            if (event_type == "remove") {
+              mempoolSize = data[1][0][1];
+              received_index = data[1][0][0];
+            } else if (event_type == "reject") {
+              mempoolSize = data[2][0][1];
+              received_index = data[2][0][0];
+            } else {
+              mempoolSize = data[3][0][1];
+              received_index = data[3][0][0];
+            }
+
+            dbClient.$executeRaw`INSERT INTO mempool_log (received_date, received_index, type, mempool_size) VALUES
+              (${received}, ${received_index}, ${event_type}, ${mempoolSize})`.then((res) => {
+              console.log("Mempool log inserted successfully");
+            }).catch((err) => {
+              console.log(err);
+            });
+
+
+            Object.values(connections).forEach((connection: WebSocket & { id: number }) => {
+
+              connection.send(totaldata, (err) => {
+                if (err) {
+                  console.log("error sending message to client");
+                  delete connections[connection.id];
+                }
+              });
+            });
+          }
         });
       }
     );
