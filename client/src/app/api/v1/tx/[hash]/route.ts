@@ -3,7 +3,7 @@ import {NextResponse} from "next/server";
 import {encode} from "cbor-x";
 import {parse} from "url";
 import {convertBuffersToString} from "@app/utils/utils";
-import {dbClient} from "@app/db/prisma";
+import {discoveryDbClient} from "@app/db/prisma";
 import {Prisma} from "@prisma/client";
 import {CborTransactionParser} from "@app/lib/cborparser";
 
@@ -21,7 +21,7 @@ async function fetchTheArrivalTime(arr: Array<any>) {
 async function getAddressFromTxHashAndIndex(inputId: string, index: number) {
     const hash = Buffer.from(inputId, "hex");
     const query = Prisma.sql`select address, value from tx_out where hash=${hash} and index=${index}`;
-    return dbClient.$queryRaw(query);
+    return discoveryDbClient.$queryRaw(query);
 }
 
 async function addAddressFieldsToResponse(txBody: any) {
