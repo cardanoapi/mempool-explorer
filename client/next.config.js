@@ -23,7 +23,7 @@ const getHostnameFromRegex = (url) => {
 };
 
 const imageUrls = process.env.IMAGE_DOMAINS ? process.env.IMAGE_DOMAINS.split(',') : null;
-const imageDomains = [];
+const imageDomains = ['images.unsplash.com'];
 
 if (imageUrls && Array.isArray(imageUrls)) {
     imageUrls.map((url) => {
