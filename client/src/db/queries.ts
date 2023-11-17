@@ -1,12 +1,12 @@
-import {dbClient, syncClient} from "./prisma";
-import {Prisma, PrismaClient} from "@prisma/client";
-import {getLatestEpoch} from "@app/utils/cardano-utils";
+import { discoveryDbClient, dbSyncDbClient } from "./prisma";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { getLatestEpoch } from "@app/utils/cardano-utils";
 
-const prisma: PrismaClient = dbClient;
-const sync: PrismaClient = syncClient;
+const discoveryDb: PrismaClient = discoveryDbClient;
+const dbSyncDb: PrismaClient = dbSyncDbClient;
 
 export async function getTheLatestTransactionEpochOfAddress(pool_id: string) {
-    let latestEpoch = await prisma.tx_confirmed.findFirst({
+    let latestEpoch = await discoveryDb.tx_confirmed.findFirst({
         where: {
             pool_id: pool_id
         },
@@ -22,13 +22,13 @@ export async function getTheLatestTransactionEpochOfAddress(pool_id: string) {
 
 export async function getAddressDetails(address_id: string, epochNo: number, pageNumber: number) {
     try {
-        return await prisma.$queryRaw(Prisma.sql`
+        return await discoveryDb.$queryRaw(Prisma.sql`
         select tc.tx_hash, extract ( epoch from tt.wait_time) as wait_time, tc.epoch,tc.block_hash,tc.slot_no,tc.block_no,  tc.confirmation_time from tx_addresses
     join tx_confirmed tc on tx_addresses.tx_hash = tc.tx_hash
     left join tx_timing tt on tt.tx_hash = tc.tx_hash
     where address=${address_id}
     order by tc.confirmation_time desc
-    limit 100 offset ${(pageNumber-1) * 100}
+    limit 100 offset ${(pageNumber - 1) * 100}
         `)
     } catch (e) {
         console.error("error:", e)
@@ -37,7 +37,7 @@ export async function getAddressDetails(address_id: string, epochNo: number, pag
 
 export async function getPoolDetails(pool_id: string, epochNo: number, pageNumber: number) {
     try {
-        return await prisma.$queryRaw(Prisma.sql`SELECT tc.tx_hash, extract (epoch from ttn.wait_time) as wait_time, tc.epoch, tc.block_hash,tc.slot_no, tc.block_no, tc.confirmation_time from tx_confirmed as tc left join tx_timing as ttn on tc.tx_hash = ttn.tx_hash where pool_id=${pool_id} and epoch=${epochNo} order by confirmation_time desc limit 100 offset ${(pageNumber-1) * 100}`)
+        return await discoveryDb.$queryRaw(Prisma.sql`SELECT tc.tx_hash, extract (epoch from ttn.wait_time) as wait_time, tc.epoch, tc.block_hash,tc.slot_no, tc.block_no, tc.confirmation_time from tx_confirmed as tc left join tx_timing as ttn on tc.tx_hash = ttn.tx_hash where pool_id=${pool_id} and epoch=${epochNo} order by confirmation_time desc limit 100 offset ${(pageNumber - 1) * 100}`)
     } catch (e) {
         console.error("error:", e)
     }
@@ -89,7 +89,7 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
     const latestEpoch = getLatestEpoch();
     try {
         if (id.startsWith("pool")) {
-            return await prisma.$queryRaw(
+            return await discoveryDb.$queryRaw(
                 Prisma.sql`
             select tc.epoch as epoch ,
             count(tc.tx_hash) tx_count,
@@ -111,7 +111,7 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
             `
             )
         } else if (id.startsWith("addr")) {
-            return await prisma.$queryRaw(
+            return await discoveryDb.$queryRaw(
                 Prisma.sql`
             select tc.epoch as epoch ,
             count(tc.tx_hash) tx_count,
@@ -141,7 +141,7 @@ export async function getAggregrationForLastThreeBlocks(id: string) {
 
 export async function getBody(txHash: Buffer) {
     try {
-        return prisma.tx_body.findFirst({
+        return discoveryDb.tx_body.findFirst({
             where: {
                 hash: txHash
             }
@@ -157,7 +157,7 @@ export async function getInputsForTxHash(hs: string | Buffer) {
         if (typeof hs === "string") {
             txHash = Buffer.from(hs, 'hex')
         }
-        return prisma.tx_in.findMany({
+        return discoveryDb.tx_in.findMany({
             where: {
                 hash: txHash
             }
@@ -173,7 +173,7 @@ export async function getCompeting(txHash: Buffer) {
         const inputs: any = await getInputsForTxHash(txHash);
         const hashes: any = [];
         for (const input of inputs) {
-            const compHashes = await prisma.tx_in.findMany({
+            const compHashes = await discoveryDb.tx_in.findMany({
                 where: {
                     utxohash: input.utxohash,
                     utxoindex: input.utxoindex,
@@ -187,12 +187,12 @@ export async function getCompeting(txHash: Buffer) {
                 }
             })
             const competitors = compHashes.map(async (input) => {
-                const body = await prisma.tx_body.findUnique({
+                const body = await discoveryDb.tx_body.findUnique({
                     where: {
                         hash: input.hash
                     },
                 })
-                return {'hash': input.hash, 'body': body?.txbody, version: body?.version};
+                return { 'hash': input.hash, 'body': body?.txbody, version: body?.version };
             });
             const comp = await Promise.all(competitors);
             hashes.push(...comp);
@@ -205,7 +205,7 @@ export async function getCompeting(txHash: Buffer) {
 }
 
 export async function getFollowups(txHash: Buffer) {
-    const followHash = await prisma.tx_in.findMany({
+    const followHash = await discoveryDb.tx_in.findMany({
         where: {
             utxohash: txHash
         },
@@ -216,19 +216,19 @@ export async function getFollowups(txHash: Buffer) {
     });
 
     const followups = followHash.map(async (input) => {
-        const body = await prisma.tx_body.findUnique({
+        const body = await discoveryDb.tx_body.findUnique({
             where: {
                 hash: input.hash
             },
         })
-        return {'hash': input.hash, 'body': body?.txbody, 'version': body?.version};
+        return { 'hash': input.hash, 'body': body?.txbody, 'version': body?.version };
     });
     return await Promise.all(followups);
 }
 
 export async function getConfirmation(txHash: Buffer[]) {
     try {
-        return prisma.tx_confirmed.findMany({
+        return discoveryDb.tx_confirmed.findMany({
             where: {
                 tx_hash: {
                     in: txHash
@@ -241,7 +241,7 @@ export async function getConfirmation(txHash: Buffer[]) {
 }
 
 export async function closeConnection() {
-    await prisma.$disconnect();
+    await discoveryDb.$disconnect();
 }
 
 export async function getConfirmationDetails(txHashes: Buffer[]) {
@@ -257,18 +257,18 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
         left join pool_hash ph on sl.pool_hash_id = ph.id  
         where 
             tx.hash in (${Prisma.join(txHashes)})`;
-        return sync.$queryRaw(query);
+        return dbSyncDb.$queryRaw(query);
     } catch (e) {
         console.log("/api/db/transaction", e)
     }
 }
 
 
-export async function listConfirmedTransactions(start_date: Date,pool?:string, limit: number=1000) {
-    console.log("listConfirmedTransactions", !!start_date, start_date, pool,limit )
-    let query ;
-    if(pool){
-        query=Prisma.sql`
+export async function listConfirmedTransactions(start_date: Date, pool?: string, limit: number = 1000) {
+    console.log("listConfirmedTransactions", !!start_date, start_date, pool, limit)
+    let query;
+    if (pool) {
+        query = Prisma.sql`
         select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no ,
             b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
         from tx join block b on b.id = tx.block_id
@@ -292,41 +292,41 @@ export async function listConfirmedTransactions(start_date: Date,pool?:string, l
         limit ${limit};`;
     }
 
-  
-    const results:any[]=await sync.$queryRaw(query);
-    if(results.length==0){
+
+    const results: any[] = await dbSyncDb.$queryRaw(query);
+    if (results.length == 0) {
         return []
     }
-    const hashes=results.map(x=>{
+    const hashes = results.map(x => {
         return x.tx_hash
     })
-    results.forEach(r=>r.tx_hash=r.tx_hash.toString('hex'))
+    results.forEach(r => r.tx_hash = r.tx_hash.toString('hex'))
 
     const arrival_query = Prisma.sql` select min(received) as arrival_time , hash  from tx_log    
             where  hash in (${Prisma.join(hashes)})  group by hash `;
 
-    interface QueryResult{
-        hash:Buffer;
-        arrival_time:Date
+    interface QueryResult {
+        hash: Buffer;
+        arrival_time: Date
     }
-    const arrival_times:QueryResult[]=await prisma.$queryRaw(arrival_query)
+    const arrival_times: QueryResult[] = await discoveryDb.$queryRaw(arrival_query)
 
-    const lookup : Record<string,Date>={}
-    arrival_times.map((v: any)=>{
-        lookup[v.hash.toString('hex')]=v.arrival_time
+    const lookup: Record<string, Date> = {}
+    arrival_times.map((v: any) => {
+        lookup[v.hash.toString('hex')] = v.arrival_time
     })
 
-    return results.map((v)=>{
+    return results.map((v) => {
         return {
             ...v,
-            arrival_time:lookup[v.tx_hash]?.toISOString()
+            arrival_time: lookup[v.tx_hash]?.toISOString()
         }
     })
 }
 
 export async function getArrivalTime(txHash: Buffer) {
     try {
-        return prisma.tx_log.findFirst({
+        return discoveryDb.tx_log.findFirst({
             where: {
                 hash: txHash
             },
@@ -344,14 +344,114 @@ export async function getArrivalTime(txHash: Buffer) {
 
 export async function getCurrentEpochInfo() {
     try {
-        const query = Prisma.sql`
-        select no, tx_count
-        from epoch
-        order by no desc
-        limit 1;`;
-        const results: any[] = await sync.$queryRaw(query);
-        return results[0]
+        const epochQuery = Prisma.sql`
+        SELECT no AS epoch_number, tx_count,
+            blk_count AS block_count
+        FROM epoch
+        ORDER BY no DESC
+        LIMIT 1;`;
+
+        interface EpochQueryResult {
+            epoch_number: number;
+            tx_count: number;
+            block_count: number;
+            avg_wait_time?: number;
+            avg_transaction_per_block?: number;
+        }
+        const epochResult: EpochQueryResult[] = await dbSyncDb.$queryRaw(epochQuery);
+        const epoch: EpochQueryResult = epochResult[0];
+
+        epoch.avg_wait_time = await getAverageConfirmationTimeForEpoch(epoch.epoch_number);
+        epoch.avg_transaction_per_block = await getAverageTransactionPerBlockForEpoch(epoch.epoch_number);
+
+        return epoch
+
+
     } catch (e) {
         console.log("/api/db/epoch", e)
+    }
+}
+
+export async function getAverageConfirmationTimeForEpoch(epoch: number) {
+    try {
+        const avgWaitTimeQuery = Prisma.sql`
+        SELECT AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.received))) AS avg_wait_time
+        FROM tx_confirmed tc JOIN tx_log tl ON tc.tx_hash = tl.hash
+        WHERE epoch = ${epoch}
+        `;
+        interface AvgWaitTimeQueryResult {
+            avg_wait_time: string;
+        }
+        const avgWaitTimeResult: AvgWaitTimeQueryResult[] = await discoveryDb.$queryRaw(avgWaitTimeQuery);
+        return parseFloat(avgWaitTimeResult[0].avg_wait_time);
+    } catch (e) {
+        console.log("/api/db/epoch/avg-wait-time", e)
+    }
+}
+
+export async function getAverageTransactionPerBlockForEpoch(epoch: number) {
+    try {
+        const avgTxCountQuery = Prisma.sql`
+        SELECT AVG(tx_count) AS avg_transaction_count
+        FROM block
+        WHERE epoch_no = ${epoch};
+        `;
+        interface AverageTransactionCountQueryResult {
+            avg_transaction_count: string;
+        }
+        const avgTxCountResult: AverageTransactionCountQueryResult[] = await dbSyncDb.$queryRaw(avgTxCountQuery);
+        return Math.round(parseFloat(avgTxCountResult[0].avg_transaction_count));
+    } catch (e) {
+        console.log("/api/db/epoch/avg-wait-time", e)
+    }
+}
+
+export async function getAverageTransactionTimeForLastSevenDays() {
+    try {
+        const avgTxCountQuery = Prisma.sql`
+        SELECT DATE_TRUNC('day', tc.confirmation_time) AS day,
+        AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.received))) AS avg_wait_time
+        FROM tx_confirmed tc JOIN tx_log tl ON tc.tx_hash = tl.hash
+        WHERE tc.confirmation_time > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '6 days'
+        GROUP BY day
+        ORDER BY day;
+        `;
+        interface AverageTransactionTimeQueryResult {
+            day: string;
+            avg_wait_time: string
+        }
+        const avgTxCountResult: AverageTransactionTimeQueryResult[] = await discoveryDb.$queryRaw(avgTxCountQuery);
+        return avgTxCountResult;
+    } catch (e) {
+        console.log("/api/db/epoch/avg-wait-time", e)
+    }
+}
+
+
+
+
+export async function getLatestMempoolAverageSizes() {
+    try {
+        const avgTxCountQuery = Prisma.sql`
+        SELECT received_date,
+                previous_size AS size
+        FROM (SELECT received_date,
+                    type,
+                    mempool_size,
+                    LAG(mempool_size) OVER (ORDER BY received_date) AS previous_size
+            FROM mempool_log) AS lagged_data
+        WHERE received_date >= NOW() - interval '10 minutes'
+        AND received_date < NOW()
+        AND type = 'remove'
+        ORDER BY received_date;
+        `;
+        interface AverageMempoolSizeQueryResult {
+            received_date: string;
+            size: number
+        }
+        const sizeResult: AverageMempoolSizeQueryResult[] = await discoveryDb.$queryRaw(avgTxCountQuery);
+        return sizeResult;
+    } catch (e) {
+        console.log("/api/db/mempool/size", e)
     }
 }
