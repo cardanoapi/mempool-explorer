@@ -42,7 +42,7 @@ function escape(password: string) {
 
 }
 
-export const dbClient = new PrismaClient({
+export const discoveryDbClient = new PrismaClient({
     datasources: {
         db: {
             url: process.env.DATABASE_URL ?
@@ -52,7 +52,7 @@ export const dbClient = new PrismaClient({
     }
 })
 
-export const syncClient = new PrismaClient({
+export const dbSyncDbClient = new PrismaClient({
     datasources: {
         db: {
             url: process.env.DBSYNC_DATABASE_URL ?
@@ -65,9 +65,9 @@ export const syncClient = new PrismaClient({
 let isSetup = true
 
 export default async function setup() {
-    return dbClient.$queryRaw`SELECT version()`.then((res: any) => {
+    return discoveryDbClient.$queryRaw`SELECT version()`.then((res: any) => {
         console.log("Connected:", res[0].version)
-        return dbClient
+        return discoveryDbClient
     }).catch(e => {
         console.error("Database Setup failed", e)
         process.exit(1)
