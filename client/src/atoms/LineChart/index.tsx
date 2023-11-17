@@ -11,9 +11,10 @@ interface ILineChartProps {
     tickText: string;
     suggestedMin?: number;
     suggestedMax?: number;
+    stepSize?: number;
 }
 
-export default function LineChart({ labels, data, tickText, suggestedMin = 0, suggestedMax = 10 }: ILineChartProps) {
+export default function LineChart({ labels, data, tickText, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: ILineChartProps) {
     return (
         <Line
             options={{
@@ -82,9 +83,9 @@ export default function LineChart({ labels, data, tickText, suggestedMin = 0, su
                         }
                     },
                     y: {
-                        beginAtZero: true,
+                        // beginAtZero: true,
                         ticks: {
-                            stepSize: 2, // Adjust the stepSize as needed
+                            stepSize, // Adjust the stepSize as needed
                             callback: function (value, index, ticks) {
                                 return `${value} ${tickText}`;
                             }
