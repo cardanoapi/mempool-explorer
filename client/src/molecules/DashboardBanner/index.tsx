@@ -1,35 +1,109 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 
 import GradientBanner from '@app/atoms/GradientBanner';
 import LineChart from '@app/atoms/LineChart';
+import Loader from '@app/components/loader';
+import { set } from 'lodash';
+
+type EpochDetails = {
+    epoch_number?: number;
+    tx_count?: number;
+    avg_wait_time?: number;
+    block_count?: number;
+    avg_transaction_per_block?: number;
+}
+
+type TxTiming = {
+    day: string;
+    avg_wait_time: string;
+}
 
 interface IDashboardBannerProps {
     readonly className?: string;
 }
 
 export default function DashboardBanner({ className = '' }: IDashboardBannerProps) {
+
+    const [currentEpoch, setCurrentEpoch] = useState<EpochDetails>({});
+    const getEpochDetails = async () => {
+        const response = await fetch('/api/v1/epoch/current');
+        return await response.json();
+    };
+    useEffect(() => {
+        getEpochDetails()
+            .then((d) => {
+                setCurrentEpoch(d);
+            })
+            .catch((e: any) => {
+                console.error(e);
+            })
+    }, []);
+
+    const [txTimingsDays, setTxTimingsDays] = useState<string[]>([]);
+    const [txTimingsAvgTime, setTxTimingsAvgTime] = useState<number[]>([]);
+
+    const getTxTimings = async () => {
+        const response = await fetch('/api/v1/tx/timing');
+        return await response.json();
+    };
+
+    useEffect(() => {
+        getTxTimings()
+            .then((res) => {
+                const days: string[] = [];
+                const avgWaitTimes: number[] = [];
+
+                const formatDay = (inputDay: string): string => {
+                    const date = new Date(inputDay);
+                    const month = date.toLocaleString('en-us', { month: 'short' });
+                    const day = date.getDate();
+                    return `${month} ${day}`;
+                };
+
+                res.forEach((result: TxTiming) => {
+                    const formattedDate = formatDay(result.day);
+                    const avg_wait_time = parseFloat(parseFloat(result.avg_wait_time).toFixed(2));
+                    days.push(formattedDate);
+                    avgWaitTimes.push(avg_wait_time);
+                });
+                setTxTimingsDays(days);
+                setTxTimingsAvgTime(avgWaitTimes);
+            })
+            .catch((e: any) => {
+                console.error(e);
+            })
+    }, []);
+
+    if (!currentEpoch.epoch_number) return <Loader />;
+
+
+
     return (
+
         <GradientBanner minHeight="566px">
             <div className="grid grid-cols-1 min-h-[566px] md:grid-cols-3">
                 <div className="col-span-1 border-r-0 border-b-[1px] border-b-[#666666] md:border-r-[1px] md:border-r-[#666666] md:border-b-0">
                     <div className="px-4 py-6 md:px-10 md:py-5 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-2xl font-medium text-[#E6E6E6]">Current Epoch</p>
+                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">{currentEpoch.epoch_number}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Total Transactions</p>
-                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">35,000</p>
+                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">{currentEpoch.tx_count}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Average Confirmation Time</p>
-                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">5.3 sec</p>
+                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_wait_time?.toFixed(2)} sec</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Total Blocks</p>
-                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">4,235</p>
+                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">{currentEpoch.block_count}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Avg Transaction Per Block</p>
-                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">4,235</p>
+                        <p className="text-base md:text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_transaction_per_block}</p>
                     </div>
                 </div>
                 <div className="col-span-1 md:col-span-2">
@@ -40,20 +114,21 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
                         </div>
                         <div className="flex gap-12 md:gap-[72px]">
                             <div>
-                                <p className="text-sm font-normal text-[#E6E6E6]">Global</p>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">2.00 sec</p>
+                                {/* TODO : Global is not shown for now */}
+                                {/* <p className="text-sm font-normal text-[#E6E6E6]">Global</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">.. sec</p> */}
                             </div>
                             <div>
                                 <div className="flex gap-2 items-center">
                                     <div className="h-2 w-6 rounded bg-[#FF6B00]" />
                                     <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
                                 </div>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">2.80 sec</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_wait_time?.toFixed(2)} sec</p>
                             </div>
                         </div>
                     </div>
                     <div className="md:min-h-[355px] px-4 py-4 md:px-10 md:py-8">
-                        <LineChart labels={['Oct 30', 'Oct 31', 'Nov 01', 'Nov 02', 'Nov 03', 'Nov 04', 'Nov 05']} data={[1.6, 2.8, 1.3, 3.5, 2.4, 1.9, 2.2]} tickText="sec" />
+                        <LineChart labels={txTimingsDays} data={txTimingsAvgTime} tickText="sec" suggestedMin={15} suggestedMax={30} stepSize={5} />
                     </div>
                 </div>
             </div>
