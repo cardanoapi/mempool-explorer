@@ -1,17 +1,10 @@
-import {getArrivalTime, getBody, getCompeting, getFollowups} from "@app/db/queries";
-import {NextResponse} from "next/server";
-import {encode} from "cbor-x";
-import {parse} from "url";
-import {convertBuffersToString} from "@app/utils/utils";
-import {discoveryDbClient} from "@app/db/prisma";
-import {Prisma} from "@prisma/client";
-import {CborTransactionParser} from "@app/lib/cborparser";
+import { discoveryDbClient } from "@app/db/prisma";
+import { NextResponse } from "next/server";
 
 import { Prisma } from '@prisma/client';
 import { encode } from 'cbor-x';
 import { parse } from 'url';
 
-import { dbClient } from '@app/db/prisma';
 import { getArrivalTime, getBody, getCompeting, getFollowups } from '@app/db/queries';
 import { CborTransactionParser } from '@app/lib/cborparser';
 import { convertBuffersToString } from '@app/utils/utils';
