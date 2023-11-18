@@ -76,10 +76,6 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
             })
     }, []);
 
-    if (!currentEpoch.epoch_number) return <Loader />;
-
-
-
     return (
 
         <GradientBanner minHeight="566px">
@@ -128,7 +124,12 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
                         </div>
                     </div>
                     <div className="md:min-h-[355px] px-4 py-4 md:px-10 md:py-8">
-                        <LineChart labels={txTimingsDays} data={txTimingsAvgTime} tickText="sec" suggestedMin={15} suggestedMax={30} stepSize={5} />
+                        {
+                            txTimingsDays.length === 0 ?
+                                <Loader />
+                                :
+                                <LineChart labels={txTimingsDays} data={txTimingsAvgTime} tickText="sec" suggestedMin={15} suggestedMax={30} stepSize={5} />
+                        }
                     </div>
                 </div>
             </div>
