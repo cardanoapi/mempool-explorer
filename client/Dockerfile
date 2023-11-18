@@ -43,6 +43,12 @@ RUN rm -rf ./.next/cache/* && \
 # Create a production-ready image
 FROM node:18-slim
 
+# Switch to the existing root user to install dependencies
+USER root
+
+# Install build dependencies using apt-get
+RUN apt-get update && apt-get install -y build-essential python3 openssl libssl-dev
+
 # Set environment variables
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
