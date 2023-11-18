@@ -62,8 +62,6 @@ export default function DashboardMempoolBanner() {
     }, []);
 
 
-    const router = useRouter();
-
     const { mempoolEvent, mintEvent } = useMempoolAndMintEvent();
 
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionResponseType>>([]);
@@ -170,7 +168,7 @@ export default function DashboardMempoolBanner() {
                 </div>
                 <div className="p-4 lg:p-10">
                     <Link href="/mempool">
-                        <GradientButton size="large" fullWidth onClick={() => {}}>
+                        <GradientButton size="large" fullWidth onClick={() => { }}>
                             Show Live Data
                         </GradientButton>
                     </Link>
