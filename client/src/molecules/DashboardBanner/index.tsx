@@ -57,6 +57,7 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
 
                 const formatDay = (inputDay: string): string => {
                     const date = new Date(inputDay);
+                    date.setUTCHours(new Date().getUTCHours(), new Date().getUTCMinutes(), new Date().getUTCSeconds());
                     const month = date.toLocaleString('en-us', { month: 'short' });
                     const day = date.getDate();
                     return `${month} ${day}`;
