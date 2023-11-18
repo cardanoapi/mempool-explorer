@@ -11,7 +11,7 @@ RUN corepack enable
 USER root
 
 # Install build dependencies using apt-get
-RUN apt-get update && apt-get install -y build-essential python3 libssl-dev
+RUN apt-get update && apt-get install -y build-essential python3 openssl libssl-dev=1.1.1-1
 
 # Copy package.json and yarn.lock separately to leverage Docker layer caching
 COPY package.json yarn.lock ./
