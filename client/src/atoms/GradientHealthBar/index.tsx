@@ -14,9 +14,9 @@ interface IGradientHealthBarProps {
     labels?: Array<
         | string
         | {
-              text: string;
-              textPosition: string;
-          }
+            text: string;
+            textPosition: string;
+        }
     >;
     labelData?: Array<{
         data: number | string; // indicates percentage
@@ -54,25 +54,29 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentag
         <>
             <div className="relative w-full h-full overflow-auto">
                 {/* Rendering labelData with Array inside Array */}
-                <div className="flex w-full justify-evenly items-center text-[#292929]">
+                <div className="flex w-full justify-evenly items-end text-[#292929]">
                     {labelData &&
                         labelData.length > 0 &&
                         labelData.map((label, index) => {
                             return (
-                                <div key={index} className="w-full flex flex-col justify-center items-center">
+                                <div key={index} className="w-full flex flex-col">
+                                    <div className='overflow-y-auto max-h-[385px] flex flex-col first:!mt-auto'>
                                     {label.content.length > 0 &&
                                         label.content.map((content, idx) => (
                                             <div key={idx} className="w-full min-h-[35px] bg-white border-[1px] border-[#303030] flex items-center">
-                                                {content.imageUrl && <Image src={content.imageUrl} alt={content.text} height={35} width={35} />}
+                                                {content.imageUrl &&
+                                                    <p className="h-[35px] w-[35px] flex items-center justify-start bg-black text-white text-xs p-2 overflow-hidden">{content.imageUrl.substring(0, 2)}</p>
+                                                }
                                                 {content.linkUrl ? (
-                                                    <Link href={content.linkUrl} className="hover:text-blue-500 w-full text-center">
-                                                        <p className="p-2 text-xs">{toEndDottedStr(content.text, 7)}</p>
+                                                    <Link href={content.linkUrl} className="hover:text-blue-500 w-full">
+                                                        <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                     </Link>
                                                 ) : (
-                                                    <p className="w-full p-2 text-xs text-center">{toEndDottedStr(content.text, 7)}</p>
+                                                    <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                 )}
                                             </div>
                                         ))}
+                                        </div>
                                     <p className="h-11 w-full z-10 bg-transparent p-3 flex items-center text-base font-medium text-[#292929] border-[1px] border-[#303030] justify-center">{label.data}</p>
                                 </div>
                             );

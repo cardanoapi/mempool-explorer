@@ -14,9 +14,10 @@ interface ILineChartProps {
     tickText: string;
     suggestedMin?: number;
     suggestedMax?: number;
+    stepSize?: number;
 }
 
-export default function LineChart({ labels, data, tickText, secondData, suggestedMin = 0, suggestedMax = 10 }: ILineChartProps) {
+export default function LineChart({ labels, data, tickText, secondData, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: ILineChartProps) {
     const [datasets, setDatasets] = React.useState<Array<any>>([
         {
             data,
@@ -63,7 +64,6 @@ export default function LineChart({ labels, data, tickText, secondData, suggeste
 
         setDatasets(updatedDatasets);
     }, [data, secondData]);
-
     return (
         <Line
             options={{
@@ -132,9 +132,9 @@ export default function LineChart({ labels, data, tickText, secondData, suggeste
                         }
                     },
                     y: {
-                        beginAtZero: true,
+                        // beginAtZero: true,
                         ticks: {
-                            stepSize: 2, // Adjust the stepSize as needed
+                            stepSize, // Adjust the stepSize as needed
                             callback: function (value, index, ticks) {
                                 return `${value} ${tickText}`;
                             }
