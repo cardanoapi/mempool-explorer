@@ -9,7 +9,6 @@ export default function Home() {
             <DashboardBanner />
             <DashboardMempoolBanner />
             <PoolDistributionGroup />
-            <DashboardStakePoolsBanner />
         </main>
     );
 }
