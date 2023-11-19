@@ -126,6 +126,7 @@ export default function DashboardMempoolBanner() {
                 return;
         }
     }
+
     return (
         <div className="grid grid-cols-1 min-h-[566px] lg:grid-cols-3">
             <div className="col-span-1 lg:col-span-2 border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
@@ -155,7 +156,7 @@ export default function DashboardMempoolBanner() {
                                 <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={`/transactions/test`}>{mt.hash}</Link>
+                                            <Link href={`/transactions/${mt.hash.key}`}>{mt.hash}</Link>
                                         </GradientTypography>
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
