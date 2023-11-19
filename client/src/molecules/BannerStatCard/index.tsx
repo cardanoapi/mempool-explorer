@@ -14,3 +14,12 @@ export default function BannerStatCard({ title, value, valueClassName = '' }: IB
         </div>
     );
 }
+
+export function ConfirmBannerStatCard({ title, value, valueClassName = '' }: IBannerStatCardProps) {
+    return (
+        <div className="p-4 md:p-10 w-full h-full flex flex-col gap-2 justify-start items-start">
+            <p className="!text-[#4A4A4A] text-sm md:!text-base !font-medium">{title}</p>
+            <p className={`text-black text-base md:text-[40px] md:leading-[52px] font-medium ${valueClassName}`}>{value}</p>
+        </div>
+    );
+}
