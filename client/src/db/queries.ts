@@ -376,8 +376,11 @@ export async function getCurrentEpochInfo() {
 export async function getAverageConfirmationTimeForEpoch(epoch: number) {
     try {
         const avgWaitTimeQuery = Prisma.sql`
-        SELECT AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.received))) AS avg_wait_time
-        FROM tx_confirmed tc JOIN tx_log tl ON tc.tx_hash = tl.hash
+        SELECT AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
+        FROM tx_confirmed tc JOIN (SELECT hash,
+            MIN(received) AS earliest_received
+            FROM tx_log
+            GROUP BY hash) AS tl ON tc.tx_hash = tl.hash
         WHERE epoch = ${epoch}
         `;
         interface AvgWaitTimeQueryResult {
@@ -411,8 +414,11 @@ export async function getAverageTransactionTimeForLastSevenDays() {
     try {
         const avgTxCountQuery = Prisma.sql`
         SELECT DATE_TRUNC('day', tc.confirmation_time) AS day,
-        AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.received))) AS avg_wait_time
-        FROM tx_confirmed tc JOIN tx_log tl ON tc.tx_hash = tl.hash
+        AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
+        FROM tx_confirmed tc JOIN (SELECT hash,
+            MIN(received) AS earliest_received
+            FROM tx_log
+            GROUP BY hash) AS tl ON tc.tx_hash = tl.hash
         WHERE tc.confirmation_time > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '6 days'
         GROUP BY day
         ORDER BY day;
@@ -516,12 +522,19 @@ export async function getPoolDistributionGroup() {
         });
 
         // Find the missing pool_ids from dbsync result
-        // const pool_ids = info_result.map((v) => {
-        //     return v.pool_id
-        // });
-        // const diff = pool_id_list.filter(x => !pool_ids.includes(x));
-        // console.log(diff)
-
+        const pool_ids = info_result.map((v) => {
+            return v.pool_id
+        });
+        const diff = poolDistributionResult.filter(x => !pool_ids.includes(x.pool_id));
+        diff.forEach((v) => {
+            info_result.push({
+                pool_id: v.pool_id,
+                ticker_name: "N/A",
+                name: v.pool_id,
+                url: "",
+                avg_wait_time: v.avg_wait_time
+            })
+        });
         return info_result
     } catch (e) {
         console.log("/api/db/mempool/size", e)
