@@ -19,6 +19,7 @@ const ConnectWalletList = dynamic(
         ),
     {
         ssr: false,
+        loading: () => <div>Loading...</div>,
     }
 );
 
@@ -29,6 +30,7 @@ const useCardano: any = dynamic(
         ),
     {
         ssr: false,
+        loading: () => <div>Loading...</div>,
     }
 );
 
@@ -120,6 +122,7 @@ export default function Navbar() {
 
             <GradientButton
                 size="large"
+                // loading={typeof window === 'undefined'}
                 startIcon={<WalletIcon />}
                 onClick={handleOpenModal}
             >
