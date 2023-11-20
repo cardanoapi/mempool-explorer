@@ -21,6 +21,7 @@ export default function Button({
     color = 'primary',
     TouchRippleProps = {},
     variant = 'contained',
+    loading = false,
     ...props
 }: IButtonProps) {
     const isMobile = useIsMobile();
@@ -48,7 +49,7 @@ export default function Button({
             color={color}
             centerRipple={centerRipple}
             classes={classes}
-            disabled={disabled}
+            disabled={disabled || loading}
             disableRipple={disableRipple}
             disableTouchRipple={disableTouchRipple}
             focusVisibleClassName={focusVisibleClassName}
@@ -56,6 +57,8 @@ export default function Button({
             TouchRippleProps={TouchRippleProps}
             sx={newSx}
             {...props}
+            startIcon={loading ? <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"></div> : props.startIcon}
         >
             {children}
         </MuiButton>

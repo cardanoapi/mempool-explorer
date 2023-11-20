@@ -18,4 +18,5 @@ export interface IButtonProps extends ButtonOwnProps {
     sx?: SxProps<Theme>;
     TouchRippleProps?: Partial<TouchRippleProps>;
     variant?: OverridableStringUnion<'text' | 'outlined' | 'contained', ButtonPropsVariantOverrides>;
+    loading?: boolean;
 }
