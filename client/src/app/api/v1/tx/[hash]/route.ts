@@ -27,9 +27,7 @@ async function getAddressFromTxHashAndIndex(inputId: string, index: number) {
     return discoveryDbClient.$queryRaw(query);
 }
 
-async function addAddressFieldsToResponse(txBody: any) {
-    if (!txBody?.txbody) return;
-    const parsedTransaction = new CborTransactionParser(txBody.txbody);
+async function addAddressFieldsToResponse(parsedTransaction: any) {
     const transactions = parsedTransaction.getTransaction();
     let transactionToAddressObj: any = {};
     if (Array.isArray(transactions.inputs) && !!transactions.inputs.length) {
@@ -72,7 +70,8 @@ export async function GET(req: any) {
         const txHash = Buffer.from(hash, 'hex');
         let arrivalTime = await getArrivalTime(txHash);
         let txbody = await getBody(txHash);
-        const resolvedTransactionToAddressObj = await addAddressFieldsToResponse(txbody);
+        const parsedTransaction = new CborTransactionParser(txbody!.txbody!);
+        const resolvedTransactionToAddressObj = await addAddressFieldsToResponse(parsedTransaction);
         let followups = await getFollowups(txHash);
         followups = await fetchTheArrivalTime(followups);
         let competing = await getCompeting(txHash);
@@ -82,7 +81,8 @@ export async function GET(req: any) {
             arrivalTime: arrivalTime?.received?.toString() ?? 'N/A',
             followups,
             competing,
-            inputAddress: resolvedTransactionToAddressObj
+            inputAddress: resolvedTransactionToAddressObj,
+            fee: parsedTransaction.getFee(),
         };
         if (req.headers.get('accept') === 'application/json') {
             return NextResponse.json(convertBuffersToString(detail));

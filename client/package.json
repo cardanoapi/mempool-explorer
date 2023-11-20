@@ -16,6 +16,7 @@
         "test": "jest --watch"
     },
     "dependencies": {
+        "@cardano-foundation/cardano-connect-with-wallet": "^0.2.7",
         "@emotion/react": "^11.10.4",
         "@emotion/styled": "^11.10.4",
         "@emurgo/cardano-serialization-lib-asmjs": "^11.4.0",
@@ -82,6 +83,7 @@
         "@types/overlayscrollbars": "^1.12.1",
         "@types/react": "18.2.14",
         "@types/react-dom": "18.2.6",
+        "@types/react-modal": "^3",
         "@types/react-table": "^7.7.14",
         "@types/swagger-ui-react": "^4.18.0",
         "@types/ws": "^8.5.5",

@@ -1,10 +1,11 @@
 import * as cbor from 'cbor-web';
-import {bech32} from 'bech32';
+import { bech32 } from 'bech32';
 import environments from "@app/configs/environments";
-import {Network} from "@app/constants/constants";
+import { Network } from "@app/constants/constants";
 
 export class CborTransactionParser {
     transaction;
+    tx;
 
     constructor(cbortx: Buffer) {
         // const tx = await cbor.decodeFirst(cbortx);
@@ -37,6 +38,11 @@ export class CborTransactionParser {
             metadata,
         }
         this.transaction = transaction;
+        this.tx = tx;
+    }
+
+    getFee() {
+        return this.tx[0].get(2);
     }
 
     getTransaction() {
@@ -68,9 +74,9 @@ export class CborTransactionParser {
     multiAssetParsing(value: any) {
         if (Array.isArray(value)) {
             const multiAssets = this.assetMapParse(value[1]);
-            return [{'lovelace': value[0]}, ...multiAssets];
+            return [{ 'lovelace': value[0] }, ...multiAssets];
         } else {
-            return [{'lovelace': value}];
+            return [{ 'lovelace': value }];
         }
     }
 

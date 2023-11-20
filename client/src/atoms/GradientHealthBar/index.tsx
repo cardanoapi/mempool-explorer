@@ -52,7 +52,7 @@ interface IGradientHealthBarProps {
 const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
     return (
         <>
-            <div className="relative w-full h-full overflow-auto">
+            <div className="relative w-full overflow-auto">
                 {/* Rendering labelData with Array inside Array */}
                 <div className="flex w-full justify-evenly items-end text-[#292929]">
                     {labelData &&
@@ -61,22 +61,29 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentag
                             return (
                                 <div key={index} className="w-full flex flex-col">
                                     <div className='overflow-y-auto max-h-[385px] flex flex-col first:!mt-auto'>
-                                    {label.content.length > 0 &&
-                                        label.content.map((content, idx) => (
-                                            <div key={idx} className="w-full min-h-[35px] bg-white border-[1px] border-[#303030] flex items-center">
-                                                {content.imageUrl &&
-                                                    <p className="h-[35px] w-[35px] flex items-center justify-start bg-black text-white text-xs p-2 overflow-hidden">{content.imageUrl.substring(0, 2)}</p>
-                                                }
-                                                {content.linkUrl ? (
-                                                    <Link href={content.linkUrl} className="hover:text-blue-500 w-full">
-                                                        <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                    </Link>
-                                                ) : (
-                                                    <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                )}
-                                            </div>
-                                        ))}
-                                        </div>
+                                        {label.content.length > 0 &&
+                                            label.content.map((content, idx) => (
+                                                <div key={idx} className="w-full min-h-[35px] bg-white border-[1px] border-[#303030] flex items-center">
+                                                    {content.imageUrl &&
+                                                        <p className="h-[35px] w-[35px] flex items-center justify-start bg-black text-white text-xs p-2 overflow-hidden">
+                                                            {content.text.startsWith("pool") ?
+                                                                content.imageUrl.substring(0, 3)
+                                                                : content.imageUrl.substring(0, 2)
+                                                            }
+                                                        </p>
+                                                    }
+                                                    {content.linkUrl ? (
+                                                        <Link href={content.linkUrl} className="hover:text-blue-500 w-full">
+                                                            <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                        </Link>
+                                                    ) : (
+                                                        <Link href={`/pool/${content.text}`}>
+                                                            <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                            ))}
+                                    </div>
                                     <p className="h-11 w-full z-10 bg-transparent p-3 flex items-center text-base font-medium text-[#292929] border-[1px] border-[#303030] justify-center">{label.data}</p>
                                 </div>
                             );

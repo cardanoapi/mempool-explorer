@@ -89,7 +89,7 @@ export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakeP
                                     <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                         <td className="py-5 px-4 lg:px-10 text-start">
                                             <GradientTypography>
-                                                <Link href={`/transactions/test`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
+                                                <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
                                             </GradientTypography>
                                         </td>
                                         <td className="py-5 px-4 lg:px-10 text-start">
