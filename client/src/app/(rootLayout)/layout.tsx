@@ -17,7 +17,6 @@ export default function RootLayout({ children }: { readonly children: React.Reac
                 <NextTopLoader showSpinner={false} color="#E6E6E6" />
                 <Navbar />
                 <ToastContainer position="bottom-right" theme="dark" autoClose={3000} newestOnTop closeOnClick pauseOnFocusLoss pauseOnHover limit={8} />
-
                 {children}
             </body>
         </html>
