@@ -101,7 +101,7 @@ export default function UserProfile() {
                                     <div className="h-2 w-6 rounded bg-[#FF6B00]" />
                                     <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
                                 </div>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">{"ok"} sec</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">16 sec</p>
                             </div>
                         </div>
                     </div>
