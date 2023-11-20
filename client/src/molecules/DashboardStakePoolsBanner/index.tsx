@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import _ from 'lodash';
@@ -8,17 +10,13 @@ import GradientTypography from '@app/atoms/GradientTypography';
 import LineChart from '@app/atoms/LineChart';
 import TableHeader from '@app/atoms/TableHeader';
 import { toMidDottedStr } from '@app/utils/string-utils';
-import Loader from '@app/components/loader';
-import { useEffect, useState } from 'react';
 
 
 interface IDashboardStakePoolsBannerProps {
     poolData?: any;
 }
 
-
 export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakePoolsBannerProps) {
-
     const [poolTimingLabels, setPoolTimingLabels] = useState<string[]>();
     const [poolTimingValues, setPoolTimingValues] = useState<number[]>();
     const [avgWaitTime, setAvgWaitTime] = useState<string | undefined>();
@@ -41,7 +39,7 @@ export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakeP
                 const dataLables: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: any) => {
-                    const formattedTime = formatDay(result.day)
+                    const formattedTime = formatDay(result.day);
                     dataLables.push(formattedTime);
                     dataValues.push(parseFloat(parseFloat(result.overall_avg_wait_time).toFixed(2)));
                 });
@@ -50,11 +48,10 @@ export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakeP
                 setAvgWaitTime(_.mean(dataValues).toFixed(2));
             })
             .catch((e: any) => {
-                console.log("Error occured while fetching pool distribution")
+                console.log('Error occured while fetching pool distribution');
                 console.error(e);
-            })
+            });
     }, []);
-
 
     return (
         <div className="grid grid-cols-1 min-h-[566px] lg:grid-cols-3 mb-2">
@@ -70,38 +67,52 @@ export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakeP
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    {poolTimingLabels && poolTimingValues ?
+                    {poolTimingLabels && poolTimingValues ? (
                         <LineChart labels={poolTimingLabels} data={poolTimingValues} tickText="sec" />
-                        : <Loader />
-                    }
+                    ) : (
+                        <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
+                            {_.range(0, 10).map((percent, index) => (
+                                <div key={index} className="h-full col-span-1 grid grid-rows-10 gap-[2px]">
+                                    {_.range(0, 10).map((h, idx) => (
+                                        <div key={idx} className="grid-rows-1 bg-[#303030] animate-pulse" />
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="col-span-1">
                 <div className="px-4 py-6 lg:px-10 lg:py-12">
                     <p className="text-2xl font-medium text-[#E6E6E6]">Top Stake Pools</p>
                 </div>
-                {poolData ?
-                    <div className="lg:h-[500px] overflow-y-auto">
-                        <table className="table-auto w-full pb-6 lg:pb-12">
-                            <TableHeader thClassName="md:px-4 lg:px-10" columns={['Pool Hash', 'Avg. Wait Time']} />
-                            <tbody className="!text-xs lg:!text-sm !font-normal">
-                                {poolData.map((pool: any) => (
-                                    <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                        <td className="py-5 px-4 lg:px-10 text-start">
-                                            <GradientTypography>
-                                                <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
-                                            </GradientTypography>
-                                        </td>
-                                        <td className="py-5 px-4 lg:px-10 text-start">
-                                            <span className="text-white">{pool.avg_wait_time}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    : <Loader />
-                }
+
+                <div className="lg:h-[500px] overflow-y-auto">
+                    <table className="table-auto w-full pb-6 lg:pb-12">
+                        <TableHeader thClassName="md:px-4 lg:px-10" columns={['Pool Hash', 'Avg. Wait Time']} />
+                        <tbody className="!text-xs lg:!text-sm !font-normal">
+                            {poolData
+                                ? poolData.map((pool: any) => (
+                                      <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                          <td className="py-5 px-4 lg:px-10 text-start">
+                                              <GradientTypography>
+                                                  <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
+                                              </GradientTypography>
+                                          </td>
+                                          <td className="py-5 px-4 lg:px-10 text-start">
+                                              <span className="text-white">{pool.avg_wait_time}</span>
+                                          </td>
+                                      </tr>
+                                  ))
+                                : _.range(0, 8).map((percent, index) => (
+                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                      </tr>
+                                  ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -2,20 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 
+import _ from 'lodash';
+
 import GradientBanner from '@app/atoms/GradientBanner';
 import GradientHealthBar from '@app/atoms/GradientHealthBar';
-import Loader from '@app/components/loader';
 import DashboardStakePoolsBanner from '@app/molecules/DashboardStakePoolsBanner';
 
+
 type PoolDistribution = {
-    pool_id: string,
-    name: string,
-    ticker_name: string,
-    avg_wait_time: number,
-}
+    pool_id: string;
+    name: string;
+    ticker_name: string;
+    avg_wait_time: number;
+};
 
 export default function PoolDistributionGroup() {
-
     const [poolData, setPoolData] = useState<PoolDistribution[]>();
     const [poolDistribution, setPoolDistribution] = useState<any[]>();
 
@@ -43,9 +44,9 @@ export default function PoolDistributionGroup() {
                 setPoolDistribution(data);
             })
             .catch((e: any) => {
-                console.log("Error occured while fetching pool distribution")
+                console.log('Error occurred while fetching pool distribution');
                 console.error(e);
-            })
+            });
     }, []);
 
     return (
@@ -73,15 +74,16 @@ export default function PoolDistributionGroup() {
                         </div>
                     </div>
                     <div className="px-4 py-4 pb-12 lg:px-10 lg:py-8 lg:pb-16">
-                        {poolDistribution ?
-                            <GradientHealthBar
-                                className="absolute"
-                                labelData={poolDistribution}
-                                labelIsPercentage
-                            /> : <Loader />
-                        }
+                        {poolDistribution ? (
+                            <GradientHealthBar className="absolute" labelData={poolDistribution} labelIsPercentage />
+                        ) : (
+                            <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
+                                {_.range(0, 10).map((percent, index) => (
+                                    <div key={index} className="h-full col-span-1 bg-black animate-pulse flex items-center justify-center"></div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-
                 </div>
             </GradientBanner>
             <DashboardStakePoolsBanner poolData={poolData?.slice(0, 10)} />
@@ -102,10 +104,7 @@ function mapToPercentiles(data: any) {
         const lowerBound = maxValue - i * rangeSize;
         const upperBound = maxValue - (i + 1) * rangeSize;
         const percentileKey = `${100 - i * 10}-${90 - i * 10}`;
-        result[percentileKey] = data
-            .filter((item: any) =>
-                item.avg_wait_time <= lowerBound &&
-                item.avg_wait_time > upperBound);
+        result[percentileKey] = data.filter((item: any) => item.avg_wait_time <= lowerBound && item.avg_wait_time > upperBound);
     }
     return result;
 }

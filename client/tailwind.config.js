@@ -34,6 +34,13 @@ module.exports = {
             },
             fontFamily: {
                 ibm: ['IBM Plex Mono', 'Open Sans', 'monospace']
+            },
+            keyframes: {
+                shimmer: {
+                    '100%': {
+                        transform: 'translateX(100%)'
+                    }
+                }
             }
         }
     },
