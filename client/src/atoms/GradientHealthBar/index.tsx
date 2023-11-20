@@ -52,7 +52,7 @@ interface IGradientHealthBarProps {
 const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
     return (
         <>
-            <div className="relative w-full h-full overflow-auto">
+            <div className="relative w-full overflow-auto">
                 {/* Rendering labelData with Array inside Array */}
                 <div className="flex w-full justify-evenly items-end text-[#292929]">
                     {labelData &&
