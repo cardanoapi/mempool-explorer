@@ -81,25 +81,7 @@ export default function PoolDistributionGroup() {
                             /> : <Loader />
                         }
                     </div>
-                    {/* <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    <GradientHealthBar
-                        labels={[
-                            {
-                                text: 'Great',
-                                textPosition: 'start'
-                            },
-                            {
-                                text: 'Good',
-                                textPosition: 'center'
-                            },
-                            {
-                                text: 'Bad',
-                                textPosition: 'end'
-                            }
-                        ]}
-                        labelIndicator="bad"
-                    />
-                </div> */}
+
                 </div>
             </GradientBanner>
             <DashboardStakePoolsBanner poolData={poolData?.slice(0, 10)} />
