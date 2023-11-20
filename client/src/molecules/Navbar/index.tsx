@@ -1,60 +1,73 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Box, InputAdornment, Modal, TextField } from '@mui/material';
+import { Box, Icon, InputAdornment, Modal, TextField } from '@mui/material';
 import ProfileIcon from '@mui/icons-material/AccountCircle';
 import GradientButton from '@app/atoms/Button/GradientButton';
 import BrandIcon from '@app/atoms/Icon/Brand';
 import SearchIcon from '@app/atoms/Icon/Search';
 import WalletIcon from '@app/atoms/Icon/Wallet';
 import Button from '@app/atoms/Button';
-import dynamic from 'next/dynamic';
 
-const ConnectWalletList = dynamic(
-    () =>
-        import('@cardano-foundation/cardano-connect-with-wallet').then(
-            (mod) => mod.ConnectWalletList
-        ),
-    {
-        ssr: false,
-        loading: () => <div>Loading...</div>,
+declare global {
+    interface Window {
+        cardano: any;
     }
-);
-
-const useCardano: any = dynamic(
-    () =>
-        import('@cardano-foundation/cardano-connect-with-wallet').then(
-            (mod: any) => mod.useCardano
-        ),
-    {
-        ssr: false,
-        loading: () => <div>Loading...</div>,
-    }
-);
+}
 
 export default function Navbar() {
     const router = useRouter();
 
-    const {
-        isEnabled,
-        isConnected,
-        enabledWallet,
-        stakeAddress,
-        signMessage,
-        connect,
-        disconnect
-    } = useCardano();
+    const [wallets, setWallets] = useState<Record<string, any>>({});
+    const [connectedWallet, setConnectedWallet] = useState<any>();
 
-    const onConnectWallet = () => {
+    console.log('wallets', wallets);
+
+
+    useEffect(() => {
+        const cardano_wallets: any = []
+        if (typeof window !== 'undefined' && !!window.cardano) {
+            Object.keys(window.cardano).forEach((key) => {
+                const wallet = window.cardano[key];
+                if (wallet.enable && wallet.name) {
+                    cardano_wallets[wallet.name] = wallet;
+                }
+            });
+            setWallets(cardano_wallets);
+            const storedWallet = localStorage.getItem('wallet');
+            if (storedWallet) {
+                const wallet = JSON.parse(storedWallet);
+                setConnectedWallet(wallet);
+            }
+        }
+    }, [])
+
+    const onConnectWallet = async (walletKey: string) => {
         console.log('Successfully connected!');
-        handleCloseModal();
+        console.log(walletKey);
+
+        const wallet = wallets[walletKey];
+        try {
+            if (await wallet.isEnabled()) {
+                console.log('Wallet is enabled!');
+            } else {
+                await wallet.enable();
+            }
+            localStorage.setItem('wallet', JSON.stringify(wallet));
+            setConnectedWallet(wallet);
+            handleCloseModal();
+        } catch (e) {
+            console.log('Error enabling wallet', e);
+        }
     };
+
 
     const onDisconnectWallet = () => {
         console.log('Successfully disconnected!');
-        disconnect();
+        localStorage.removeItem('wallet');
+        setConnectedWallet(undefined);
         handleCloseModal();
     };
 
@@ -122,15 +135,15 @@ export default function Navbar() {
 
             <GradientButton
                 size="large"
-                // loading={typeof window === 'undefined'}
-                startIcon={<WalletIcon />}
+                startIcon={connectedWallet ? <img height={32} width={32} src={connectedWallet.icon} /> : <WalletIcon />}
                 onClick={handleOpenModal}
             >
                 <span className="hidden md:block">
-                    {isConnected ? `${enabledWallet} Connected` : 'Connect Wallet'}
+                    {connectedWallet ? `${connectedWallet.name} Connected` : 'Connect Wallet'}
                 </span>
             </GradientButton>
-            {isConnected &&
+
+            {connectedWallet &&
                 <Link href="/profile">
                     <GradientButton
                         size="large"
@@ -152,28 +165,17 @@ export default function Navbar() {
                 className="flex items-center justify-center"
             >
                 <div className="flex flex-col">
-                    <ConnectWalletList
-                        borderRadius={48}
-                        gap={16}
-                        primaryColor="#0538AF"
-                        onConnect={onConnectWallet}
-                        customCSS={`
-                        width: 250px;
-                        border-radius: 48px !important;
-                        & > span { 
-                            padding: 13px 16px; 
-                            font-family: 'IBM Plex Mono', 'Open Sans', 'monospace';
-                            font-size: 1rem;
-                            font-weight: 500;
-                            text-align: center;
-                            width: 100%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        `}
-                    />
-                    {isConnected &&
+                    {Object.keys(wallets).map((wallet) => (
+                        <Button
+                            size="large"
+                            className="pt-8 pb-8 pl-16 pr-16 mt-4 flex !gap-4 !rounded-[48px] !font-ibm !text-white !font-normal !text-base !capitalize bg-purple-600 hover:bg-gradient-to-br hover:from-[#CC3CFF] hover:to-[#BD00FF]"
+                            startIcon={<img height={32} width={32} src={wallets[wallet].icon} />}
+                            onClick={() => onConnectWallet(wallet)}>
+                            {wallet}
+                        </Button>
+                    ))
+                    }
+                    {connectedWallet &&
                         <Button
                             size="large"
                             className="flex !gap-2 !rounded-[48px] !items-center !font-ibm !font-normal !text-lg !capitalize !bg-transparent !text-white hover:!bg-gray-500"
@@ -181,7 +183,7 @@ export default function Navbar() {
                     }
                 </div>
             </Modal>
+
         </nav>
     );
 }
-
