@@ -9,34 +9,33 @@ import GradientButton from '@app/atoms/Button/GradientButton';
 import BrandIcon from '@app/atoms/Icon/Brand';
 import SearchIcon from '@app/atoms/Icon/Search';
 import WalletIcon from '@app/atoms/Icon/Wallet';
-import { useIsMobile } from '@app/lib/hooks/useBreakpoint';
-import { ConnectWalletList, ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import Button from '@app/atoms/Button';
 import dynamic from 'next/dynamic';
 
-// const ConnectWalletList = dynamic(
-//     () =>
-//         import('@cardano-foundation/cardano-connect-with-wallet').then(
-//             (mod) => mod.ConnectWalletList
-//         ),
-//     {
-//         ssr: false,
-//     }
-// );
+const ConnectWalletList = dynamic(
+    () =>
+        import('@cardano-foundation/cardano-connect-with-wallet').then(
+            (mod) => mod.ConnectWalletList
+        ),
+    {
+        ssr: false,
+        loading: () => <div>Loading...</div>,
+    }
+);
 
-// const useCardano = dynamic(
-//     () =>
-//         import('@cardano-foundation/cardano-connect-with-wallet').then(
-//             (mod) => mod.useCardano
-//         ),
-//     {
-//         ssr: false,
-//     }
-// );
+const useCardano: any = dynamic(
+    () =>
+        import('@cardano-foundation/cardano-connect-with-wallet').then(
+            (mod: any) => mod.useCardano
+        ),
+    {
+        ssr: false,
+        loading: () => <div>Loading...</div>,
+    }
+);
 
 export default function Navbar() {
     const router = useRouter();
-    const isMobile = useIsMobile();
 
     const {
         isEnabled,
@@ -123,6 +122,7 @@ export default function Navbar() {
 
             <GradientButton
                 size="large"
+                // loading={typeof window === 'undefined'}
                 startIcon={<WalletIcon />}
                 onClick={handleOpenModal}
             >
