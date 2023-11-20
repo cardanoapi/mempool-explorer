@@ -1,7 +1,7 @@
 import {AddTxMessage, MintMessage, RejectTxMessage, RemoveTxMessage} from "@app/lib/websocket";
 
 export interface MempoolTransactionResponseType {
-    hash: string | JSX.Element;
+    hash: string | JSX.Element | any;
     inputs: Array<string> | JSX.Element;
     outputs: Array<string> | JSX.Element
     received_time: string;
