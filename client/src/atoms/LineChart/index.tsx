@@ -63,6 +63,8 @@ export default function LineChart({ labels, data, tickText, secondData, suggeste
         }
 
         setDatasets(updatedDatasets);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data, secondData]);
     return (
         <Line

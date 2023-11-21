@@ -25,6 +25,7 @@ import BannerTitle from '@app/molecules/BannerTitle';
 import { AddressTransactionType } from '@app/types/transaction-details-response/socket-response-type';
 import { copyToClipboard } from '@app/utils/utils';
 
+
 export default function AddressPage() {
     const router = useParams();
 
@@ -91,7 +92,7 @@ export default function AddressPage() {
         <>
             <BannerTitle Icon={WalletIcon} breadCrumbText="Address" title="Address" bannerClassName="!pb-2 md:!pb-2">
                 <div className="px-4 md:px-10 flex gap-2 items-center">
-                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(router?.id || '', 'Address')}>
+                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(router?.id.toString() || '', 'Address')}>
                         <p className="text-base font-normal text-[#B9B9B9] text-start break-all">{router?.id}</p>
                         <CopyIcon />
                     </button>

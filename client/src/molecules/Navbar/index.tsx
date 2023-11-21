@@ -153,8 +153,9 @@ export default function Navbar() {
             {environments.ENABLE_CONNECT_WALLET && (
                 <Modal open={isModalOpen} onClose={handleCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description" className="flex items-center justify-center">
                     <div className="flex flex-col">
-                        {Object.keys(wallets).map((wallet) => (
+                        {Object.keys(wallets).map((wallet, idx) => (
                             <Button
+                                key={idx}
                                 size="large"
                                 className="pt-8 pb-8 pl-16 pr-16 mt-4 flex !gap-4 !rounded-[48px] !font-ibm !text-white !font-normal !text-base !capitalize bg-purple-600 hover:bg-gradient-to-br hover:from-[#CC3CFF] hover:to-[#BD00FF]"
                                 startIcon={<img height={32} width={32} src={wallets[wallet].icon} />}
