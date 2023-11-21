@@ -9,6 +9,7 @@ import { decode } from 'cbor-x';
 import CopyIcon from '@app/atoms/Icon/Copy';
 import TxIcon from '@app/atoms/Icon/Tx';
 import TableTitle from '@app/atoms/TableTitle';
+import Loader from '@app/components/loader';
 import { checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
 import Competitors from '@app/components/transaction-hash/competitors';
@@ -18,7 +19,7 @@ import BannerStatCard, { ConfirmBannerStatCard } from '@app/molecules/BannerStat
 import BannerTitle from '@app/molecules/BannerTitle';
 import TxInputOutput from '@app/organisms/TxInputOutput';
 import { copyToClipboard } from '@app/utils/utils';
-import Loader from '@app/components/loader';
+
 
 enum MinerEnum {
     block_hash = 'Block Hash',
@@ -94,7 +95,7 @@ export default function TransactionDetails() {
                             [MinerEnum.block_time]: new Intl.DateTimeFormat('en-US', DateTimeCustomoptions).format(date),
                             [MinerEnum.pool_id]: d[0]?.pool_id.toString(),
                             [MinerEnum.tx_hash]: d[0]?.tx_hash ? Buffer.from(d[0].tx_hash).toString('hex') : '',
-                            "confirmationTime": d[0]?.block_time
+                            confirmationTime: d[0]?.block_time
                         };
                         minerDetails = clientSideObj;
                         setMiner(clientSideObj);
@@ -110,15 +111,15 @@ export default function TransactionDetails() {
                 .finally(() => {
                     getTransactionDetails(router.id)
                         .then((d) => {
-                            const arrivalTime = new Date(d?.arrivalTime)
+                            const arrivalTime = new Date(d?.arrivalTime);
                             const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
                             const currentTimeUtc = new Date(new Date().toUTCString());
                             let waitTime;
                             if (minerDetails) {
-                                console.log("miner");
+                                console.log('miner');
                                 const confirmTime = new Date(minerDetails.confirmationTime);
                                 const confirmTimeUtc = new Date(confirmTime.toUTCString());
-                                waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime()
+                                waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime();
                                 setConfirmationTime(formatDate(confirmTime));
                             } else {
                                 waitTime = currentTimeUtc.getTime() - arrivalTimeUtc.getTime();
@@ -149,49 +150,48 @@ export default function TransactionDetails() {
         <>
             <BannerTitle Icon={TxIcon} breadCrumbText="Transaction" title="Transaction" bannerClassName="!pb-2 md:!pb-2">
                 <div className="px-4 md:px-10">
-                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(router?.id || '', 'Transaction hash')}>
+                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(router?.id.toString() || '', 'Transaction hash')}>
                         <p className="text-base font-normal text-[#B9B9B9] break-all">{router?.id}</p>
                         <CopyIcon />
                     </button>
                     <div className="py-4 md:py-10">
-                        <p className="text-lg md:text-xl font-medium">
-                            {isTransactionPending ? 'Initiation' : 'Pool ID'}
-                        </p>
+                        <p className="text-lg md:text-xl font-medium">{isTransactionPending ? 'Initiation' : 'Pool ID'}</p>
                         <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(miner ? miner[MinerEnum.pool_id] : '-', 'Pool ID')}>
                             <p className="text-base font-normal text-[#B9B9B9] break-all">{isTransactionPending ? 'No Initiator available' : miner[MinerEnum.pool_id]}</p>
                             <CopyIcon />
                         </button>
                     </div>
                 </div>
-                {transactionDetails ? <div>
-                    <div className="mt-10 h-[1px]" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                        <BannerStatCard title="Arrival Time" value={arrivalTime ?? ''} valueClassName='md:text-lg' />
-                        <BannerStatCard title="Wait Time" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
-                        <BannerStatCard title="Fee" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
-                        <BannerStatCard title="Status" value={miner ? "Confirmed" : "Pending"} />
-                    </div>
-                    {isTransactionConfirmed && (
-                        <>
-                            <div className="mt-10 h-[1px]" />
-                            <div className="pt-4 bg-green-300">
-                                <div className="ml-4 text-black text-2xl font-medium">Confirmation Details</div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                                    <>
-                                        <ConfirmBannerStatCard title="Epoch" value={miner[MinerEnum.epoch]} />
-                                        <ConfirmBannerStatCard title="Slot No." value={miner[MinerEnum.slot_no]} />
-                                        <ConfirmBannerStatCard title="Block No." value={miner[MinerEnum.block_no]} />
-                                        <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName='md:text-lg' />
-                                    </>
+                {transactionDetails ? (
+                    <div>
+                        <div className="mt-10 h-[1px]" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                            <BannerStatCard title="Arrival Time" value={arrivalTime ?? ''} valueClassName="md:text-lg" />
+                            <BannerStatCard title="Wait Time" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
+                            <BannerStatCard title="Fee" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
+                            <BannerStatCard title="Status" value={miner ? 'Confirmed' : 'Pending'} />
+                        </div>
+                        {isTransactionConfirmed && (
+                            <>
+                                <div className="mt-10 h-[1px]" />
+                                <div className="pt-4 bg-green-300">
+                                    <div className="ml-4 text-black text-2xl font-medium">Confirmation Details</div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                                        <>
+                                            <ConfirmBannerStatCard title="Epoch" value={miner[MinerEnum.epoch]} />
+                                            <ConfirmBannerStatCard title="Slot No." value={miner[MinerEnum.slot_no]} />
+                                            <ConfirmBannerStatCard title="Block No." value={miner[MinerEnum.block_no]} />
+                                            <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
+                                        </>
+                                    </div>
                                 </div>
-                            </div>
-                        </>
-                    )
-                    }
-                </div> : <Loader />
-                }
-
-            </BannerTitle >
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <Loader />
+                )}
+            </BannerTitle>
             <div className="grid grid-cols-1 min-h-screen lg:grid-cols-3 lg:h-screen lg:overflow-hidden">
                 <div className="col-span-1 border-r-0 border-b-[1px] border-b-[#666666] md:scrollable-table overflow-auto md:border-r-[1px] md:border-r-[#666666] md:border-b-0 pb-8">
                     <TableTitle title="Overview" className="px-4 py-6 lg:px-10 lg:py-8" />
@@ -215,13 +215,13 @@ export default function TransactionDetails() {
 function formatDate(date: Date) {
     const options: any = {
         weekday: 'short', // Abbreviated day name (e.g., Fri)
-        month: 'short',   // Abbreviated month name (e.g., Aug)
-        day: 'numeric',   // Numeric day of the month (e.g., 4)
-        year: 'numeric',  // Numeric year (e.g., 2023)
-        hour: 'numeric',  // Numeric hours (e.g., 12)
+        month: 'short', // Abbreviated month name (e.g., Aug)
+        day: 'numeric', // Numeric day of the month (e.g., 4)
+        year: 'numeric', // Numeric year (e.g., 2023)
+        hour: 'numeric', // Numeric hours (e.g., 12)
         minute: 'numeric', // Numeric minutes (e.g., 40)
         second: 'numeric', // Numeric seconds (e.g., 20)
-        hour12: true      // Use 12-hour clock format
+        hour12: true // Use 12-hour clock format
     };
 
     return date.toLocaleString('en-US', options);

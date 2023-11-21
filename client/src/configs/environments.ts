@@ -1,5 +1,5 @@
 // import getConfig from 'next/config';
-// 
+//
 // const config = getConfig();
 
 // console.log('config:', config);
@@ -20,7 +20,9 @@
 
 const environments = {
     WS_URL: process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8080/ws',
-    CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK ?? 'mainnet'
+    CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK ?? 'mainnet',
+    // @ts-ignore
+    ENABLE_CONNECT_WALLET: (process.env.ENABLE_CONNECT_WALLET && (process.env.ENABLE_CONNECT_WALLET === 'true' || process.env.ENABLE_CONNECT_WALLET === true)) ?? false
 };
 
 export default environments;

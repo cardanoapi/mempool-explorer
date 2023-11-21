@@ -1,15 +1,20 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Box, Icon, InputAdornment, Modal, TextField } from '@mui/material';
+
 import ProfileIcon from '@mui/icons-material/AccountCircle';
+import { Box, InputAdornment, Modal, TextField } from '@mui/material';
+
+import Button from '@app/atoms/Button';
 import GradientButton from '@app/atoms/Button/GradientButton';
 import BrandIcon from '@app/atoms/Icon/Brand';
 import SearchIcon from '@app/atoms/Icon/Search';
 import WalletIcon from '@app/atoms/Icon/Wallet';
-import Button from '@app/atoms/Button';
+import environments from '@app/configs/environments';
+
 
 declare global {
     interface Window {
@@ -25,9 +30,8 @@ export default function Navbar() {
 
     console.log('wallets', wallets);
 
-
     useEffect(() => {
-        const cardano_wallets: any = []
+        const cardano_wallets: any = [];
         if (typeof window !== 'undefined' && !!window.cardano) {
             Object.keys(window.cardano).forEach((key) => {
                 const wallet = window.cardano[key];
@@ -42,7 +46,7 @@ export default function Navbar() {
                 setConnectedWallet(wallet);
             }
         }
-    }, [])
+    }, []);
 
     const onConnectWallet = async (walletKey: string) => {
         console.log('Successfully connected!');
@@ -62,7 +66,6 @@ export default function Navbar() {
             console.log('Error enabling wallet', e);
         }
     };
-
 
     const onDisconnectWallet = () => {
         console.log('Successfully disconnected!');
@@ -133,57 +136,42 @@ export default function Navbar() {
                 />
             </Box>
 
-            <GradientButton
-                size="large"
-                startIcon={connectedWallet ? <img height={32} width={32} src={connectedWallet.icon} /> : <WalletIcon />}
-                onClick={handleOpenModal}
-            >
-                <span className="hidden md:block">
-                    {connectedWallet ? `${connectedWallet.name} Connected` : 'Connect Wallet'}
-                </span>
-            </GradientButton>
+            {environments.ENABLE_CONNECT_WALLET && (
+                <GradientButton size="large" startIcon={connectedWallet ? <img height={32} width={32} src={connectedWallet.icon} /> : <WalletIcon />} onClick={handleOpenModal}>
+                    <span className="hidden md:block">{connectedWallet ? `${connectedWallet.name} Connected` : 'Connect Wallet'}</span>
+                </GradientButton>
+            )}
 
-            {connectedWallet &&
+            {environments.ENABLE_CONNECT_WALLET && connectedWallet && (
                 <Link href="/profile">
-                    <GradientButton
-                        size="large"
-                        startIcon={<ProfileIcon />}
-                        onClick={() => { }}
-                    >
-                        <span className="hidden md:block">
-                            My Profile
-                        </span>
+                    <GradientButton size="large" startIcon={<ProfileIcon />} onClick={() => {}}>
+                        <span className="hidden md:block">My Profile</span>
                     </GradientButton>
                 </Link>
-            }
+            )}
 
-            <Modal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                className="flex items-center justify-center"
-            >
-                <div className="flex flex-col">
-                    {Object.keys(wallets).map((wallet) => (
-                        <Button
-                            size="large"
-                            className="pt-8 pb-8 pl-16 pr-16 mt-4 flex !gap-4 !rounded-[48px] !font-ibm !text-white !font-normal !text-base !capitalize bg-purple-600 hover:bg-gradient-to-br hover:from-[#CC3CFF] hover:to-[#BD00FF]"
-                            startIcon={<img height={32} width={32} src={wallets[wallet].icon} />}
-                            onClick={() => onConnectWallet(wallet)}>
-                            {wallet}
-                        </Button>
-                    ))
-                    }
-                    {connectedWallet &&
-                        <Button
-                            size="large"
-                            className="flex !gap-2 !rounded-[48px] !items-center !font-ibm !font-normal !text-lg !capitalize !bg-transparent !text-white hover:!bg-gray-500"
-                            onClick={onDisconnectWallet}>Disconnect</Button>
-                    }
-                </div>
-            </Modal>
-
+            {environments.ENABLE_CONNECT_WALLET && (
+                <Modal open={isModalOpen} onClose={handleCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description" className="flex items-center justify-center">
+                    <div className="flex flex-col">
+                        {Object.keys(wallets).map((wallet, idx) => (
+                            <Button
+                                key={idx}
+                                size="large"
+                                className="pt-8 pb-8 pl-16 pr-16 mt-4 flex !gap-4 !rounded-[48px] !font-ibm !text-white !font-normal !text-base !capitalize bg-purple-600 hover:bg-gradient-to-br hover:from-[#CC3CFF] hover:to-[#BD00FF]"
+                                startIcon={<img height={32} width={32} src={wallets[wallet].icon} />}
+                                onClick={() => onConnectWallet(wallet)}
+                            >
+                                {wallet}
+                            </Button>
+                        ))}
+                        {connectedWallet && (
+                            <Button size="large" className="flex !gap-2 !rounded-[48px] !items-center !font-ibm !font-normal !text-lg !capitalize !bg-transparent !text-white hover:!bg-gray-500" onClick={onDisconnectWallet}>
+                                Disconnect
+                            </Button>
+                        )}
+                    </div>
+                </Modal>
+            )}
         </nav>
     );
 }

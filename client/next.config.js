@@ -63,7 +63,14 @@ const nextConfig = {
     },
     env: {
         NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
-        NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK
+        NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK,
+        ENABLE_CONNECT_WALLET: process.env.ENABLE_CONNECT_WALLET
+    },
+    experimental: {
+        maximumFileSizeToCacheInBytes: {
+            js: 10 * 1024 * 1024, // 10 MB
+            css: 10 * 1024 * 1024 // 10 MB
+        }
     }
 };
 

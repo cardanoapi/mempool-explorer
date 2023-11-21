@@ -12,6 +12,7 @@ import { convertToADA } from '@app/utils/string-utils';
 import { convertToClientSideInputOutputObject } from '@app/utils/transaction-details-utils';
 import { copyToClipboard } from '@app/utils/utils';
 
+
 interface MultiAssetType {
     hash: string;
     Amount: number;
@@ -33,6 +34,7 @@ export interface ErrorType {
     status: number;
     message: string;
 }
+
 interface MultiAssetType {
     hash: string;
     Amount: number;
@@ -72,7 +74,7 @@ export default function TxInputOutput({ txInputOutputs, error, isLoading, inputR
         if (!txInputOutputs) return;
 
         let inputOutputObject = convertToClientSideInputOutputObject(txInputOutputs);
-        inputOutputObject = { ...inputOutputObject, hash: router?.id || '' };
+        inputOutputObject = { ...inputOutputObject, hash: router?.id.toString() || '' };
         setTx(inputOutputObject);
     }, [txInputOutputs, router?.id]);
 

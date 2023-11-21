@@ -1,7 +1,8 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
+
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import _ from 'lodash';
 
@@ -9,24 +10,24 @@ import GradientButton from '@app/atoms/Button/GradientButton';
 import GradientTypography from '@app/atoms/GradientTypography';
 import LineChart from '@app/atoms/LineChart';
 import TableHeader from '@app/atoms/TableHeader';
-import { createLinkElementsForCurrentMempoolTransactions, toMidDottedStr } from '@app/utils/string-utils';
-import { useEffect, useState } from 'react';
+import { MempoolEventType } from '@app/constants/constants';
+import { useIsMobile } from '@app/lib/hooks/useBreakpoint';
 import useMempoolAndMintEvent from '@app/lib/hooks/useMempoolAndMintEvent';
 import { AddRejectTxClientSideType, MempoolTransactionResponseType, RemoveMintedTransactions, RemoveTxClientSideType } from '@app/types/clientside/dashboard';
 import { getRelativeTime } from '@app/utils/cardano-utils';
-import { MempoolEventType } from '@app/constants/constants';
+import { createLinkElementsForCurrentMempoolTransactions, toMidDottedStr } from '@app/utils/string-utils';
 
 type MempoolSizeData = {
     received_date: string;
     size: number;
-}
+};
 
 export default function DashboardMempoolBanner() {
-
-
     const [mempoolSizeDataLables, setMempoolSizeDataLables] = useState<string[]>([]);
     const [mempoolSizeDataValues, setMempoolSizeDataValues] = useState<number[]>([]);
     const [avgMempoolSize, setAvgMempoolSize] = useState<string | undefined>(undefined);
+
+    const isMobile = useIsMobile();
 
     const getMempoolSizeData = async () => {
         const response = await fetch('/api/v1/mempool/size');
@@ -47,7 +48,7 @@ export default function DashboardMempoolBanner() {
                 const dataLables: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: MempoolSizeData) => {
-                    const formattedTime = formatDay(result.received_date)
+                    const formattedTime = formatDay(result.received_date);
                     const sizeInKb = parseFloat((result.size / 1024).toFixed(2));
                     dataLables.push(formattedTime);
                     dataValues.push(sizeInKb);
@@ -58,14 +59,12 @@ export default function DashboardMempoolBanner() {
             })
             .catch((e: any) => {
                 console.error(e);
-            })
+            });
     }, []);
-
 
     const { mempoolEvent, mintEvent } = useMempoolAndMintEvent();
 
     const [currentMempoolTransactions, setCurrentMempoolTransactions] = useState<Array<MempoolTransactionResponseType>>([]);
-
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -141,7 +140,19 @@ export default function DashboardMempoolBanner() {
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    <LineChart labels={mempoolSizeDataLables} data={mempoolSizeDataValues} tickText="Kb" />
+                    {mempoolSizeDataValues.length > 0 && mempoolSizeDataLables.length > 0 ? (
+                        <LineChart labels={mempoolSizeDataLables} data={mempoolSizeDataValues} tickText="Kb" />
+                    ) : (
+                        <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
+                            {_.range(0, 10).map((percent, index) => (
+                                <div key={index} className="h-full col-span-1 grid grid-rows-10 gap-[2px]">
+                                    {_.range(0, 10).map((h, idx) => (
+                                        <div key={idx} className="grid-rows-1 bg-[#303030] animate-pulse" />
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="col-span-1">
@@ -151,25 +162,46 @@ export default function DashboardMempoolBanner() {
                 <div className="lg:h-[670px] overflow-y-auto">
                     <table className="table-auto w-full">
                         <TableHeader thClassName="md:px-4 lg:px-10" columns={['Tx Hash', 'Arrival Time']} />
-                        <tbody className="!text-xs lg:!text-sm !font-normal">
-                            {currentMempoolTransactions.map((mt, index) => (
-                                <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                    <td className="py-5 px-4 lg:px-10 text-start">
-                                        <GradientTypography>
-                                            <Link href={`/transactions/${mt.hash.key}`}>{mt.hash}</Link>
-                                        </GradientTypography>
-                                    </td>
-                                    <td className="py-5 px-4 lg:px-10 text-start">
-                                        <span className="text-white">{mt.received_time}</span>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody className="!text-xs lg:!text-sm !font-normal w-full">
+                            {currentMempoolTransactions && currentMempoolTransactions.length > 0
+                                ? currentMempoolTransactions.map((mt, index) => (
+                                      <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                          {Object.entries(mt).map(([k, d], idx) => {
+                                              if (k !== 'hash' && k !== 'received_time') return null;
+                                              let item: any = d;
+                                              let content;
+                                              if (typeof item === 'object' && item?.type !== 'div') {
+                                                  content = (
+                                                      <GradientTypography>
+                                                          <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
+                                                      </GradientTypography>
+                                                  );
+                                              } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {
+                                                  content = <GradientTypography>{item?.props?.children?.props?.children[0]?.length}</GradientTypography>;
+                                              } else {
+                                                  content = toMidDottedStr(item, isMobile ? 3 : 5);
+                                              }
+
+                                              return (
+                                                  <td key={idx} className="py-5 px-4 md:px-10 text-start">
+                                                      {content}
+                                                  </td>
+                                              );
+                                          })}
+                                      </tr>
+                                  ))
+                                : _.range(0, 8).map((percent, index) => (
+                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                      </tr>
+                                  ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="p-4 lg:p-10">
                     <Link href="/mempool">
-                        <GradientButton size="large" fullWidth onClick={() => { }}>
+                        <GradientButton size="large" fullWidth onClick={() => {}}>
                             Show Live Data
                         </GradientButton>
                     </Link>
