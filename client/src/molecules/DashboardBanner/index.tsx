@@ -92,7 +92,7 @@ export default function DashboardBanner({ className = '' }: IDashboardBannerProp
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Average Confirmation Time</p>
                         <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.avg_wait_time ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>
-                            {currentEpoch?.avg_wait_time ? `${currentEpoch.avg_wait_time?.toFixed(2)} sec}` : ''}
+                            {currentEpoch?.avg_wait_time ? `${currentEpoch.avg_wait_time?.toFixed(2)} sec` : ''}
                         </p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">

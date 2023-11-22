@@ -86,7 +86,7 @@ export default function PoolDistributionGroup() {
                     </div>
                 </div>
             </GradientBanner>
-            <DashboardStakePoolsBanner poolData={poolData?.slice(0, 10)} />
+            <DashboardStakePoolsBanner poolData={poolData && Array.isArray(poolData) ? poolData?.slice(0, 10) : []} />
         </div>
     );
 }

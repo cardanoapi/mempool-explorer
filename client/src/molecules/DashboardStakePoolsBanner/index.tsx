@@ -91,7 +91,7 @@ export default function DashboardStakePoolsBanner({ poolData }: IDashboardStakeP
                     <table className="table-auto w-full pb-6 lg:pb-12">
                         <TableHeader thClassName="md:px-4 lg:px-10" columns={['Pool Hash', 'Avg. Wait Time']} />
                         <tbody className="!text-xs lg:!text-sm !font-normal">
-                            {poolData
+                            {poolData && poolData.length > 0
                                 ? poolData.map((pool: any) => (
                                       <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                           <td className="py-5 px-4 lg:px-10 text-start">
