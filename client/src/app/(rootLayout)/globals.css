@@ -71,27 +71,3 @@ body {
     max-height: 50vh;
     overflow-y: auto;
 }
-
-/*@keyframes wave {*/
-/*    0%, 100% {*/
-/*        transform: translateY(0);*/
-/*    }*/
-/*    50% {*/
-/*        transform: translateY(-8px);*/
-/*    }*/
-/*}*/
-
-/*.wave-bg {*/
-/*    position: relative;*/
-/*    overflow: hidden;*/
-/*}*/
-
-/*.wave {*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    left: 0;*/
-/*    right: 0;*/
-/*    height: 8px;*/
-/*    background-color: #3498db; !* Change the background color as needed *!*/
-/*    animation: wave 1.5s infinite;*/
-/*}*/

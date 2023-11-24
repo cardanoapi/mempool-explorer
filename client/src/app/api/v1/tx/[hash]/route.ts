@@ -1,13 +1,14 @@
-import { discoveryDbClient } from "@app/db/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 import { Prisma } from '@prisma/client';
 import { encode } from 'cbor-x';
 import { parse } from 'url';
 
+import { discoveryDbClient } from '@app/db/prisma';
 import { getArrivalTime, getBody, getCompeting, getFollowups } from '@app/db/queries';
 import { CborTransactionParser } from '@app/lib/cborparser';
 import { convertBuffersToString } from '@app/utils/utils';
+
 
 async function fetchTheArrivalTime(arr: Array<any>) {
     return Promise.all(
@@ -22,7 +23,7 @@ async function fetchTheArrivalTime(arr: Array<any>) {
 }
 
 async function getAddressFromTxHashAndIndex(inputId: string, index: number) {
-    const hash = Buffer.from(inputId, "hex");
+    const hash = Buffer.from(inputId, 'hex');
     const query = Prisma.sql`select address, value from tx_out where hash=${hash} and index=${index}`;
     return discoveryDbClient.$queryRaw(query);
 }
@@ -82,7 +83,7 @@ export async function GET(req: any) {
             followups,
             competing,
             inputAddress: resolvedTransactionToAddressObj,
-            fee: parsedTransaction.getFee(),
+            fee: parsedTransaction.getFee()
         };
         if (req.headers.get('accept') === 'application/json') {
             return NextResponse.json(convertBuffersToString(detail));
