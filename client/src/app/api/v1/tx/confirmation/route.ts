@@ -6,6 +6,7 @@ import { getConfirmationDetails } from '@app/db/queries';
 import { getUrlObject } from '@app/utils/cardano-utils';
 import { convertBuffersToString } from '@app/utils/utils';
 
+
 /**
  * @swagger
  * /api/v1/tx/confirmation:

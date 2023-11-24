@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import { encode } from 'cbor-x';
 
+import { redisMiddleware, withCaching } from '@app/app/middleware';
 import { getAggregrationForLastThreeBlocks } from '@app/db/queries';
 import { getUrlObject, transformToClientSideData } from '@app/utils/cardano-utils';
 import { convertBuffersToString } from '@app/utils/utils';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -27,16 +29,17 @@ export const dynamic = 'force-dynamic';
  *         description: The identifier for the address or pool
  */
 
-export async function GET(req: Request) {
+const handler = async (req: NextRequest, res: NextResponse) => {
     console.log('GET: ', req.url);
     try {
         const urlObject = getUrlObject(req.url);
         const id = urlObject.searchParams.get('query') as string;
         let data = await getAggregrationForLastThreeBlocks(id);
         if (req.headers.get('accept') === 'application/json') {
-            const r = convertBuffersToString(await transformToClientSideData(data));
-            return NextResponse.json(r);
+            return convertBuffersToString(await transformToClientSideData(data));
         }
+
+        // TODO: handle response for cbor
         const transformedData = await transformToClientSideData(data);
         const serializedBuffer = encode(transformedData);
         const response = new NextResponse(serializedBuffer);
@@ -44,6 +47,11 @@ export async function GET(req: Request) {
         return response;
     } catch (e: any) {
         console.log(req.url, e);
-        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
+        return { error: e.name, status: !e?.errorCode ? 500 : e.errorCode };
     }
+};
+
+export async function GET(req: NextRequest, res: NextResponse) {
+    const data = await redisMiddleware(req, res, withCaching(handler));
+    return NextResponse.json(data);
 }

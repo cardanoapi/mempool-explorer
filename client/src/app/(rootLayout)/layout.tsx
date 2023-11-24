@@ -7,6 +7,7 @@ import Navbar from '@app/molecules/Navbar';
 
 import './globals.css';
 
+
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
     return (
         <html lang="en">

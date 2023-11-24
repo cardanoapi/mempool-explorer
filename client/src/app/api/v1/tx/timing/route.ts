@@ -1,8 +1,22 @@
+import { NextRequest, NextResponse } from 'next/server';
 
-import {NextResponse} from "next/server";
-import {getAverageTransactionTimeForLastSevenDays, getCurrentEpochInfo} from "@app/db/queries";
+import { redisMiddleware, withCaching } from '@app/app/middleware';
+import { getAverageTransactionTimeForLastSevenDays } from '@app/db/queries';
 
-export const dynamic = 'force-dynamic'
+
+export const dynamic = 'force-dynamic';
+
+const handler = async (req: NextRequest, res: NextResponse) => {
+    console.log('GET: ', req.url);
+    try {
+        let data = await getAverageTransactionTimeForLastSevenDays();
+        console.log('Transaction Timing Handler: ', data);
+        return data;
+    } catch (e: any) {
+        console.log(req.url, e);
+        return { error: e.name, status: !e?.errorCode ? 500 : e.errorCode };
+    }
+};
 
 /**
  * @swagger
@@ -16,13 +30,7 @@ export const dynamic = 'force-dynamic'
  *           application/json: {}
  */
 
-export async function GET(req: Request) {
-    console.log("GET: ", req.url);
-    try {
-        let data = await getAverageTransactionTimeForLastSevenDays();
-        return NextResponse.json(data)
-    } catch (e: any) {
-        console.log(req.url, e);
-        return NextResponse.json({error: e.name, status: !e?.errorCode ? 500 : e.errorCode})
-    }
+export async function GET(req: NextRequest, res: NextResponse) {
+    const data = await redisMiddleware(req, res, withCaching(handler));
+    return NextResponse.json(data);
 }
