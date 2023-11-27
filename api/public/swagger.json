@@ -53,6 +53,51 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"PoolInfoResult": {
+				"properties": {
+					"pool_id": {
+						"type": "string"
+					},
+					"ticker_name": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					},
+					"avg_wait_time": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"pool_id",
+					"ticker_name",
+					"name",
+					"url",
+					"avg_wait_time"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AverageTransactionTimeQueryResult": {
+				"properties": {
+					"day": {
+						"type": "string"
+					},
+					"overall_avg_wait_time": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"day",
+					"overall_avg_wait_time"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -136,6 +181,56 @@
 				},
 				"tags": [
 					"V1 Mempool"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/v1/pool/distribution": {
+			"get": {
+				"operationId": "GetPoolDistribution",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/PoolInfoResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"V1 Pool"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/v1/pool/timing": {
+			"get": {
+				"operationId": "GetPoolTiming",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/AverageTransactionTimeQueryResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"V1 Pool"
 				],
 				"security": [],
 				"parameters": []
