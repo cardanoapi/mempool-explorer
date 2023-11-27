@@ -1,6 +1,6 @@
 import { Get, Route, Tags } from 'tsoa';
 
-@Tags('Health')
+@Tags('V1 Health')
 @Route('/api/v1/health')
 class HealthController {
     @Get('/')

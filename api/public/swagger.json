@@ -5,7 +5,56 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {},
+		"schemas": {
+			"EpochQueryResult": {
+				"properties": {
+					"epoch_number": {
+						"type": "number",
+						"format": "double"
+					},
+					"tx_count": {
+						"type": "number",
+						"format": "double"
+					},
+					"block_count": {
+						"type": "number",
+						"format": "double"
+					},
+					"avg_wait_time": {
+						"type": "number",
+						"format": "double"
+					},
+					"avg_transaction_per_block": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"epoch_number",
+					"tx_count",
+					"block_count"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AverageMempoolSizeQueryResult": {
+				"properties": {
+					"received_date": {
+						"type": "string"
+					},
+					"size": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"received_date",
+					"size"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
 		"securitySchemes": {}
 	},
 	"info": {
@@ -15,6 +64,28 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/api/v1/epoch/current": {
+			"get": {
+				"operationId": "GetCurrentEpoch",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EpochQueryResult"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"V1 Epoch"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/api/v1/health": {
 			"get": {
 				"operationId": "GetHealthStatus",
@@ -39,7 +110,32 @@
 					}
 				},
 				"tags": [
-					"Health"
+					"V1 Health"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/v1/mempool/size": {
+			"get": {
+				"operationId": "GetMempoolSize",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/AverageMempoolSizeQueryResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"V1 Mempool"
 				],
 				"security": [],
 				"parameters": []
@@ -69,7 +165,7 @@
 					}
 				},
 				"tags": [
-					"Health"
+					"V2 Health"
 				],
 				"security": [],
 				"parameters": []
