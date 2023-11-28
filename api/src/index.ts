@@ -11,6 +11,7 @@ import { RedisManager } from './services/RedisManager';
 
 dotenv.config();
 
+console.log(process.env);
 const index: Express = express();
 
 // Register RedisManager as a dependency
