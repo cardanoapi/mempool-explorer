@@ -42,6 +42,11 @@ router.get('/stats', async (req, res) => {
     res.json(response);
 });
 
+router.get('/timing', async (req, res) => {
+    const response = await txController.getTxTiming();
+    res.json(response);
+});
+
 router.get('/:hash', async (req, res) => {
     const response = await txController.getTxDetails(req.params.hash);
     res.json(response);

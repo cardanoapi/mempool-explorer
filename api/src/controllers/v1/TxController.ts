@@ -7,6 +7,7 @@ import {
     transformToClientSideData
 } from '../../utilities/cardanoUtils';
 import {
+    discoveryDb,
     getAggregrationForLastThreeBlocks,
     getArrivalTime,
     getBody,
@@ -23,6 +24,7 @@ import {
     getTransactionHistoryOfPool
 } from '../../utilities/txUtils';
 import { encode } from 'cbor-x';
+import { Prisma } from '@prisma/client';
 
 @Tags('V1 Transaction')
 @Route('/api/v1/tx')
@@ -156,6 +158,27 @@ class TxController {
             return encode(transformedData);
         } catch (e: any) {
             console.error(req.url, e);
+        }
+    }
+
+    @Get('/timing')
+    async getTxTiming(): Promise<any> {
+        try {
+            const avgTxCountQuery = Prisma.sql`
+                SELECT DATE_TRUNC('day', tc.confirmation_time) AS day,
+                AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
+                FROM tx_confirmed tc JOIN (SELECT hash,
+                    MIN(received) AS earliest_received
+                    FROM tx_log
+                    GROUP BY hash) AS tl ON tc.tx_hash = tl.hash
+                WHERE tc.confirmation_time > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '6 days'
+                GROUP BY day
+                ORDER BY day;
+                `;
+
+            return await discoveryDb.$queryRaw(avgTxCountQuery);
+        } catch (e) {
+            console.log('/api/db/epoch/avg-wait-time', e);
         }
     }
 }
