@@ -22,10 +22,10 @@ build-api:
         - docker info
         - if [ ! -z "$CI_COMMIT_TAG" ]; then COMMON_TAG="release";  elif [ "$CI_COMMIT_REF_NAME" == "master" ]; then COMMON_TAG="latest"; else COMMON_TAG=$CI_COMMIT_REF_SLUG; fi
         - if [ ! -z "$CI_COMMIT_TAG" ]; then IMAGE_IDENTIFIER="$CI_COMMIT_TAG"; else IMAGE_IDENTIFIER=$CI_COMMIT_SHA; fi
-        - cd api && docker build -t "$CI_REGISTRY_IMAGE:$IMAGE_IDENTIFIER" -t "$CI_REGISTRY_IMAGE:$COMMON_TAG" .
+        - cd api && docker build -t "$CI_REGISTRY_IMAGE:api-$IMAGE_IDENTIFIER" -t "$CI_REGISTRY_IMAGE:api-$COMMON_TAG" .
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-        - docker push $CI_REGISTRY_IMAGE:$IMAGE_IDENTIFIER
-        - docker push $CI_REGISTRY_IMAGE:$COMMON_TAG
+        - docker push $CI_REGISTRY_IMAGE:api-$IMAGE_IDENTIFIER
+        - docker push $CI_REGISTRY_IMAGE:api-$COMMON_TAG
 
 build-server:
     stage: build
@@ -47,9 +47,9 @@ deploy-dev:
             - develop
     script:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool_explorer_webapp
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool_explorer_api
-        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  mempool_explorer_websocket
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA  mempool_dev_webapp
+        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:api-$CI_COMMIT_SHA  mempool_dev_api
+#        - docker --host 172.31.0.6:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:server-$CI_COMMIT_SHA  mempool_explorer_websocket
 
 deploy-release:
     stage: deploy
@@ -59,5 +59,5 @@ deploy-release:
     script:
         - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
         - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG  cardanoapi_mempool-explorer-webapp
-        - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG  cardanoapi_mempool-explorer-api
+        - docker --host 172.31.0.7:2376 service update --with-registry-auth --image $CI_REGISTRY_IMAGE:api-$CI_COMMIT_TAG  cardanoapi_mempool-explorer-api
         - docker --host 172.31.0.7:2376 service update --with-registry-auth --image ${CI_REGISTRY_IMAGE}:server-${CI_COMMIT_TAG}  cardanoapi_mempool-websocket
