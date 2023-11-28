@@ -14,6 +14,34 @@ router.get('/confirmation', async (req, res) => {
     res.json(response);
 });
 
+router.get('/confirmed', async (req, res) => {
+    const fromParam: string = Array.isArray(req.query.from)
+        ? (req.query.from[0] as string)
+        : (req.query.from as string) || '';
+
+    const poolParam: string = Array.isArray(req.query.pool)
+        ? (req.query.pool[0] as string)
+        : (req.query.pool as string) || '';
+
+    const limitParam: number = Array.isArray(req.query.limit)
+        ? Number(req.query.limit[0] as unknown)
+        : Number(req.query.limit as unknown);
+
+    const response = await txController.getConfirmedTransactions(
+        req,
+        fromParam,
+        poolParam,
+        limitParam
+    );
+    res.json(response);
+});
+
+router.get('/stats', async (req, res) => {
+    const queryParam = req.query.query as string;
+    const response = await txController.getTxStats(req, queryParam);
+    res.json(response);
+});
+
 router.get('/:hash', async (req, res) => {
     const response = await txController.getTxDetails(req.params.hash);
     res.json(response);

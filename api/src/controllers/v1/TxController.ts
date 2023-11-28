@@ -1,15 +1,19 @@
-import { Request as ExpressRequest } from 'express';
-import { Get, Query, Route, Tags, Request } from 'tsoa';
+import { Request as ExpressRequest, Response } from 'express';
+import { Get, Query, Route, Tags, Request, Res } from 'tsoa';
 import {
     convertBuffersToString,
-    convertToTableData
+    convertToTableData,
+    getUrlObject,
+    transformToClientSideData
 } from '../../utilities/cardanoUtils';
 import {
+    getAggregrationForLastThreeBlocks,
     getArrivalTime,
     getBody,
     getCompeting,
     getConfirmationDetails,
-    getFollowups
+    getFollowups,
+    listConfirmedTransactions
 } from '../../queries';
 import { CborTransactionParser } from '../../lib/cborParser';
 import {
@@ -92,6 +96,64 @@ class TxController {
             }
 
             return encode(confirmation);
+        } catch (e: any) {
+            console.error(req.url, e);
+        }
+    }
+
+    @Get('/confirmed')
+    async getConfirmedTransactions(
+        @Request() req: ExpressRequest,
+        @Query('from') from: string,
+        @Query('pool') pool?: string,
+        @Query('limit') limit?: number
+    ): Promise<any> {
+        if (!from) {
+            throw new Error('Required parameter from is missing');
+        }
+
+        if (pool && !pool.startsWith('pool')) {
+            throw new Error('Invalid pool format');
+        }
+
+        const startDate = Date.parse(from);
+        if (isNaN(startDate)) {
+            throw new Error(
+                `Invalid date format. Valid example: ${new Date().toISOString()}`
+            );
+        }
+
+        const parsedLimit = parseInt(<string>limit?.toString()) || 100;
+        if (parsedLimit > 1000 || parsedLimit < 0) {
+            throw new Error('Range for limit is (10,1000)');
+        }
+
+        try {
+            const result = await listConfirmedTransactions(
+                new Date(startDate),
+                pool,
+                parsedLimit
+            );
+            return convertBuffersToString(result);
+        } catch (e: any) {
+            console.error(req.url, e);
+        }
+    }
+
+    @Get('/stats')
+    async getTxStats(
+        @Request() req: ExpressRequest,
+        @Query('query') id: string
+    ): Promise<any> {
+        try {
+            let data = await getAggregrationForLastThreeBlocks(id);
+            if (req.headers.accept === 'application/json') {
+                return convertBuffersToString(
+                    await transformToClientSideData(data)
+                );
+            }
+            const transformedData = await transformToClientSideData(data);
+            return encode(transformedData);
         } catch (e: any) {
             console.error(req.url, e);
         }

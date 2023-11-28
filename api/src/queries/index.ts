@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 import { dbSyncDbClient, discoveryDbClient } from './prisma';
+import { getLatestEpoch } from '../utilities/cardanoUtils';
 
 export const discoveryDb: PrismaClient = discoveryDbClient;
 export const dbSyncDb: PrismaClient = dbSyncDbClient;
@@ -223,5 +224,129 @@ export async function getConfirmationDetails(txHashes: Buffer[]) {
         return dbSyncDb.$queryRaw(query);
     } catch (e) {
         console.log('/api/db/transaction', e);
+    }
+}
+
+export async function listConfirmedTransactions(
+    start_date: Date,
+    pool?: string,
+    limit: number = 1000
+) {
+    console.log(
+        'listConfirmedTransactions',
+        !!start_date,
+        start_date,
+        pool,
+        limit
+    );
+    let query;
+    if (pool) {
+        query = Prisma.sql`
+        select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no ,
+            b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
+        from tx join block b on b.id = tx.block_id
+            left join slot_leader sl on b.slot_leader_id = sl.id
+            left join pool_hash ph on sl.pool_hash_id = ph.id
+        where 
+            b.time >= ${start_date}
+            and 
+            ph.view = ${pool}
+        order by b.time asc
+        limit ${limit};`;
+    } else {
+        query = Prisma.sql`
+        select tx.hash tx_hash ,b.hash  block_hash , b.slot_no  slot_no , ph.view  pool_id
+            , b.block_no as block_no,b.time as block_time,b.epoch_no as epoch
+        from tx join block b on b.id = tx.block_id
+            left join slot_leader sl on b.slot_leader_id = sl.id
+            left join pool_hash ph on sl.pool_hash_id = ph.id
+        where b.time >= ${start_date}
+        order by b.time asc
+        limit ${limit};`;
+    }
+
+    const results: any[] = await dbSyncDb.$queryRaw(query);
+    if (results.length == 0) {
+        return [];
+    }
+    const hashes = results.map((x) => {
+        return x.tx_hash;
+    });
+    results.forEach((r) => (r.tx_hash = r.tx_hash.toString('hex')));
+
+    const arrival_query = Prisma.sql` select min(received) as arrival_time , hash  from tx_log    
+            where  hash in (${Prisma.join(hashes)})  group by hash `;
+
+    interface QueryResult {
+        hash: Buffer;
+        arrival_time: Date;
+    }
+
+    const arrival_times: QueryResult[] =
+        await discoveryDb.$queryRaw(arrival_query);
+
+    const lookup: Record<string, Date> = {};
+    arrival_times.map((v: any) => {
+        lookup[v.hash.toString('hex')] = v.arrival_time;
+    });
+
+    return results.map((v) => {
+        return {
+            ...v,
+            arrival_time: lookup[v.tx_hash]?.toISOString()
+        };
+    });
+}
+
+export async function getAggregrationForLastThreeBlocks(id: string) {
+    const latestEpoch = getLatestEpoch();
+    try {
+        if (id.startsWith('pool')) {
+            return await discoveryDb.$queryRaw(
+                Prisma.sql`
+                    select tc.epoch as epoch ,
+                    count(tc.tx_hash) tx_count,
+                    extract ( epoch from avg(wait_time))avg_wait_time,
+                    extract ( epoch from min(wait_time)) min_wait_time,
+                    extract ( epoch from max(wait_time)) max_wait_time,
+                    extract ( epoch from (PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wait_time asc ))) median_wait_time,
+                    extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time asc ))) best_5_percent,
+                    extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time desc ))) worst_5_percent
+                    from tx_addresses
+                    join tx_timing tt on tx_addresses.tx_hash = tt.tx_hash
+                    join tx_confirmed tc on tt.tx_hash = tc.tx_hash
+                    where
+                    pool_id = ${id}
+                    and epoch < ${latestEpoch}
+                    group by tc.epoch
+                    order by  epoch  desc
+                    limit 3
+                    `
+            );
+        } else if (id.startsWith('addr')) {
+            return await discoveryDb.$queryRaw(
+                Prisma.sql`
+                    select tc.epoch as epoch ,
+                    count(tc.tx_hash) tx_count,
+                    extract ( epoch from avg(wait_time))avg_wait_time,
+                    extract ( epoch from min(wait_time)) min_wait_time,
+                    extract ( epoch from max(wait_time)) max_wait_time,
+                    extract ( epoch from (PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wait_time asc ))) median_wait_time,
+                    extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time asc ))) best_5_percent,
+                    extract ( epoch from (PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY wait_time desc ))) worst_5_percent
+                    from tx_addresses
+                    join tx_timing tt on tx_addresses.tx_hash = tt.tx_hash
+                    join tx_confirmed tc on tt.tx_hash = tc.tx_hash
+                    where
+                    address = ${id}
+                    and epoch < ${latestEpoch}
+                    group by tc.epoch
+                    order by  epoch  desc
+                    limit 3
+                    `
+            );
+        }
+    } catch (e) {
+        console.log('aggregration blocks query: ', e);
     }
 }
