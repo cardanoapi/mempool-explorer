@@ -5,101 +5,7 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {
-			"EpochQueryResult": {
-				"properties": {
-					"epoch_number": {
-						"type": "number",
-						"format": "double"
-					},
-					"tx_count": {
-						"type": "number",
-						"format": "double"
-					},
-					"block_count": {
-						"type": "number",
-						"format": "double"
-					},
-					"avg_wait_time": {
-						"type": "number",
-						"format": "double"
-					},
-					"avg_transaction_per_block": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"epoch_number",
-					"tx_count",
-					"block_count"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"AverageMempoolSizeQueryResult": {
-				"properties": {
-					"received_date": {
-						"type": "string"
-					},
-					"size": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"received_date",
-					"size"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"PoolInfoResult": {
-				"properties": {
-					"pool_id": {
-						"type": "string"
-					},
-					"ticker_name": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"url": {
-						"type": "string"
-					},
-					"avg_wait_time": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"pool_id",
-					"ticker_name",
-					"name",
-					"url",
-					"avg_wait_time"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"AverageTransactionTimeQueryResult": {
-				"properties": {
-					"day": {
-						"type": "string"
-					},
-					"overall_avg_wait_time": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"day",
-					"overall_avg_wait_time"
-				],
-				"type": "object",
-				"additionalProperties": false
-			}
-		},
+		"schemas": {},
 		"securitySchemes": {}
 	},
 	"info": {
@@ -117,9 +23,7 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/EpochQueryResult"
-								}
+								"schema": {}
 							}
 						}
 					}
@@ -169,12 +73,7 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/AverageMempoolSizeQueryResult"
-									},
-									"type": "array"
-								}
+								"schema": {}
 							}
 						}
 					}
@@ -194,12 +93,7 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/PoolInfoResult"
-									},
-									"type": "array"
-								}
+								"schema": {}
 							}
 						}
 					}
@@ -219,12 +113,7 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/AverageTransactionTimeQueryResult"
-									},
-									"type": "array"
-								}
+								"schema": {}
 							}
 						}
 					}

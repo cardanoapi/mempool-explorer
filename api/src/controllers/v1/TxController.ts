@@ -25,10 +25,15 @@ import {
 } from '../../utilities/txUtils';
 import { encode } from 'cbor-x';
 import { Prisma } from '@prisma/client';
+import { RedisBaseController } from '../../baseControllers/RedisBaseController';
 
 @Tags('V1 Transaction')
 @Route('/api/v1/tx')
-class TxController {
+class TxController extends RedisBaseController<any> {
+    constructor() {
+        super();
+    }
+
     @Get('')
     public async getTxList(
         @Request() req: ExpressRequest,
@@ -164,7 +169,26 @@ class TxController {
     @Get('/timing')
     async getTxTiming(): Promise<any> {
         try {
-            const avgTxCountQuery = Prisma.sql`
+            // Check if data is cached in Redis
+            const cachedData =
+                await this.redisManager?.getFromCache('txTiming');
+
+            if (cachedData) {
+                console.log('[Redis:Tx/Timing] Data retrieved from cache');
+                return JSON.parse(cachedData);
+            }
+
+            // If not cached, fetch data and update the cache
+            const data = await this.fetchDataAndUpdateCache();
+            console.log('[Redis:Tx/Timing] Data fetched and cached');
+            return data;
+        } catch (e) {
+            console.log('/api/db/epoch/avg-wait-time', e);
+        }
+    }
+
+    protected async fetchDataAndUpdateCache() {
+        const avgTxCountQuery = Prisma.sql`
                 SELECT DATE_TRUNC('day', tc.confirmation_time) AS day,
                 AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
                 FROM tx_confirmed tc JOIN (SELECT hash,
@@ -176,10 +200,15 @@ class TxController {
                 ORDER BY day;
                 `;
 
-            return await discoveryDb.$queryRaw(avgTxCountQuery);
-        } catch (e) {
-            console.log('/api/db/epoch/avg-wait-time', e);
-        }
+        const result = await discoveryDb.$queryRaw(avgTxCountQuery);
+        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
+        await this.redisManager?.setToCache(
+            'txTiming',
+            JSON.stringify(result),
+            'EX',
+            600
+        );
+        return result;
     }
 }
 
