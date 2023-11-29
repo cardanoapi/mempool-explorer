@@ -9,6 +9,7 @@ const environments = {
     CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK ?? 'mainnet',
     // @ts-ignore
     ENABLE_CONNECT_WALLET: (process.env.ENABLE_CONNECT_WALLET && (process.env.ENABLE_CONNECT_WALLET === 'true' || process.env.ENABLE_CONNECT_WALLET === true)) ?? false,
+    API_URL: process.env.API_URL ?? 'http://localhost:8080/api/v1',
     REDIS: {
         HOST: process.env.REDIS_HOST,
         PASSWORD: process.env.REDIS_PASSWORD,

@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 
-import { Prisma } from '@prisma/client';
-import { encode } from 'cbor-x';
-import { parse } from 'url';
+import {Prisma} from '@prisma/client';
+import {encode} from 'cbor-x';
+import {parse} from 'url';
 
-import { discoveryDbClient } from '@app/db/prisma';
-import { getArrivalTime, getBody, getCompeting, getFollowups } from '@app/db/queries';
-import { CborTransactionParser } from '@app/lib/cborparser';
-import { convertBuffersToString } from '@app/utils/utils';
+import {discoveryDbClient} from '@app/db/prisma';
+import {getArrivalTime, getBody, getCompeting, getFollowups} from '@app/db/queries';
+import {CborTransactionParser} from '@app/lib/cborparser';
+import {convertBuffersToString} from '@app/utils/utils';
+import environments from "@app/configs/environments";
 
 
 async function fetchTheArrivalTime(arr: Array<any>) {
@@ -64,36 +65,51 @@ async function addAddressFieldsToResponse(parsedTransaction: any) {
 
 export async function GET(req: any) {
     console.log('GET: ', req.url);
+
     try {
         const parsedUrl = parse(req.url, true);
         const pathname = parsedUrl.pathname as string;
         const hash = pathname.split('/').pop() as string;
-        const txHash = Buffer.from(hash, 'hex');
-        let arrivalTime = await getArrivalTime(txHash);
-        let txbody = await getBody(txHash);
-        const parsedTransaction = new CborTransactionParser(txbody!.txbody!);
-        const resolvedTransactionToAddressObj = await addAddressFieldsToResponse(parsedTransaction);
-        let followups = await getFollowups(txHash);
-        followups = await fetchTheArrivalTime(followups);
-        let competing = await getCompeting(txHash);
-        competing = await fetchTheArrivalTime(competing);
-        const detail = {
-            tx: txbody,
-            arrivalTime: arrivalTime?.received?.toString() ?? 'N/A',
-            followups,
-            competing,
-            inputAddress: resolvedTransactionToAddressObj,
-            fee: parsedTransaction.getFee()
-        };
-        if (req.headers.get('accept') === 'application/json') {
-            return NextResponse.json(convertBuffersToString(detail));
-        }
-        const serializedBuffer = encode(detail);
-        const response = new NextResponse(serializedBuffer);
-        response.headers.set('Content-Type', 'application/cbor');
-        return response;
+        const response = await fetch(environments.API_URL + `/tx/${hash}`);
+
+        const data = await response.json();
+
+        return NextResponse.json(data);
     } catch (e: any) {
         console.log(req.url, e);
-        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
+        return {error: e.name, status: !e?.errorCode ? 500 : e.errorCode};
     }
+
+    // try {
+    //     const parsedUrl = parse(req.url, true);
+    //     const pathname = parsedUrl.pathname as string;
+    //     const hash = pathname.split('/').pop() as string;
+    //     const txHash = Buffer.from(hash, 'hex');
+    //     let arrivalTime = await getArrivalTime(txHash);
+    //     let txbody = await getBody(txHash);
+    //     const parsedTransaction = new CborTransactionParser(txbody!.txbody!);
+    //     const resolvedTransactionToAddressObj = await addAddressFieldsToResponse(parsedTransaction);
+    //     let followups = await getFollowups(txHash);
+    //     followups = await fetchTheArrivalTime(followups);
+    //     let competing = await getCompeting(txHash);
+    //     competing = await fetchTheArrivalTime(competing);
+    //     const detail = {
+    //         tx: txbody,
+    //         arrivalTime: arrivalTime?.received?.toString() ?? 'N/A',
+    //         followups,
+    //         competing,
+    //         inputAddress: resolvedTransactionToAddressObj,
+    //         fee: parsedTransaction.getFee()
+    //     };
+    //     if (req.headers.get('accept') === 'application/json') {
+    //         return NextResponse.json(convertBuffersToString(detail));
+    //     }
+    //     const serializedBuffer = encode(detail);
+    //     const response = new NextResponse(serializedBuffer);
+    //     response.headers.set('Content-Type', 'application/cbor');
+    //     return response;
+    // } catch (e: any) {
+    //     console.log(req.url, e);
+    //     return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
+    // }
 }

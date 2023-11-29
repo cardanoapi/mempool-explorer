@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import environments from '@app/configs/environments';
 import { getAddressDetails, getPoolDetails, getTheLatestTransactionEpochOfAddress, listConfirmedTransactions } from '@app/db/queries';
 import { getLatestEpoch, getUrlObject } from '@app/utils/cardano-utils';
 import { convertBuffersToString } from '@app/utils/utils';
@@ -47,33 +48,67 @@ async function getTransactionHistoryOfAddress(id: string, pageNumber: number) {
 
 export async function GET(req: Request) {
     console.log('GET: ', req.url);
-    const urlObject = getUrlObject(req.url);
-    const start_date_ = urlObject.searchParams.get('from') as string;
-    const pool_ = urlObject.searchParams.get('pool') as string;
-
-    if (!start_date_) {
-        return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
-    }
-    if (pool_) {
-        if (!pool_.startsWith('pool')) return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
-    }
-    const start_date = Date.parse(start_date_);
-    //@ts-ignore
-    if (isNaN(start_date)) {
-        return NextResponse.json({ message: 'Invalid date format. valid example: ' + new Date().toISOString() }, { status: 400 });
-    }
-
-    const limit = parseInt(urlObject.searchParams.get('limit') as string) || 100;
-
-    if (limit > 1000 || limit < 0) {
-        return NextResponse.json({ message: 'Range for limit is (10,1000)' }, { status: 400 });
-    }
-
     try {
-        const result = await listConfirmedTransactions(new Date(start_date), pool_, limit);
-        return NextResponse.json(convertBuffersToString(result));
+        const urlObject = getUrlObject(req.url);
+        const start_date_ = urlObject.searchParams.get('from') as string;
+        const pool_ = urlObject.searchParams.get('pool') as string;
+        const limit = parseInt(urlObject.searchParams.get('limit') as string) || 100;
+
+        if (!start_date_) {
+            return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
+        }
+        if (pool_) {
+            if (!pool_.startsWith('pool')) return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
+        }
+
+        const start_date = Date.parse(start_date_);
+        //@ts-ignore
+        if (isNaN(start_date)) {
+            return NextResponse.json({ message: 'Invalid date format. valid example: ' + new Date().toISOString() }, { status: 400 });
+        }
+
+        let url = `${environments.API_URL}/tx/confirmed?start=${start_date_}&limit=${limit}`;
+        if (pool_) {
+            url += `&pool=${pool_}`;
+        }
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        return NextResponse.json(data);
     } catch (e: any) {
         console.log(req.url, e);
-        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
+        return { error: e.name, status: !e?.errorCode ? 500 : e.errorCode };
     }
+
+    // const urlObject = getUrlObject(req.url);
+    // const start_date_ = urlObject.searchParams.get('from') as string;
+    // const pool_ = urlObject.searchParams.get('pool') as string;
+    //
+    // if (!start_date_) {
+    //     return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
+    // }
+    // if (pool_) {
+    //     if (!pool_.startsWith('pool')) return NextResponse.json({ message: 'Required parameter from is missing' }, { status: 400 });
+    // }
+    // const start_date = Date.parse(start_date_);
+    // //@ts-ignore
+    // if (isNaN(start_date)) {
+    //     return NextResponse.json({ message: 'Invalid date format. valid example: ' + new Date().toISOString() }, { status: 400 });
+    // }
+    //
+    // const limit = parseInt(urlObject.searchParams.get('limit') as string) || 100;
+    //
+    // if (limit > 1000 || limit < 0) {
+    //     return NextResponse.json({ message: 'Range for limit is (10,1000)' }, { status: 400 });
+    // }
+    //
+    // try {
+    //     const result = await listConfirmedTransactions(new Date(start_date), pool_, limit);
+    //     return NextResponse.json(convertBuffersToString(result));
+    // } catch (e: any) {
+    //     console.log(req.url, e);
+    //     return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
+    // }
 }
