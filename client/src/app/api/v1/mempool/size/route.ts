@@ -42,6 +42,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
         return NextResponse.json(data);
     } catch (e: any) {
         console.log(req.url, e);
-        return { error: e.name, status: !e?.errorCode ? 500 : e.errorCode };
+        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
     }
 }

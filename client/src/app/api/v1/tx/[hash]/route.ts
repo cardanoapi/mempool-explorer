@@ -1,15 +1,14 @@
-import {NextResponse} from 'next/server';
+import { NextResponse } from 'next/server';
 
-import {Prisma} from '@prisma/client';
-import {encode} from 'cbor-x';
-import {parse} from 'url';
+import { Prisma } from '@prisma/client';
+import { encode } from 'cbor-x';
+import { parse } from 'url';
 
-import {discoveryDbClient} from '@app/db/prisma';
-import {getArrivalTime, getBody, getCompeting, getFollowups} from '@app/db/queries';
-import {CborTransactionParser} from '@app/lib/cborparser';
-import {convertBuffersToString} from '@app/utils/utils';
-import environments from "@app/configs/environments";
-
+import environments from '@app/configs/environments';
+import { discoveryDbClient } from '@app/db/prisma';
+import { getArrivalTime, getBody, getCompeting, getFollowups } from '@app/db/queries';
+import { CborTransactionParser } from '@app/lib/cborparser';
+import { convertBuffersToString } from '@app/utils/utils';
 
 async function fetchTheArrivalTime(arr: Array<any>) {
     return Promise.all(
@@ -77,7 +76,7 @@ export async function GET(req: any) {
         return NextResponse.json(data);
     } catch (e: any) {
         console.log(req.url, e);
-        return {error: e.name, status: !e?.errorCode ? 500 : e.errorCode};
+        return NextResponse.json({ error: e.name, status: !e?.errorCode ? 500 : e.errorCode });
     }
 
     // try {
