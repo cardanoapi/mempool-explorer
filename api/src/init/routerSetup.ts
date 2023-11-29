@@ -24,12 +24,18 @@ const routerSetup = (app: Express) => {
             // Iterate through each router file and dynamically import and use it
             routerFiles.forEach((routerFile) => {
                 // Extract the route name from the file name (remove "Router.ts" extension)
-                const routeName = path.basename(routerFile, 'Router.ts');
+                const routeName = path
+                    .basename(routerFile, path.extname(routerFile))
+                    .replace('Router', '');
 
                 // Dynamically import the router module
                 const versionedRouter = require(
                     path.join(versionDirectoryPath, routerFile)
                 ).default;
+
+                console.log(
+                    `Mounting ${versionDirectory}/${routeName} router...`
+                );
 
                 // Mount the router with the generated API URL
                 app.use(
