@@ -11,8 +11,9 @@ const middlewareSetup = (app: Express) => {
             swaggerUi.serve,
             swaggerUi.setup(undefined, {
                 swaggerOptions: {
-                    url: '/swagger/swagger.json'
-                }
+                    url: '/api/swagger/swagger.json'
+                },
+                swaggerUrl: '/api/swagger/docs'
             })
         );
     }, 1000); // Adjust the delay as needed
