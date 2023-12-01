@@ -9,7 +9,7 @@
     "controllers": "./src/controllers"
   },
   "spec": {
-    "outputDirectory": "public",
+    "outputDirectory": "public/swagger",
     "specVersion": 3
   },
   "koa": {

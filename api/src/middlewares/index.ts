@@ -7,11 +7,11 @@ const middlewareSetup = (app: Express) => {
     app.use(morgan(':method :url :status :http-version :response-time '));
     setTimeout(() => {
         app.use(
-            '/api/docs',
+            '/api/swagger/docs',
             swaggerUi.serve,
             swaggerUi.setup(undefined, {
                 swaggerOptions: {
-                    url: '/swagger.json'
+                    url: '/swagger/swagger.json'
                 }
             })
         );
