@@ -56,16 +56,11 @@ const nextConfig = {
         formats: ['image/avif', 'image/webp'],
         domains: [...imageDomains]
     },
-    publicRuntimeConfig: {
-        BASE_DEPLOY_PATH: process.env.BASE_DEPLOY_PATH,
-        NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
-        NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK
-    },
     env: {
         NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
         NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK,
         ENABLE_CONNECT_WALLET: process.env.ENABLE_CONNECT_WALLET,
-        API_URL: process.env.API_URL,
+        API_URL: process.env.API_URL
     },
     experimental: {
         maximumFileSizeToCacheInBytes: {
@@ -91,6 +86,8 @@ const nextConfigWithPWA = withPWA({
         }
     })
 });
+
+console.log(process.env);
 
 module.exports = withPlugins([[plausiblePlugin, bundleAnalyzer]], nextConfigWithPWA);
 

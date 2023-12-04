@@ -11,7 +11,7 @@ export default function useMempoolAndMintEvent() {
     const [mintEvent, setMintEvent] = useState<MintMessage>();
 
     useEffect(() => {
-        const sock = CardanoWebSocketImpl.createConnection(environments.WS_URL);
+        const sock = CardanoWebSocketImpl.createConnection(environments.NEXT_PUBLIC_WS_URL);
         sock.on('mint', (msg: MintMessage) => {
             setMintEvent(msg);
         });
@@ -36,6 +36,11 @@ export default function useMempoolAndMintEvent() {
             };
             setMempoolEvent(rejectActionAddedTransaction);
         });
+
+        return () => {
+            console.log('Closing socket!');
+            sock.close();
+        };
     }, []);
 
     return { mempoolEvent, mintEvent };
