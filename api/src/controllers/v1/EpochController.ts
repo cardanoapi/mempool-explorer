@@ -7,24 +7,29 @@ import {
     getAverageTransactionPerBlockForEpoch
 } from '../../queries';
 import { RedisBaseController } from '../../baseControllers/RedisBaseController';
+import environments from '../../config/environment';
 
 @Tags('V1 Epoch')
 @Route('/api/v1/epoch')
 class EpochController extends RedisBaseController<any> {
-    constructor() {
-        super();
+    constructor(cronJobTimeInSeconds: number = 40) {
+        super(cronJobTimeInSeconds);
     }
 
     @Get('/current')
     async getCurrentEpoch() {
         try {
-            // Check if data is cached in Redis
-            const cachedData =
-                await this.redisManager?.getFromCache('currentEpoch');
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('currentEpoch');
 
-            if (cachedData) {
-                console.log('[Redis:Epoch/Current] Data retrieved from cache');
-                return JSON.parse(cachedData);
+                if (cachedData) {
+                    console.log(
+                        '[Redis:Epoch/Current] Data retrieved from cache'
+                    );
+                    return JSON.parse(cachedData);
+                }
             }
 
             // If not cached, fetch data and update the cache
@@ -62,13 +67,15 @@ class EpochController extends RedisBaseController<any> {
         epoch.avg_transaction_per_block =
             await getAverageTransactionPerBlockForEpoch(epoch.epoch_number);
 
-        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
-        await this.redisManager?.setToCache(
-            'currentEpoch',
-            JSON.stringify(epoch),
-            'EX',
-            600
-        );
+        if (environments.ENABLE_REDIS_CACHE) {
+            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            await this.redisManager?.setToCache(
+                'currentEpoch',
+                JSON.stringify(epoch),
+                'EX',
+                7200
+            );
+        }
 
         return epoch;
     }

@@ -26,12 +26,13 @@ import {
 import { encode } from 'cbor-x';
 import { Prisma } from '@prisma/client';
 import { RedisBaseController } from '../../baseControllers/RedisBaseController';
+import environments from '../../config/environment';
 
 @Tags('V1 Transaction')
 @Route('/api/v1/tx')
 class TxController extends RedisBaseController<any> {
-    constructor() {
-        super();
+    constructor(cronJobTimeInSeconds: number = 7200) {
+        super(cronJobTimeInSeconds);
     }
 
     @Get('')
@@ -169,13 +170,15 @@ class TxController extends RedisBaseController<any> {
     @Get('/timing')
     async getTxTiming(): Promise<any> {
         try {
-            // Check if data is cached in Redis
-            const cachedData =
-                await this.redisManager?.getFromCache('txTiming');
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('txTiming');
 
-            if (cachedData) {
-                console.log('[Redis:Tx/Timing] Data retrieved from cache');
-                return JSON.parse(cachedData);
+                if (cachedData) {
+                    console.log('[Redis:Tx/Timing] Data retrieved from cache');
+                    return JSON.parse(cachedData);
+                }
             }
 
             // If not cached, fetch data and update the cache
@@ -201,13 +204,16 @@ class TxController extends RedisBaseController<any> {
                 `;
 
         const result = await discoveryDb.$queryRaw(avgTxCountQuery);
-        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
-        await this.redisManager?.setToCache(
-            'txTiming',
-            JSON.stringify(result),
-            'EX',
-            600
-        );
+
+        if (environments.ENABLE_REDIS_CACHE) {
+            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            await this.redisManager?.setToCache(
+                'txTiming',
+                JSON.stringify(result),
+                'EX',
+                7200
+            );
+        }
         return result;
     }
 }

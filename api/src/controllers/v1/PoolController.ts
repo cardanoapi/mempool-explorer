@@ -3,12 +3,13 @@ import { Get, Route, Tags } from 'tsoa';
 
 import { dbSyncDb, discoveryDb } from '../../queries';
 import { RedisBaseController } from '../../baseControllers/RedisBaseController';
+import environments from '../../config/environment';
 
 @Tags('V1 Pool')
 @Route('/api/v1/pool')
 class PoolController extends RedisBaseController<any> {
-    constructor() {
-        super();
+    constructor(cronJobTimeInSeconds: number = 3600) {
+        super(cronJobTimeInSeconds);
     }
 
     async _getPoolDistributionAndUpdateCache() {
@@ -98,28 +99,32 @@ class PoolController extends RedisBaseController<any> {
             });
         });
 
-        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
-        await this.redisManager?.setToCache(
-            'poolDistribution',
-            JSON.stringify(info_result),
-            'EX',
-            600
-        );
+        if (environments.ENABLE_REDIS_CACHE) {
+            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            await this.redisManager?.setToCache(
+                'poolDistribution',
+                JSON.stringify(info_result),
+                'EX',
+                7200
+            );
+        }
         return info_result;
     }
 
     @Get('/distribution')
     async getPoolDistribution() {
         try {
-            // Check if data is cached in Redis
-            const cachedData =
-                await this.redisManager?.getFromCache('poolDistribution');
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('poolDistribution');
 
-            if (cachedData) {
-                console.log(
-                    '[Redis:Pool/Distribution] Data retrieved from cache'
-                );
-                return JSON.parse(cachedData);
+                if (cachedData) {
+                    console.log(
+                        '[Redis:Pool/Distribution] Data retrieved from cache'
+                    );
+                    return JSON.parse(cachedData);
+                }
             }
 
             // If not cached, fetch data and update the cache
@@ -158,26 +163,32 @@ class PoolController extends RedisBaseController<any> {
         const avgTxCountResult: AverageTransactionTimeQueryResult[] =
             await discoveryDb.$queryRaw(avgTxCountQuery);
 
-        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
-        await this.redisManager?.setToCache(
-            'poolTiming',
-            JSON.stringify(avgTxCountResult),
-            'EX',
-            600
-        );
+        if (environments.ENABLE_REDIS_CACHE) {
+            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            await this.redisManager?.setToCache(
+                'poolTiming',
+                JSON.stringify(avgTxCountResult),
+                'EX',
+                7200
+            );
+        }
         return avgTxCountResult;
     }
 
     @Get('/timing')
     async getPoolTiming() {
         try {
-            // Check if data is cached in Redis
-            const cachedData =
-                await this.redisManager?.getFromCache('poolTiming');
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('poolTiming');
 
-            if (cachedData) {
-                console.log('[Redis:Pool/Timing] Data retrieved from cache');
-                return JSON.parse(cachedData);
+                if (cachedData) {
+                    console.log(
+                        '[Redis:Pool/Timing] Data retrieved from cache'
+                    );
+                    return JSON.parse(cachedData);
+                }
             }
 
             // If not cached, fetch data and update the cache
