@@ -33,7 +33,7 @@ RUN yarn workspaces focus
 
 # Rebuild the source code
 RUN yarn prisma:generate && \
-    NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet yarn build
+    NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=wss://mempool.cardanoapi.io/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet yarn build
 
 # Remove unnecessary files
 RUN rm -rf ./.next/cache/* && \

@@ -91,10 +91,10 @@ export default class CardanoWebSocketImpl implements CardanoWebSocket {
     static ins: CardanoWebSocketImpl | null = null;
 
     private constructor(wsUrl: string) {
-        wsUrl = wsUrl.startsWith('/') ? window.location.origin + wsUrl : wsUrl;
-        if (wsUrl.startsWith('http')) {
-            wsUrl = 'ws' + wsUrl.substring(4);
-        }
+        // wsUrl = wsUrl.startsWith('/') ? window.location.origin + wsUrl : wsUrl;
+        // if (wsUrl.startsWith('http')) {
+        //     wsUrl = 'ws' + wsUrl.substring(4);
+        // }
         this.wsUrl = wsUrl;
         this.ws = new WebSocket(wsUrl);
 
