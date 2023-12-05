@@ -1,5 +1,6 @@
 import * as cbor from 'cbor-web';
 import { bech32 } from 'bech32';
+import environments from '../config/environment';
 
 export enum Network {
     MAINNET = 'mainnet',
@@ -105,7 +106,7 @@ export class CborTransactionParser {
                 const ret = {
                     address: bech32.encode(
                         this.getAddressPrefixAccordingToNetwork(
-                            process.env.CARDANO_NETWORK ?? 'mainnet'
+                            environments.CARDANO_NETWORK
                         ),
                         bech32.toWords(output[0]),
                         150
@@ -118,7 +119,7 @@ export class CborTransactionParser {
                 const ret = {
                     address: bech32.encode(
                         this.getAddressPrefixAccordingToNetwork(
-                            process.env.CARDANO_NETWORK ?? 'mainnet'
+                            environments.CARDANO_NETWORK
                         ),
                         bech32.toWords(output.get(0)),
                         150

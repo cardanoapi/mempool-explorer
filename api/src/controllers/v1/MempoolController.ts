@@ -3,24 +3,29 @@ import { Get, Route, Tags } from 'tsoa';
 
 import { discoveryDb } from '../../queries';
 import { RedisBaseController } from '../../baseControllers/RedisBaseController';
+import environments from '../../config/environment';
 
 @Tags('V1 Mempool')
 @Route('/api/v1/mempool')
 class MempoolController extends RedisBaseController<any> {
-    constructor() {
-        super();
+    constructor(cronJobTimeInSeconds: number = 600) {
+        super(cronJobTimeInSeconds);
     }
 
     @Get('/size')
     async getMempoolSize() {
         try {
-            // Check if data is cached in Redis
-            const cachedData =
-                await this.redisManager?.getFromCache('mempoolSize');
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('mempoolSize');
 
-            if (cachedData) {
-                console.log('[Redis:Mempool/Size] Data retrieved from cache');
-                return JSON.parse(cachedData);
+                if (cachedData) {
+                    console.log(
+                        '[Redis:Mempool/Size] Data retrieved from cache'
+                    );
+                    return JSON.parse(cachedData);
+                }
             }
 
             // If not cached, fetch data and update the cache
@@ -55,13 +60,15 @@ class MempoolController extends RedisBaseController<any> {
         const sizeResult: AverageMempoolSizeQueryResult[] =
             await discoveryDb.$queryRaw(avgTxCountQuery);
 
-        // Cache the data in Redis with a short expiration time (e.g., 600 seconds)
-        await this.redisManager?.setToCache(
-            'mempoolSize',
-            JSON.stringify(sizeResult),
-            'EX',
-            600
-        );
+        if (environments.ENABLE_REDIS_CACHE) {
+            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            await this.redisManager?.setToCache(
+                'mempoolSize',
+                JSON.stringify(sizeResult),
+                'EX',
+                7200
+            );
+        }
         return sizeResult;
     }
 }
