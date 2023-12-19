@@ -9,11 +9,8 @@ export const dbSyncDb: PrismaClient = dbSyncDbClient;
 export async function getAverageConfirmationTimeForEpoch(epoch: number) {
     try {
         const avgWaitTimeQuery = Prisma.sql`
-        SELECT AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
-        FROM tx_confirmed tc JOIN (SELECT hash,
-            MIN(received) AS earliest_received
-            FROM tx_log
-            GROUP BY hash) AS tl ON tc.tx_hash = tl.hash
+        SELECT AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tc.received_time))) AS avg_wait_time
+        FROM tx_confirmed tc
         WHERE epoch = ${epoch}
         `;
 
