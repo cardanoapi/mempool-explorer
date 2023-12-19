@@ -8,7 +8,7 @@ import environments from '../../config/environment';
 @Tags('V1 Mempool')
 @Route('/api/v1/mempool')
 class MempoolController extends RedisBaseController<any> {
-    constructor(cronJobTimeInSeconds: number = 600) {
+    constructor(cronJobTimeInSeconds: number = 40) {
         super(cronJobTimeInSeconds);
     }
 
