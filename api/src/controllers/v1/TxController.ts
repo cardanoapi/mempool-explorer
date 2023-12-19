@@ -31,7 +31,7 @@ import environments from '../../config/environment';
 @Tags('V1 Transaction')
 @Route('/api/v1/tx')
 class TxController extends RedisBaseController<any> {
-    constructor(cronJobTimeInSeconds: number = 7200) {
+    constructor(cronJobTimeInSeconds: number = 40) {
         super(cronJobTimeInSeconds);
     }
 
@@ -193,11 +193,8 @@ class TxController extends RedisBaseController<any> {
     protected async fetchDataAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
                 SELECT DATE_TRUNC('day', tc.confirmation_time) AS day,
-                AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tl.earliest_received))) AS avg_wait_time
-                FROM tx_confirmed tc JOIN (SELECT hash,
-                    MIN(received) AS earliest_received
-                    FROM tx_log
-                    GROUP BY hash) AS tl ON tc.tx_hash = tl.hash
+                AVG(EXTRACT(EPOCH FROM (tc.confirmation_time - tc.received_time))) AS avg_wait_time
+                FROM tx_confirmed tc
                 WHERE tc.confirmation_time > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '6 days'
                 GROUP BY day
                 ORDER BY day;
