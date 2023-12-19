@@ -8,22 +8,20 @@ import environments from '../../config/environment';
 @Tags('V1 Pool')
 @Route('/api/v1/pool')
 class PoolController extends RedisBaseController<any> {
-    constructor(cronJobTimeInSeconds: number = 3600) {
+    constructor(cronJobTimeInSeconds: number = 120) {
         super(cronJobTimeInSeconds);
     }
 
     async _getPoolDistributionAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
-                SELECT tc.pool_id,
-                    ROUND(AVG(EXTRACT(EPOCH FROM tc.confirmation_time - tl.earliest_received)), 4) AS avg_wait_time
-                FROM tx_confirmed tc
-                        JOIN (SELECT hash,
-                                    MIN(received) AS earliest_received
-                            FROM tx_log
-                            GROUP BY hash) AS tl ON tl.hash = tc.tx_hash
-                WHERE tc.epoch > (SELECT MAX(epoch) - 5 FROM tx_confirmed)
-                GROUP BY tc.pool_id
-                ORDER BY avg_wait_time DESC;
+        SELECT tc.pool_id,
+        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
+        FROM tx_confirmed tc
+        WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
+                    FROM tx_confirmed))
+         AND received_time IS NOT NULL
+        GROUP BY tc.pool_id
+        ORDER BY avg_wait_time DESC;
                 `;
 
         interface PoolDistributionQueryResult {
@@ -100,12 +98,12 @@ class PoolController extends RedisBaseController<any> {
         });
 
         if (environments.ENABLE_REDIS_CACHE) {
-            // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
+            // Cache the data in Redis with a short expiration time (e.g., 3600 seconds)
             await this.redisManager?.setToCache(
                 'poolDistribution',
                 JSON.stringify(info_result),
                 'EX',
-                7200
+                3600
             );
         }
         return info_result;
@@ -138,21 +136,16 @@ class PoolController extends RedisBaseController<any> {
 
     async _getPoolTimingAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
-                SELECT day,
-                AVG(avg_wait_time) AS overall_avg_wait_time
-                FROM (SELECT DATE_TRUNC('day', tc.confirmation_time)                                        AS day,
-                            ROUND(AVG(EXTRACT(EPOCH FROM tc.confirmation_time - tl.earliest_received)), 4) AS avg_wait_time
-                    FROM tx_confirmed tc
-                            JOIN
-                        (SELECT hash,
-                                MIN(received) AS earliest_received
-                            FROM tx_log
-                            GROUP BY hash) AS tl ON tl.hash = tc.tx_hash
-                    WHERE tc.confirmation_time >= CURRENT_DATE - INTERVAL '6 days'
-                    GROUP BY day, tc.pool_id
-                    ORDER BY day DESC, avg_wait_time DESC) AS k
-                GROUP BY day
-                ORDER BY day;
+        SELECT day,
+        AVG(avg_wait_time) AS overall_avg_wait_time
+        FROM (SELECT DATE_TRUNC('day', tc.confirmation_time)                                    AS day,
+              ROUND(AVG(EXTRACT(EPOCH FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
+        FROM tx_confirmed tc
+        WHERE tc.confirmation_time >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY day, tc.pool_id
+        ORDER BY day DESC, avg_wait_time DESC) AS k
+        GROUP BY day
+        ORDER BY day;
                 `;
 
         interface AverageTransactionTimeQueryResult {
