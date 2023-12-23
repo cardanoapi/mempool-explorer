@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Get, Route, Tags } from 'tsoa';
+import { Get, Path, Query, Route, Tags } from 'tsoa';
 
 import { dbSyncDb, discoveryDb } from '../../queries';
 import { RedisBaseController } from '../../baseControllers/RedisBaseController';
@@ -189,9 +189,123 @@ class PoolController extends RedisBaseController<any> {
             console.log('[Redis:Pool/Timing] Data fetched and cached');
             return data;
         } catch (e) {
-            console.log('/api/db/pool/avg-wait-time', e);
+            console.log('/api/db/pool/', e);
         }
     }
+
+    async _getPoolEpochInfo(poolId: string) {
+        const poolEpochInfoQuery = Prisma.sql`
+        SELECT tc.epoch,
+        count(tx_hash)::integer as tx_count,
+        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
+        FROM tx_confirmed tc
+        WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
+                    FROM tx_confirmed))
+        AND received_time IS NOT NULL
+        AND pool_id = ${poolId}
+        GROUP BY epoch
+        ORDER BY epoch DESC;
+        `;
+        const poolEpochInfoResult = await discoveryDb.$queryRaw(poolEpochInfoQuery);
+        console.log(poolEpochInfoResult);
+        return poolEpochInfoResult;
+    }
+
+    @Get("/{poolId}/epoch")
+    async getPoolEpochInfo(
+        @Path("poolId") poolId: string
+    ) {
+        console.log("here")
+        try {
+            const data = await this._getPoolEpochInfo(poolId);
+            return data;
+        } catch (e) {
+            console.log('/api/db/pool/', e);
+        }
+    }
+
+    async _getPoolTransactions(poolId: string, pageNumber: number) {
+        const poolEpochInfoQuery = Prisma.sql`
+        SELECT encode(tx_hash,'hex') AS tx_hash,
+        epoch,
+        slot_no,
+        block_no,
+        received_time,
+        confirmation_time,
+        EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) AS wait_time
+        FROM tx_confirmed tc
+        WHERE pool_id = ${poolId}
+        ORDER BY confirmation_time DESC
+        limit 100 offset ${(pageNumber - 1) * 100};
+        `;
+        const poolTransactionsResult =
+            await discoveryDb.$queryRaw(poolEpochInfoQuery);
+        return poolTransactionsResult;
+    }
+
+    @Get("/{poolId}/transactions")
+    async getPoolTransactions(
+        @Path() poolId: string,
+        @Query() pageNumber: number
+    ) {
+        try {
+            const data = await this._getPoolTransactions(poolId, pageNumber);
+            return data;
+        } catch (e) {
+            console.log('/api/db/pool/', e);
+        }
+    }
+
+    async _getPoolTransactionTiming(poolId: string) {
+        const poolTxTimingQuery = Prisma.sql`
+        -- Generate series of intervals
+        WITH IntervalSeries AS (SELECT generate_series(0, 200, 20)  AS start_range,
+                                       generate_series(20, 200, 20) AS end_range)
+        
+        -- Classify transactions into intervals based on wait times
+           , Intervals AS (SELECT CASE
+                                      WHEN EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) BETWEEN start_range AND end_range
+                                          THEN
+                                          CONCAT(start_range, '-', end_range)
+                                      ELSE '200+'
+                                      END AS wait_interval,
+                                  tc.tx_hash
+                           FROM tx_confirmed tc
+                                    JOIN IntervalSeries iss
+                                         ON EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) BETWEEN iss.start_range AND iss.end_range
+                           WHERE EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) > 0
+                             AND tc.epoch > (SELECT max(tx_confirmed.epoch) - 5 FROM tx_confirmed)
+                             AND tc.pool_id = ${poolId})
+        
+        -- Aggregate based on intervals and calculate statistics
+        SELECT wait_interval                                                    AS interval_range,
+               COUNT(tc.tx_hash)::integer                                       AS transaction_count
+        FROM Intervals
+                 LEFT JOIN tx_confirmed tc ON Intervals.tx_hash = tc.tx_hash
+        GROUP BY wait_interval
+        ORDER BY MIN(CASE
+                         WHEN wait_interval = '200+' THEN 1000 -- Assuming a very large number for sorting purposes
+                         ELSE CAST(SPLIT_PART(wait_interval, '-', 1) AS INT)
+            END);
+        
+        `;
+        const poolTxTimingResult =
+            await discoveryDb.$queryRaw(poolTxTimingQuery);
+        return poolTxTimingResult;
+    }
+
+    @Get("/{poolId}/transaction-timing")
+    async getPoolTransactionTiming(
+        @Path() poolId: string,
+    ) {
+        try {
+            const data = await this._getPoolTransactionTiming(poolId);
+            return data;
+        } catch (e) {
+            console.log('/api/db/pool/', e);
+        }
+    }
+
 
     protected async fetchDataAndUpdateCache() {
         this._getPoolDistributionAndUpdateCache()
