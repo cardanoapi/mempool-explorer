@@ -151,31 +151,9 @@ offset.fetchLatestOffsets(
               // publish this event to the client
             }
 
-            const decoder = new Decoder();
-            const data = decoder.decode(totaldata)
-            const event_type = data[0];
-            // TODO : Refactor/merge with above if-else code
-            let mempoolSize;
-            let received_index = 0;
-            let received = new Date();
-
-            if (event_type == "remove") {
-              mempoolSize = data[1][0][1];
-              received_index = data[1][0][0];
-            } else if (event_type == "reject") {
-              mempoolSize = data[2][0][1];
-              received_index = data[2][0][0];
-            } else {
-              mempoolSize = data[3][0][1];
-              received_index = data[3][0][0];
+            if (process.env.SAVE_TO_MEMPOOL_LOG == 'True') {
+              saveMempoolSizeData(totaldata);
             }
-
-            dbClient.$executeRaw`INSERT INTO mempool_log (received_date, received_index, type, mempool_size) VALUES
-              (${received}, ${received_index}, ${event_type}, ${mempoolSize})`.then((res) => {
-              console.log("Mempool log inserted successfully");
-            }).catch((err) => {
-              console.log(err);
-            });
 
 
             Object.values(connections).forEach((connection: WebSocket & { id: number }) => {
@@ -193,3 +171,32 @@ offset.fetchLatestOffsets(
     );
   }
 );
+
+function saveMempoolSizeData(totaldata: any) {
+  const decoder = new Decoder();
+  const data = decoder.decode(totaldata);
+  const event_type = data[0];
+  // TODO : Refactor/merge with above if-else code
+  let mempoolSize;
+  let received_index = 0;
+  let received = new Date();
+
+  if (event_type == "remove") {
+    mempoolSize = data[1][0][1];
+    received_index = data[1][0][0];
+  } else if (event_type == "reject") {
+    mempoolSize = data[2][0][1];
+    received_index = data[2][0][0];
+  } else {
+    mempoolSize = data[3][0][1];
+    received_index = data[3][0][0];
+  }
+
+  dbClient.$executeRaw`INSERT INTO mempool_log (received_date, received_index, type, mempool_size) VALUES
+              (${received}, ${received_index}, ${event_type}, ${mempoolSize})`.then((res) => {
+    console.log("Mempool log inserted successfully");
+  }).catch((err) => {
+    console.log(err);
+  });
+}
+
