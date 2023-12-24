@@ -7349,6 +7349,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "axios@npm:1.6.2"
+  dependencies:
+    follow-redirects: "npm:^1.15.0"
+    form-data: "npm:^4.0.0"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 9b77e030e85e4f9cbcba7bb52fbff67d6ce906c92d213e0bd932346a50140faf83733bf786f55bd58301bd92f9973885c7b87d6348023e10f7eaf286d0791a1d
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^3.1.1":
   version: 3.2.1
   resolution: "axobject-query@npm:3.2.1"
@@ -8272,6 +8283,7 @@ __metadata:
     "@types/uuid": "npm:^8.3.4"
     "@types/ws": "npm:^8.5.5"
     autoprefixer: "npm:10.4.14"
+    axios: "npm:^1.6.2"
     bech32: "npm:^2.0.0"
     blake2: "npm:^5.0.0"
     bufferutil: "npm:^4.0.7"
