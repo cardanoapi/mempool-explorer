@@ -76,7 +76,7 @@ class TxController extends RedisBaseController<any> {
             competing = await fetchTheArrivalTime(competing);
             const detail = {
                 tx: txbody,
-                arrivalTime: arrivalTime?.received?.toString() ?? 'N/A',
+                arrivalTime: arrivalTime?.received ?? 'N/A',
                 followups,
                 competing,
                 inputAddress: resolvedTransactionToAddressObj,
