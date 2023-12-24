@@ -22,7 +22,7 @@ type MempoolSizeData = {
     size: number;
 };
 
-export default function DashboardMempoolBanner() {
+export default function MempoolInfo() {
     const [mempoolSizeDataLables, setMempoolSizeDataLables] = useState<string[]>([]);
     const [mempoolSizeDataValues, setMempoolSizeDataValues] = useState<number[]>([]);
     const [avgMempoolSize, setAvgMempoolSize] = useState<string | undefined>(undefined);
