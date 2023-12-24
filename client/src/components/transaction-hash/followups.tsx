@@ -2,17 +2,14 @@ import { useEffect, useState } from 'react';
 
 import { useParams } from 'next/navigation';
 
-import { Buffer } from 'buffer';
-import { decode } from 'cbor-x';
-
 import EmptyPageIcon from '@app/assets/svgs/empty-page-icon';
-import { checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
 import { ErrorType } from '@app/components/transaction-hash/transaction-input-output';
 import { DateTimeCustomoptions } from '@app/constants/constants';
 import Layout from '@app/shared/layout';
 import { Heading, toMidDottedStr } from '@app/utils/string-utils';
 import { convertFollowupsToClientSide } from '@app/utils/transaction-details-utils';
+import api from '@app/api/axios';
 
 interface FollowupPropType {
     followups: any;
@@ -28,10 +25,8 @@ export default function Followups(props: FollowupPropType) {
     const { setError, showLoader, hideLoader } = useLoader();
 
     const getConfirmation = async (queryString: string) => {
-        const response = await fetch(`/api/v1/tx/confirmation?${queryString}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
+        const res = await api.get(`/tx/confirmation?${queryString}`);
+        return res.data;
     };
 
     function addConfirmationStatusToIncomingApiResponse(apiResponse: any, confirmationResponse: any) {
@@ -40,8 +35,8 @@ export default function Followups(props: FollowupPropType) {
             let confirmation_time = 'N/A';
             // iterate through each confirmation response and check the tx hash tallying
             for (let i = 0; i < confirmationResponse.length; i++) {
-                const txHash = Buffer.from(tx.hash).toString('hex');
-                const confirmationHash = Buffer.from(confirmationResponse[i].tx_hash).toString('hex');
+                const txHash = tx.hash;
+                const confirmationHash = confirmationResponse[i].tx_hash;
                 if (txHash === confirmationHash) {
                     confirmation_status = true;
                     confirmation_time = confirmationResponse[i].block_time;
@@ -57,7 +52,7 @@ export default function Followups(props: FollowupPropType) {
     }
 
     async function getTransactionHashesOfEachFollowups() {
-        const hashes = props?.followups.map((tx: any) => 'hash=' + Buffer.from(tx.hash).toString('hex'));
+        const hashes = props?.followups.map((tx: any) => 'hash=' + tx.hash);
         if (!hashes.length) {
             return props.followups;
         }
@@ -105,7 +100,12 @@ export default function Followups(props: FollowupPropType) {
                         {Object.keys(dataObj).map((key) => (
                             <div key={key} className={'flex items-center mt-1 text-sm gap-1'}>
                                 {key !== 'confirmation_status' && <p className={'text-gray-600 mr-1'}>{key}</p>}
-                                {key !== 'confirmation_status' && <p className={'text-gray-500 font-xs font-bold'}>{key === 'hash' ? toMidDottedStr(dataObj[key]) : dataObj[key]}</p>}
+                                {key !== 'confirmation_status' && <p className={'text-gray-500 font-xs font-bold'}>{
+                                    key === 'hash' ?
+                                        <a href={"/transactions/" + dataObj[key]}>{dataObj[key]}</a>
+
+                                        : dataObj[key]
+                                }</p>}
                             </div>
                         ))}
                     </div>
