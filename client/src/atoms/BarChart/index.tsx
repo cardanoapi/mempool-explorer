@@ -12,12 +12,13 @@ interface IBarChartProps {
     data: Array<string | number>;
     secondData?: Array<string | number>;
     tickText: string;
+    hoverTextPrefix?: string;
     suggestedMin?: number;
     suggestedMax?: number;
     stepSize?: number;
 }
 
-export default function BarChart({ labels, data, tickText, secondData, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBarChartProps) {
+export default function BarChart({ labels, data, tickText, hoverTextPrefix, secondData, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBarChartProps) {
     const [datasets, setDatasets] = React.useState<Array<any>>([
         {
             data,
@@ -107,7 +108,7 @@ export default function BarChart({ labels, data, tickText, secondData, suggested
                             },
                             footer(tooltipItems) {
                                 const yValue = tooltipItems[0].parsed.y;
-                                return `${yValue} ${tickText}`;
+                                return `${yValue} ${hoverTextPrefix}`;
                             }
                         },
                         footerFont: {
@@ -128,24 +129,27 @@ export default function BarChart({ labels, data, tickText, secondData, suggested
                 color: '#E6E6E6',
                 scales: {
                     x: {
-                        beginAtZero: true,
+                        // beginAtZero: true,
+                        // 
+
                         grid: {
                             color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color,
                         }
                     },
                     y: {
-                        // beginAtZero: true,
+                        beginAtZero: true,
                         ticks: {
                             stepSize, // Adjust the stepSize as needed
                             callback: function (value, index, ticks) {
                                 return `${value} ${tickText}`;
                             }
                         },
+                        suggestedMin,
+                        suggestedMax,
                         grid: {
                             color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color
                         },
-                        suggestedMin,
-                        suggestedMax
+
                     }
                 }
             }}
