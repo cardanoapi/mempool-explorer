@@ -26,7 +26,7 @@ router.get('/:poolId/transactions', async (req, res) => {
     res.json(response);
 });
 
-router.get('/:poolId/transaction-timing', async (req, res) => {
+router.get('/:poolId/timing', async (req, res) => {
     const response = await poolController.getPoolTransactionTiming(req.params.poolId);
     res.json(response);
 });
