@@ -20,6 +20,7 @@ class PoolController extends RedisBaseController<any> {
         WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
                     FROM tx_confirmed))
          AND received_time IS NOT NULL
+         AND EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) > 0
         GROUP BY tc.pool_id
         ORDER BY avg_wait_time DESC;
                 `;
