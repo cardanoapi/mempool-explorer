@@ -6,19 +6,21 @@ import _ from 'lodash';
 
 import GradientBanner from '@app/atoms/GradientBanner';
 import GradientHealthBar from '@app/atoms/GradientHealthBar';
-import DashboardStakePoolsBanner from '@app/molecules/DashboardStakePoolsBanner';
+import StakePoolTiming from '@app/molecules/DashboardStakePoolsInfo';
 
 
 type PoolDistribution = {
     pool_id: string;
     name: string;
     ticker_name: string;
-    avg_wait_time: number;
+    url: string;
+    avg_wait_time: string;
 };
 
-export default function PoolDistributionGroup() {
+export default function StakePoolsInfo() {
     const [poolData, setPoolData] = useState<PoolDistribution[]>();
     const [poolDistribution, setPoolDistribution] = useState<any[]>();
+    const [avgWaitTime, setAvgWaitTime] = useState<string>();
 
     const getPoolDistribution = async () => {
         const response = await fetch('/api/v1/pool/distribution');
@@ -29,7 +31,9 @@ export default function PoolDistributionGroup() {
         getPoolDistribution()
             .then((res) => {
                 setPoolData(res);
-                const percentaileData = mapToPercentiles(res);
+                const waitTimes = res.map((item: PoolDistribution) => parseFloat(item.avg_wait_time));
+                setAvgWaitTime(_.mean(waitTimes).toFixed(2));
+                const percentaileData = mapToPercentiles(waitTimes, res);
                 const data = Object.keys(percentaileData).map((key) => {
                     const resultArray = percentaileData[key].map((pool: any) => ({
                         text: pool.name,
@@ -86,14 +90,13 @@ export default function PoolDistributionGroup() {
                     </div>
                 </div>
             </GradientBanner>
-            <DashboardStakePoolsBanner poolData={poolData && Array.isArray(poolData) ? poolData?.slice(0, 10) : []} />
+            <StakePoolTiming avgWaitTime={avgWaitTime} poolData={poolData && Array.isArray(poolData) ? poolData?.slice(0, 12) : []} />
         </div>
     );
 }
 
-function mapToPercentiles(data: any) {
+function mapToPercentiles(waitTimes: number[], data: any[]) {
     // Extract the wait times and calculate the min and max values
-    const waitTimes = data.map((item: any) => item.avg_wait_time);
     const minValue = Math.min(...waitTimes);
     const maxValue = Math.max(...waitTimes);
     const rangeSize = (maxValue - minValue) / 10;
@@ -104,7 +107,7 @@ function mapToPercentiles(data: any) {
         const lowerBound = maxValue - i * rangeSize;
         const upperBound = maxValue - (i + 1) * rangeSize;
         const percentileKey = `${100 - i * 10}-${90 - i * 10}`;
-        result[percentileKey] = data.filter((item: any) => item.avg_wait_time <= lowerBound && item.avg_wait_time > upperBound);
+        result[percentileKey] = data.filter((item: any) => parseFloat(item.avg_wait_time) <= lowerBound && parseFloat(item.avg_wait_time) > upperBound);
     }
     return result;
 }
