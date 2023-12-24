@@ -8,7 +8,7 @@ import environments from '../../config/environment';
 @Tags('V1 Pool')
 @Route('/api/v1/pool')
 class PoolController extends RedisBaseController<any> {
-    constructor(cronJobTimeInSeconds: number = 120) {
+    constructor(cronJobTimeInSeconds: number = 30) {
         super(cronJobTimeInSeconds);
     }
 
@@ -135,17 +135,51 @@ class PoolController extends RedisBaseController<any> {
     }
 
     async _getPoolTimingAndUpdateCache() {
-        const avgTxCountQuery = Prisma.sql`
-        SELECT day,
-        AVG(avg_wait_time) AS overall_avg_wait_time
-        FROM (SELECT DATE_TRUNC('day', tc.confirmation_time)                                    AS day,
-              ROUND(AVG(EXTRACT(EPOCH FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
-        FROM tx_confirmed tc
-        WHERE tc.confirmation_time >= CURRENT_DATE - INTERVAL '6 days'
-        GROUP BY day, tc.pool_id
-        ORDER BY day DESC, avg_wait_time DESC) AS k
-        GROUP BY day
-        ORDER BY day;
+        const poolTimingQuery = Prisma.sql`
+        -- Generate a series of intervals
+        WITH IntervalSeries AS (SELECT generate_series(0, 140, 10)  AS start_range,
+                                       generate_series(10, 140, 10) AS end_range),
+        
+        -- Compute average wait time for each pool_id and bucket into intervals
+             AvgWaitTimePerPool AS (SELECT tc.pool_id,
+                                           CASE
+                                               WHEN AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) <= 140 THEN
+                                                   CONCAT(
+                                                               FLOOR(AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 10) *
+                                                               10,
+                                                               '-',
+                                                               FLOOR(AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 10) *
+                                                               10 + 10)
+                                               ELSE
+                                                   '140+'
+                                               END AS wait_interval
+                                    FROM tx_confirmed tc
+                                    WHERE tc.received_time IS NOT NULL
+                                      AND tc.epoch > (SELECT max(tx_confirmed.epoch) - 5 FROM tx_confirmed)
+                                    GROUP BY tc.pool_id),
+        
+        -- Aggregate based on intervals and calculate statistics
+             AggregatedData AS (SELECT wait_interval           AS interval_range,
+                                       COUNT(pool_id)::integer AS pool_count
+                                FROM AvgWaitTimePerPool
+                                GROUP BY wait_interval),
+        
+        -- Generate a full list of intervals
+             FullIntervals AS (SELECT CONCAT(start_range, '-', end_range) AS full_interval
+                               FROM IntervalSeries
+                               WHERE end_range <= 140
+                               UNION
+                               SELECT '140+')
+        
+        -- Join with full intervals to ensure all intervals are represented
+        SELECT fi.full_interval AS interval_range, COALESCE(ad.pool_count, 0) AS pool_count
+        FROM FullIntervals fi
+                 LEFT JOIN AggregatedData ad ON fi.full_interval = ad.interval_range
+        ORDER BY CASE
+                     WHEN fi.full_interval = '140+' THEN 1000 -- Assuming a very large number for sorting purposes
+                     ELSE CAST(SPLIT_PART(fi.full_interval, '-', 1) AS INT)
+                     END;
+        
                 `;
 
         interface AverageTransactionTimeQueryResult {
@@ -153,19 +187,19 @@ class PoolController extends RedisBaseController<any> {
             overall_avg_wait_time: string;
         }
 
-        const avgTxCountResult: AverageTransactionTimeQueryResult[] =
-            await discoveryDb.$queryRaw(avgTxCountQuery);
+        const poolTimingResult: AverageTransactionTimeQueryResult[] =
+            await discoveryDb.$queryRaw(poolTimingQuery);
 
         if (environments.ENABLE_REDIS_CACHE) {
             // Cache the data in Redis with a short expiration time (e.g., 7200 seconds)
             await this.redisManager?.setToCache(
                 'poolTiming',
-                JSON.stringify(avgTxCountResult),
+                JSON.stringify(poolTimingResult),
                 'EX',
                 7200
             );
         }
-        return avgTxCountResult;
+        return poolTimingResult;
     }
 
     @Get('/timing')
@@ -197,7 +231,7 @@ class PoolController extends RedisBaseController<any> {
         const poolEpochInfoQuery = Prisma.sql`
         SELECT tc.epoch,
         count(tx_hash)::integer as tx_count,
-        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
+        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 2) AS avg_wait_time
         FROM tx_confirmed tc
         WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
                     FROM tx_confirmed))
@@ -236,7 +270,7 @@ class PoolController extends RedisBaseController<any> {
         FROM tx_confirmed tc
         WHERE pool_id = ${poolId}
         ORDER BY confirmation_time DESC
-        limit 100 offset ${(pageNumber - 1) * 100};
+        limit 10 offset ${(pageNumber - 1) * 10};
         `;
         const poolTransactionsResult =
             await discoveryDb.$queryRaw(poolEpochInfoQuery);
@@ -258,43 +292,58 @@ class PoolController extends RedisBaseController<any> {
 
     async _getPoolTransactionTiming(poolId: string) {
         const poolTxTimingQuery = Prisma.sql`
-        -- Generate series of intervals
-        WITH IntervalSeries AS (SELECT generate_series(0, 200, 20)  AS start_range,
-                                       generate_series(20, 200, 20) AS end_range)
-        
+        -- Generate a series of intervals
+        WITH IntervalSeries AS (SELECT generate_series(0, 220, 20)  AS start_range,
+                               generate_series(20, 240, 20) AS end_range)
+
         -- Classify transactions into intervals based on wait times
-           , Intervals AS (SELECT CASE
-                                      WHEN EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) BETWEEN start_range AND end_range
-                                          THEN
-                                          CONCAT(start_range, '-', end_range)
-                                      ELSE '200+'
-                                      END AS wait_interval,
-                                  tc.tx_hash
-                           FROM tx_confirmed tc
-                                    JOIN IntervalSeries iss
-                                         ON EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) BETWEEN iss.start_range AND iss.end_range
-                           WHERE EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) > 0
-                             AND tc.epoch > (SELECT max(tx_confirmed.epoch) - 5 FROM tx_confirmed)
-                             AND tc.pool_id = ${poolId})
-        
+        , Intervals AS (SELECT CASE
+                              WHEN EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) <= 200 THEN
+                                  CONCAT(FLOOR(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) / 20) * 20,
+                                         '-',
+                                         FLOOR(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) / 20) * 20 +
+                                         20)
+                              ELSE
+                                  '200+'
+                              END AS wait_interval,
+                          tc.tx_hash
+                   FROM tx_confirmed tc
+                   WHERE tc.received_time IS NOT NULL
+                     AND tc.epoch > (SELECT max(tx_confirmed.epoch) - 5 FROM tx_confirmed)
+                     AND tc.pool_id = ${poolId})
+
         -- Aggregate based on intervals and calculate statistics
-        SELECT wait_interval                                                    AS interval_range,
-               COUNT(tc.tx_hash)::integer                                       AS transaction_count
-        FROM Intervals
-                 LEFT JOIN tx_confirmed tc ON Intervals.tx_hash = tc.tx_hash
-        GROUP BY wait_interval
-        ORDER BY MIN(CASE
-                         WHEN wait_interval = '200+' THEN 1000 -- Assuming a very large number for sorting purposes
-                         ELSE CAST(SPLIT_PART(wait_interval, '-', 1) AS INT)
-            END);
-        
+        , AggregatedData AS (SELECT wait_interval              AS interval_range,
+                               COUNT(tc.tx_hash)::integer AS transaction_count
+                        FROM Intervals
+                                 LEFT JOIN
+                             tx_confirmed tc ON Intervals.tx_hash = tc.tx_hash
+                        GROUP BY wait_interval)
+
+        -- Generate a full list of intervals
+        , FullIntervals AS (SELECT CONCAT(start_range, '-', end_range) AS full_interval
+                       FROM IntervalSeries
+                       WHERE end_range <= 200
+                       UNION
+                       SELECT '200+')
+
+        -- Join with full intervals to ensure all intervals are represented
+        SELECT fi.full_interval AS interval_range, COALESCE(ad.transaction_count, 0) AS transaction_count
+        FROM FullIntervals fi
+                LEFT JOIN
+            AggregatedData ad
+            ON fi.full_interval = ad.interval_range
+        ORDER BY CASE
+             WHEN fi.full_interval = '200+' THEN 1000 -- Assuming a very large number for sorting purposes
+             ELSE CAST(SPLIT_PART(fi.full_interval, '-', 1) AS INT)
+             END;
         `;
         const poolTxTimingResult =
             await discoveryDb.$queryRaw(poolTxTimingQuery);
         return poolTxTimingResult;
     }
 
-    @Get("/{poolId}/transaction-timing")
+    @Get("/{poolId}/timing")
     async getPoolTransactionTiming(
         @Path() poolId: string,
     ) {
