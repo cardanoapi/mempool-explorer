@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { useParams } from 'next/navigation';
 
-import { decode } from 'cbor-x';
 
 import CopyIcon from '@app/atoms/Icon/Copy';
 import TxIcon from '@app/atoms/Icon/Tx';
@@ -19,17 +18,16 @@ import BannerStatCard, { ConfirmBannerStatCard } from '@app/molecules/BannerStat
 import BannerTitle from '@app/molecules/BannerTitle';
 import TxInputOutput from '@app/organisms/TxInputOutput';
 import { copyToClipboard } from '@app/utils/utils';
+import api from '@app/api/axios';
 
 
-enum MinerEnum {
-    block_hash = 'Block Hash',
-    block_no = 'Block Number',
-    block_time = 'Block Time',
-    epoch = 'Epoch',
-    in_addrs = 'Address',
-    pool_id = 'Pool Id',
-    slot_no = 'Slot Number',
-    tx_hash = 'Transaction Hash'
+type ConfirmationDetails = {
+    block_hash: string;
+    block_no: number;
+    slot_no: number;
+    block_time: string;
+    epoch: number;
+    pool_id: string;
 }
 
 type TransactionDetailsInterface = {
@@ -50,6 +48,7 @@ enum TransactionStatus {
 
 export default function TransactionDetails() {
     const router = useParams();
+    const tx_hash = router.id;
 
     const { isLoading, showLoader, hideLoader, error, setError } = useLoader();
 
@@ -57,91 +56,84 @@ export default function TransactionDetails() {
     const [waitTime, setWaitTime] = useState<number>(); // wait time in seconds
     const [arrivalTime, setArrivalTime] = useState<string>();
     const [confirmationTime, setConfirmationTime] = useState<string>();
-    const [miner, setMiner] = useState<any>(null);
+    const [miner, setMiner] = useState<ConfirmationDetails>();
 
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(TransactionStatus.pending);
 
     const getTransactionDetails = async (hash: string | string[]) => {
-        const response = await fetch(`/api/v1/tx/${hash}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
+        const res = await api.get(`/tx/${hash}`);
+        return res.data;
     };
 
     const getMinerDetails = async (hash: string | string[]) => {
-        const response = await fetch(`/api/v1/tx/confirmation?hash=${hash}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
+        const res = await api.get(`tx/confirmation?hash=${hash}`);
+        return res.data;
     };
 
     useEffect(() => {
-        showLoader();
         let minerDetails: any;
-        if (router?.id) {
-            getMinerDetails(router.id)
-                .then((d) => {
-                    if (!d.length) {
-                        setMiner([]);
-                        setTransactionStatus(TransactionStatus.pending);
-                    } else {
-                        setTransactionStatus(TransactionStatus.confirmed);
-                        const date = new Date(d[0]?.block_time);
-                        const clientSideObj = {
-                            [MinerEnum.block_no]: d[0]?.block_no.toString(),
-                            [MinerEnum.epoch]: d[0]?.epoch.toString(),
-                            [MinerEnum.slot_no]: parseInt(d[0]?.slot_no).toString(),
-                            [MinerEnum.block_hash]: d[0]?.block_hash ? Buffer.from(d[0].block_hash).toString('hex') : '',
-                            [MinerEnum.block_time]: new Intl.DateTimeFormat('en-US', DateTimeCustomoptions).format(date),
-                            [MinerEnum.pool_id]: d[0]?.pool_id.toString(),
-                            [MinerEnum.tx_hash]: d[0]?.tx_hash ? Buffer.from(d[0].tx_hash).toString('hex') : '',
-                            confirmationTime: d[0]?.block_time
-                        };
-                        minerDetails = clientSideObj;
-                        setMiner(clientSideObj);
-                    }
-                })
-                .catch((e: any) => {
-                    console.error(e);
-                    setError({
-                        message: e?.message ?? '',
-                        status: e?.code
-                    });
-                })
-                .finally(() => {
-                    getTransactionDetails(router.id)
-                        .then((d) => {
-                            const arrivalTime = new Date(d?.arrivalTime);
-                            const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
-                            const currentTimeUtc = new Date(new Date().toUTCString());
-                            let waitTime;
-                            if (minerDetails) {
-                                console.log('miner');
-                                const confirmTime = new Date(minerDetails.confirmationTime);
-                                const confirmTimeUtc = new Date(confirmTime.toUTCString());
-                                waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime();
-                                setConfirmationTime(formatDate(confirmTime));
-                            } else {
-                                waitTime = currentTimeUtc.getTime() - arrivalTimeUtc.getTime();
-                            }
-                            waitTime = Math.floor(waitTime / 1000);
-                            //TODO : Refactor this code to merge wait, arrival time in transaction details object
-                            setWaitTime(waitTime);
-                            setArrivalTime(formatDate(arrivalTime));
-                            setTransactionDetails(d);
-                        })
-                        .catch((e: any) => {
-                            console.error(e);
-                            setError({
-                                message: e?.message ?? '',
-                                status: e?.code
-                            });
-                        })
-                        .finally(() => hideLoader());
+        showLoader();
+        getMinerDetails(tx_hash)
+            .then((minerData) => {
+                if (!minerData.length) {
+                    setTransactionStatus(TransactionStatus.pending);
+                } else {
+                    setTransactionStatus(TransactionStatus.confirmed);
+                    const miner = minerData[0];
+                    // const date = new Date(miner?.block_time);
+                    // const clientSideObj = {
+                    //     [MinerEnum.block_no]: d[0]?.block_no.toString(),
+                    //     [MinerEnum.epoch]: d[0]?.epoch.toString(),
+                    //     [MinerEnum.slot_no]: parseInt(d[0]?.slot_no).toString(),
+                    //     [MinerEnum.block_hash]: d[0]?.block_hash ? Buffer.from(d[0].block_hash).toString('hex') : '',
+                    //     [MinerEnum.block_time]: new Intl.DateTimeFormat('en-US', DateTimeCustomoptions).format(date),
+                    //     [MinerEnum.pool_id]: d[0]?.pool_id.toString(),
+                    //     [MinerEnum.tx_hash]: d[0]?.tx_hash ? Buffer.from(d[0].tx_hash).toString('hex') : '',
+                    //     confirmationTime: d[0]?.block_time
+                    // };
+                    minerDetails = miner;
+                    setMiner(miner);
+                }
+            })
+            .catch((e: any) => {
+                console.error(e);
+                setError({
+                    message: e?.message ?? '',
+                    status: e?.code
                 });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router?.id]);
+            })
+            .finally(() => {
+                getTransactionDetails(tx_hash)
+                    .then((d) => {
+                        const arrivalTime = new Date(d?.arrivalTime);
+                        const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
+                        const currentTimeUtc = new Date(new Date().toUTCString());
+                        let waitTime;
+                        if (minerDetails) {
+                            const confirmTime = new Date(minerDetails.block_time);
+                            const confirmTimeUtc = new Date(confirmTime.toUTCString());
+                            waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime();
+                            setConfirmationTime(formatDate(confirmTime));
+                        } else {
+                            waitTime = currentTimeUtc.getTime() - arrivalTimeUtc.getTime();
+                        }
+                        waitTime = Math.floor(waitTime / 1000);
+                        //TODO : Refactor this code to merge wait, arrival time in transaction details object
+                        setWaitTime(waitTime);
+                        setArrivalTime(formatDate(arrivalTime));
+                        setTransactionDetails(d);
+                    })
+                    .catch((e: any) => {
+                        console.error(e);
+                        setError({
+                            message: e?.message ?? '',
+                            status: e?.code
+                        });
+                    })
+                    .finally(() => hideLoader());
+            });
+
+    }, [tx_hash]);
 
     const isTransactionPending = transactionStatus === TransactionStatus.pending;
     const isTransactionConfirmed = transactionStatus === TransactionStatus.confirmed;
@@ -156,8 +148,8 @@ export default function TransactionDetails() {
                     </button>
                     <div className="py-4 md:py-10">
                         <p className="text-lg md:text-xl font-medium">{isTransactionPending ? 'Initiation' : 'Pool ID'}</p>
-                        <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(miner ? miner[MinerEnum.pool_id] : '-', 'Pool ID')}>
-                            <p className="text-base font-normal text-[#B9B9B9] break-all">{isTransactionPending ? 'No Initiator available' : miner[MinerEnum.pool_id]}</p>
+                        <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(miner ? miner.pool_id : '-', 'Pool ID')}>
+                            <p className="text-base font-normal text-[#B9B9B9] break-all">{isTransactionPending ? 'No Initiator available' : miner?.pool_id}</p>
                             <CopyIcon />
                         </button>
                     </div>
@@ -178,9 +170,9 @@ export default function TransactionDetails() {
                                     <div className="ml-4 text-black text-2xl font-medium">Confirmation Details</div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                                         <>
-                                            <ConfirmBannerStatCard title="Epoch" value={miner[MinerEnum.epoch]} />
-                                            <ConfirmBannerStatCard title="Slot No." value={miner[MinerEnum.slot_no]} />
-                                            <ConfirmBannerStatCard title="Block No." value={miner[MinerEnum.block_no]} />
+                                            <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
+                                            <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
+                                            <ConfirmBannerStatCard title="Block No." value={miner?.block_no ?? ''} />
                                             <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
                                         </>
                                     </div>
@@ -203,7 +195,7 @@ export default function TransactionDetails() {
                         <Competitors isLoading={isLoading} error={error} competing={transactionDetails?.competing} />
                     </div>
                     <div className="border-b-[1px] boder-b-[#666666]">
-                        <TableTitle title="Follow" className="px-4 py-6 lg:px-10 lg:py-8" />
+                        <TableTitle title="Follow Ups" className="px-4 py-6 lg:px-10 lg:py-8" />
                         <Followups isLoading={isLoading} error={error} followups={transactionDetails?.followups} />
                     </div>
                 </div>

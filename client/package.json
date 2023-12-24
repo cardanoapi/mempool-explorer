@@ -32,6 +32,7 @@
     "@reduxjs/toolkit": "^1.9.5",
     "@stomp/stompjs": "^7.0.0",
     "@types/uuid": "^8.3.4",
+    "axios": "^1.6.2",
     "bech32": "^2.0.0",
     "blake2": "^5.0.0",
     "cbor-web": "^9.0.0",

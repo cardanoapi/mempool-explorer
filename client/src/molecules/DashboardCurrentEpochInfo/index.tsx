@@ -6,6 +6,7 @@ import _ from 'lodash';
 
 import GradientBanner from '@app/atoms/GradientBanner';
 import LineChart from '@app/atoms/LineChart';
+import { getEpochDetails } from '@app/api/epoch';
 
 
 type EpochDetails = {
@@ -21,16 +22,9 @@ type TxTiming = {
     avg_wait_time: string;
 };
 
-interface IDashboardBannerProps {
-    readonly className?: string;
-}
-
-export default function DashboardBanner({ className = '' }: IDashboardBannerProps) {
+export default function CurrentEpochInfo() {
     const [currentEpoch, setCurrentEpoch] = useState<EpochDetails>({});
-    const getEpochDetails = async () => {
-        const response = await fetch('/api/v1/epoch/current');
-        return await response.json();
-    };
+
     useEffect(() => {
         getEpochDetails()
             .then((d) => {

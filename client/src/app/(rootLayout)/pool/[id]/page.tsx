@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { decode } from 'cbor-x';
 import CopyIcon from '@app/atoms/Icon/Copy';
 import TxIcon from '@app/atoms/Icon/Tx';
@@ -15,6 +15,12 @@ import TableHeader from '@app/atoms/TableHeader';
 import TableEmptyElement from '@app/atoms/TableEmptyElement';
 import GradientTypography from '@app/atoms/GradientTypography';
 import PoolIcon from '@app/atoms/Icon/Pool';
+import { useParams } from 'next/navigation';
+import BarChart from '@app/atoms/BarChart';
+import { set } from 'lodash';
+import api from '@app/api/axios';
+import { getEpochDetails } from '@app/api/epoch';
+import _ from 'lodash';
 
 
 type TransactionDetailsInterface = {
@@ -33,54 +39,118 @@ enum TransactionStatus {
     rejected = 'Rejected'
 }
 
-export default function UserProfile() {
+type PoolTimingInterface = {
+    interval_range: string;
+    transaction_count: number;
+}
 
-    const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
-    const [waitTime, setWaitTime] = useState<number>(); // wait time in seconds
-    const [arrivalTime, setArrivalTime] = useState<string>();
-    const [confirmationTime, setConfirmationTime] = useState<string>();
-    const [miner, setMiner] = useState<any>(null);
+export default function PoolDetails() {
 
-    const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(TransactionStatus.pending);
+    const router = useParams();
+    const poolId = router.id as string;
 
-    const getTransactionDetails = async (hash: string | string[]) => {
-        const response = await fetch(`/api/v1/tx/${hash}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
-    };
-
-    const getMinerDetails = async (hash: string | string[]) => {
-        const response = await fetch(`/api/v1/tx/confirmation?hash=${hash}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
-    };
-
-    const txHistoryColumns = ['Transaction Hash', 'Input', 'Output', 'Wait Time', 'Epoch', 'Slot No', 'Block No', 'Confirmation Time'];
-
-    const latestEpochColumns = ['Epoch', 'Transactions', 'Avg. Wait Time'];
-
+    const [poolTimingIntervalRanges, setPoolTimingIntervalRanges] = useState<string[]>([]);
+    const [poolTimingTxCount, setPoolTimingTxCount] = useState<number[]>([]);
     const [transactions, setTransactions] = useState<any[]>([]);
+    const [epochTxCountData, setEpochTxCountData] = useState<any[]>([]);
+
+    const [last5EpochAvgWaitTime, setLast5EpochAvgWaitTime] = useState<string>();
+    const [previousEpochWaitTime, setPreviousEpochWaitTime] = useState<string>();
+    const [currentEpochWaitTime, setCurrentEpochWaitTime] = useState<string>();
+
+    const txHistoryColumns = ['Transaction Hash', 'Epoch', 'Slot No', 'Block No', 'Received Time', 'Confirmation Time', 'Wait Time',];
+    const latestEpochColumns = ['Epoch', 'Transactions', 'Average Wait Time'];
+
+
+    const getTransactionTimingOfPool = async (poolId: string) => {
+        const response = await api.get(`/pool/${poolId}/timing`);
+        return await response.data;
+    }
+
+    const getTransactionHistoryOfPool = async (poolId: string, pageNumber: number) => {
+        const response = await api.get(`/pool/${poolId}/transactions`,
+            {
+                params: {
+                    pageNumber: pageNumber
+                }
+            }
+        );
+        return await response.data;
+    }
+
+    const getEpochWiseInfoOfPool = async (poolId: string) => {
+        const response = await api.get(`/pool/${poolId}/epoch`);
+        return await response.data;
+    }
+
+    useEffect(() => {
+        getTransactionTimingOfPool(poolId)
+            .then((timingData) => {
+                const intervalRanges = timingData.map((data: PoolTimingInterface) => data.interval_range + " sec");
+                const txCount = timingData.map((data: PoolTimingInterface) => data.transaction_count);
+                setPoolTimingIntervalRanges(intervalRanges);
+                setPoolTimingTxCount(txCount);
+            })
+            .catch((e: any) => {
+                console.log('Error occurred while fetching pool timing data.');
+                console.error(e);
+            });
+
+        getEpochDetails().then((epochDetails) => {
+            const current_epoch = epochDetails.epoch_number;
+
+            getEpochWiseInfoOfPool(poolId).then((epochWiseData) => {
+                setEpochTxCountData(epochWiseData);
+
+                const last5EpochAvgWaitTime = _.mean(epochWiseData.map((epochData: any) => parseFloat(epochData.avg_wait_time))).toFixed(2) + ' sec';
+                setLast5EpochAvgWaitTime(last5EpochAvgWaitTime);
+
+                const previousEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch - 1)?.avg_wait_time;
+                if (previousEpochWaitTime) {
+                    setPreviousEpochWaitTime(previousEpochWaitTime + ' sec');
+                } else {
+                    setPreviousEpochWaitTime('No Transactions');
+                }
+
+                const currentEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch)?.avg_wait_time;
+                if (currentEpochWaitTime) {
+                    setCurrentEpochWaitTime(currentEpochWaitTime + ' sec');
+                } else {
+                    setCurrentEpochWaitTime('No Transactions');
+                }
+
+            }).catch((e: any) => {
+                console.log('Error occurred while fetching epoch details for pool.');
+                console.error(e);
+            });
+
+
+        }).catch((e: any) => {
+            console.log('Error occurred while fetching current epoch details');
+            console.error(e);
+        });
+
+        getTransactionHistoryOfPool(poolId, 1).then((data) => {
+            setTransactions(data);
+        }).catch((e: any) => {
+            console.log('Error occurred while fetching pool transaction history.');
+            console.error(e);
+        });
+
+
+
+    }, [poolId]);
+
 
     return (
         <>
-            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2">
-                <div className="px-4 md:px-10">
-                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard('', 'Pool ID')}>
-                        < p className="text-base font-normal text-[#B9B9B9] break-all" > { }</p>
+            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight=''>
+                <div className="px-4 md:px-10 pb-10">
+                    <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(poolId, 'Pool ID')}>
+                        <p className="text-base font-normal text-[#B9B9B9] break-all" > {poolId}</p>
                         <CopyIcon />
                     </button>
                 </div >
-                <div>
-                    <div className="mt-10 h-[1px]" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                        <BannerStatCard title="Total Transactions" value={arrivalTime ?? ''} valueClassName='md:text-lg' />
-                        <BannerStatCard title="Confirmed Transactions" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
-                        <BannerStatCard title="Rejected Transactions" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
-                        <BannerStatCard title="Average Wait Time" value={miner ? "Confirmed" : "Pending"} />
-                    </div>
-                </div>
             </BannerTitle >
 
             <div className="grid grid-cols-1 min-h-[566px] lg:grid-cols-3 mb-2">
@@ -89,49 +159,46 @@ export default function UserProfile() {
                     <div className="px-4 py-6 flex flex-col gap-8 w-full lg:px-10 lg:py-10 lg:flex-row lg:justify-between">
                         <div>
                             <p className="text-2xl font-medium text-[#E6E6E6]">Transactions Time</p>
-                            <p className="text-sm font-normal text-[#E6E6E6]">Last 7 days</p>
+                            <p className="text-sm font-normal text-[#E6E6E6]">Last 5 epochs</p>
                         </div>
                         <div className="flex gap-12 md:gap-[72px]">
                             <div>
                                 <div className="flex gap-2 items-center">
-                                    <p className="text-sm font-normal text-[#E6E6E6]">Last 5 Epoch</p>
+                                    <p className="text-sm font-normal text-[#E6E6E6]">Last 5 Epoch Average</p>
                                 </div>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">.. sec</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">{last5EpochAvgWaitTime}</p>
                             </div>
                             <div>
                                 <div className="flex gap-2 items-center">
-                                    <div className="h-2 w-6 rounded bg-[#FF6B00]" />
+                                    {/* <div className="h-2 w-6 rounded bg-[#FF6B00]" /> */}
                                     <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
                                 </div>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">16 sec</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpochWaitTime}</p>
                             </div>
                             <div>
                                 <div className="flex gap-2 items-center">
-                                    <div className="h-2 w-6 rounded bg-[#BD00FF]" />
+                                    {/* <div className="h-2 w-6 rounded bg-[#BD00FF]" /> */}
                                     <p className="text-sm font-normal text-[#E6E6E6]">Last Epoch</p>
                                 </div>
-                                <p className="text-2xl font-medium text-[#E6E6E6]">16 sec</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">{previousEpochWaitTime}</p>
                             </div>
                         </div>
                     </div>
-                    <LineChart labels={["1", "2", "3"]} data={[1, 2]} secondData={[2, 4]} tickText="sec" />
+                    <BarChart labels={poolTimingIntervalRanges} data={poolTimingTxCount} tickText="" hoverTextPrefix="transactions" stepSize={5} />
                 </div>
 
                 <div className="col-span-1 px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    <TableTitle title="Latest Epoch" className="px-4 py-6 lg:px-10 lg:py-8" />
+                    <TableTitle title="Latest Epochs" className="px-4 py-6 lg:px-10 lg:py-8" />
                     <table className="table-auto w-full">
                         <TableHeader columns={latestEpochColumns} />
                         <tbody className="!text-xs md:!text-sm !font-medium">
-                            {transactions.length ? (
-                                transactions.map((row, idx) => (
+                            {epochTxCountData.length ? (
+                                epochTxCountData.map((row, idx) => (
                                     <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                         {Object.keys(row).map((rowKey: string, index: number) => {
-                                            let content = <span>ok</span>;
-                                            content = <GradientTypography>{1}</GradientTypography>;
-
                                             return (
                                                 <td key={index} className="py-5 px-4 md:px-10 text-start">
-                                                    {content}
+                                                    <GradientTypography>{row[rowKey]}</GradientTypography>
                                                 </td>
                                             );
                                         })}
@@ -152,12 +219,15 @@ export default function UserProfile() {
                         transactions.map((row, idx) => (
                             <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                 {Object.keys(row).map((rowKey: string, index: number) => {
-                                    let content = <span>ok</span>;
-                                    content = <GradientTypography>{1}</GradientTypography>;
-
                                     return (
                                         <td key={index} className="py-5 px-4 md:px-10 text-start">
-                                            {content}
+                                            {rowKey === 'tx_hash' ?
+                                                <a href={'/transactions/' + row[rowKey]}>
+                                                    <GradientTypography>{row[rowKey]}</GradientTypography>
+                                                </a>
+                                                :
+                                                <GradientTypography>{row[rowKey]}</GradientTypography>
+                                            }
                                         </td>
                                     );
                                 })}

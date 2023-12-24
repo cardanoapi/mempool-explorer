@@ -1,8 +1,8 @@
-import {Transaction} from '@emurgo/cardano-serialization-lib-asmjs';
-import {Buffer} from 'buffer';
-import {toMidDottedStr} from "@app/utils/string-utils";
-import {DateTimeCustomoptions} from "@app/constants/constants";
-import {CborTransactionParser} from "@app/lib/cborparser";
+import { Transaction } from '@emurgo/cardano-serialization-lib-asmjs';
+import { Buffer } from 'buffer';
+import { toMidDottedStr } from "@app/utils/string-utils";
+import { DateTimeCustomoptions } from "@app/constants/constants";
+import { CborTransactionParser } from "@app/lib/cborparser";
 
 export interface InputOutputObjType {
     hash: string;
@@ -24,10 +24,10 @@ export function convertToClientSideInputOutputObject(tx: any) {
     let inputs: Array<string> = [];
     for (let i = 0; i < response.inputs.length; i++) {
         const item = response.inputs[i];
-        const format: any = {address: `${item.hash}#${item.index}`}
+        const format: any = { address: `${item.hash}#${item.index}` }
         inputs.push(format)
     }
-    inputOutputsObj = {...inputOutputsObj, inputs: inputs}
+    inputOutputsObj = { ...inputOutputsObj, inputs: inputs }
 
     const outputs = [];
     for (let i = 0; i < response.outputs.length; i++) {
@@ -58,7 +58,7 @@ export function convertToClientSideInputOutputObject(tx: any) {
         outputs.push(outputObj)
     }
 
-    inputOutputsObj = {...inputOutputsObj, outputs: outputs}
+    inputOutputsObj = { ...inputOutputsObj, outputs: outputs }
 
     return inputOutputsObj;
 }
@@ -68,8 +68,8 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         return [];
     }
     const followups = response as Array<{
-        hash: Uint8Array;
-        body: Uint8Array,
+        hash: string;
+        body: any,
         confirmation_status: Boolean,
         confirmation_time: string,
         arrivalTime: string
@@ -78,20 +78,21 @@ export function convertFollowupsToClientSide(response: any, id: string) {
 
     for (let i = 0; i < followups.length; i++) {
         let followupObj = {};
-        const hash = Buffer.from(followups[i].hash).toString('hex');
+        const hash = followups[i].hash;
         followupObj = {
             ...followupObj,
             hash: hash,
             arrivalTime: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(followups[i].arrivalTime))
         };
-        const txObject = Transaction.from_bytes(followups[i].body);
-        const txBodyObject = txObject.body();
-        followupObj = {...followupObj, fee: txBodyObject.fee().to_js_value()};
+        const parserObj = new CborTransactionParser(followups[i].body);
+        const tx = parserObj.getTransaction();
+
+        followupObj = { ...followupObj, fee: parserObj.getFee() };
 
         let consumes = 0;
 
-        for (let i = 0; i < txBodyObject.inputs().len(); i++) {
-            const input = txBodyObject.inputs().get(i).transaction_id().to_hex();
+        for (let i = 0; i < tx.inputs.length; i++) {
+            const input = tx.inputs[i].hash;
             if (input === id) consumes++;
         }
 
@@ -102,7 +103,6 @@ export function convertFollowupsToClientSide(response: any, id: string) {
             confirmation_status: followups[i].confirmation_status ? "Confirmed" : "Not confirmed",
             confirmation_time: followups[i].confirmation_time
         };
-        txObject.free();
         allFollowups.push(followupObj);
     }
 

@@ -192,7 +192,7 @@
 				]
 			}
 		},
-		"/api/v1/pool/{poolId}/transaction-timing": {
+		"/api/v1/pool/{poolId}/timing": {
 			"get": {
 				"operationId": "GetPoolTransactionTiming",
 				"responses": {

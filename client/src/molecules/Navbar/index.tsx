@@ -28,8 +28,6 @@ export default function Navbar() {
     const [wallets, setWallets] = useState<Record<string, any>>({});
     const [connectedWallet, setConnectedWallet] = useState<any>();
 
-    console.log('wallets', wallets);
-
     useEffect(() => {
         const cardano_wallets: any = [];
         if (typeof window !== 'undefined' && !!window.cardano) {
@@ -144,7 +142,7 @@ export default function Navbar() {
 
             {environments.ENABLE_CONNECT_WALLET && connectedWallet && (
                 <Link href="/profile">
-                    <GradientButton size="large" startIcon={<ProfileIcon />} onClick={() => {}}>
+                    <GradientButton size="large" startIcon={<ProfileIcon />} onClick={() => { }}>
                         <span className="hidden md:block">My Profile</span>
                     </GradientButton>
                 </Link>
