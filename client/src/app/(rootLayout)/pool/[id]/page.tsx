@@ -21,6 +21,7 @@ import { set } from 'lodash';
 import api from '@app/api/axios';
 import { getEpochDetails } from '@app/api/epoch';
 import _ from 'lodash';
+import GradientButton from '@app/atoms/Button/GradientButton';
 
 
 type TransactionDetailsInterface = {
@@ -51,8 +52,11 @@ export default function PoolDetails() {
 
     const [poolTimingIntervalRanges, setPoolTimingIntervalRanges] = useState<string[]>([]);
     const [poolTimingTxCount, setPoolTimingTxCount] = useState<number[]>([]);
-    const [transactions, setTransactions] = useState<any[]>([]);
     const [epochTxCountData, setEpochTxCountData] = useState<any[]>([]);
+
+    const [transactions, setTransactions] = useState<any[]>();
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [isTransactionLoading, setIsTransactionLoading] = useState<boolean>(false);
 
     const [last5EpochAvgWaitTime, setLast5EpochAvgWaitTime] = useState<string>();
     const [previousEpochWaitTime, setPreviousEpochWaitTime] = useState<string>();
@@ -130,20 +134,27 @@ export default function PoolDetails() {
             console.error(e);
         });
 
-        getTransactionHistoryOfPool(poolId, 1).then((data) => {
-            setTransactions(data);
+
+    }, [poolId]);
+
+    useEffect(() => {
+        setIsTransactionLoading(true);
+        getTransactionHistoryOfPool(poolId, pageNumber).then((data) => {
+            if (transactions) {
+                setTransactions(transactions.concat(data));
+            } else {
+                setTransactions(data);
+            }
+            setIsTransactionLoading(false);
         }).catch((e: any) => {
             console.log('Error occurred while fetching pool transaction history.');
             console.error(e);
         });
-
-
-
-    }, [poolId]);
+    }, [pageNumber]);
 
 
     return (
-        <>
+        <div className="mb-4">
             <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight=''>
                 <div className="px-4 md:px-10 pb-10">
                     <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(poolId, 'Pool ID')}>
@@ -215,43 +226,50 @@ export default function PoolDetails() {
             <table className="table-auto w-full">
                 <TableHeader columns={txHistoryColumns} />
                 <tbody className="!text-xs md:!text-sm !font-medium">
-                    {transactions.length ? (
-                        transactions.map((row, idx) => (
-                            <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                {Object.keys(row).map((rowKey: string, index: number) => {
-                                    return (
-                                        <td key={index} className="py-5 px-4 md:px-10 text-start">
-                                            {rowKey === 'tx_hash' ?
-                                                <a href={'/transactions/' + row[rowKey]}>
-                                                    <GradientTypography>{row[rowKey]}</GradientTypography>
-                                                </a>
-                                                :
-                                                <GradientTypography>{row[rowKey]}</GradientTypography>
-                                            }
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))) :
-                        < TableEmptyElement />
-                    }
+
+                    {transactions?.length ? (
+                        <>
+                            {
+                                transactions.map((row, idx) => (
+                                    <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                        {Object.keys(row).map((rowKey: string, index: number) => {
+                                            return (
+                                                <td key={index} className="py-5 px-4 md:px-10 text-start">
+                                                    {rowKey === 'tx_hash' ?
+                                                        <a href={'/transactions/' + row[rowKey]}>
+                                                            <GradientTypography>{row[rowKey]}</GradientTypography>
+                                                        </a>
+                                                        :
+                                                        <GradientTypography>{row[rowKey]}</GradientTypography>
+                                                    }
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))
+                            }
+                            {isTransactionLoading &&
+                                <tr className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                    <td colSpan={6} className="py-5 px-4 md:px-10 text-start">
+                                        <div className="flex justify-center">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </>
+                    ) : < TableEmptyElement />}
+
                 </tbody>
             </table>
-        </>
+            <div className="m-8">
+                <GradientButton size="large" onClick={() => {
+                    setPageNumber(pageNumber + 1);
+                }}>
+                    Show More
+                </GradientButton>
+
+            </div>
+        </div>
     );
-}
-
-function formatDate(date: Date) {
-    const options: any = {
-        weekday: 'short', // Abbreviated day name (e.g., Fri)
-        month: 'short',   // Abbreviated month name (e.g., Aug)
-        day: 'numeric',   // Numeric day of the month (e.g., 4)
-        year: 'numeric',  // Numeric year (e.g., 2023)
-        hour: 'numeric',  // Numeric hours (e.g., 12)
-        minute: 'numeric', // Numeric minutes (e.g., 40)
-        second: 'numeric', // Numeric seconds (e.g., 20)
-        hour12: true      // Use 12-hour clock format
-    };
-
-    return date.toLocaleString('en-US', options);
 }
