@@ -58,8 +58,8 @@ export default function PoolDetails() {
     const [previousEpochWaitTime, setPreviousEpochWaitTime] = useState<string>();
     const [currentEpochWaitTime, setCurrentEpochWaitTime] = useState<string>();
 
-    const txHistoryColumns = ['Transaction Hash', 'Epoch', 'Slot No', 'Block No', 'Received Time', 'Confirmation Time', 'Wait Time',];
-    const latestEpochColumns = ['Epoch', 'Transactions', 'Average Wait Time (sec)'];
+    const txHistoryColumns = ['Transaction Hash', 'Epoch', 'Slot No', 'Block No', 'Received Time', 'Confirmation Time', 'Wait Time (sec)',];
+    const latestEpochColumns = ['Epoch', 'Transactions', 'Avg. Wait Time (sec)'];
 
 
     const getTransactionTimingOfPool = async (poolId: string) => {
