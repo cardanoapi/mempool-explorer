@@ -15,7 +15,6 @@ Cardano blockchain network in real-time.
 - Clone the repository: `git clone git@git.sireto.io:cardano/mempool-explorer-webapp.git`
 - `yarn install` to install required dependencies
 - create .env file and add the required variables as mentioned below
-- use `npx prisma generate` to generate a Prisma client based on your Prisma schema
 - `yarn run dev` to start the development server
 
 ## Environment variables

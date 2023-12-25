@@ -23,7 +23,7 @@ type MempoolSizeData = {
 };
 
 export default function MempoolInfo() {
-    const [mempoolSizeDataLables, setMempoolSizeDataLables] = useState<string[]>([]);
+    const [mempoolSizeDataLabels, setMempoolSizeDataLabels] = useState<string[]>([]);
     const [mempoolSizeDataValues, setMempoolSizeDataValues] = useState<number[]>([]);
     const [avgMempoolSize, setAvgMempoolSize] = useState<string | undefined>(undefined);
 
@@ -37,25 +37,32 @@ export default function MempoolInfo() {
     useEffect(() => {
         getMempoolSizeData()
             .then((res) => {
-                const formatDay = (inputDay: string): string => {
-                    const date = new Date(inputDay);
-                    // Convert to format hour:min:sec
-                    const hours = date.getHours();
-                    const minutes = date.getMinutes();
-                    const seconds = date.getSeconds();
-                    return `${hours}:${minutes}:${seconds}`;
-                };
-                const dataLables: string[] = [];
+                const dataLabels: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: MempoolSizeData) => {
-                    const formattedTime = formatDay(result.received_date);
+
+                    const currentDate = new Date(); // It is inside loop because some time might pass between iterations
+                    const receivedDate = new Date(result.received_date);
+
+                    // Calculate time difference in seconds
+                    const timeDifferenceInSeconds = Math.floor((currentDate.getTime() - receivedDate.getTime()) / 1000);
+
+                    // Push the time difference to the dataLabels array
+                    if (timeDifferenceInSeconds < 60) {
+                        // If time difference is less than 60 seconds, push seconds format
+                        dataLabels.push(`${timeDifferenceInSeconds} sec`);
+                    } else {
+                        // If time difference is greater than or equal to 60 seconds, convert to minutes format
+                        const minutes = Math.floor(timeDifferenceInSeconds / 60);
+                        dataLabels.push(`${minutes} min`);
+                    }
+
                     const sizeInKb = parseFloat((result.size / 1024).toFixed(2));
-                    dataLables.push(formattedTime);
                     dataValues.push(sizeInKb);
                 });
-                setMempoolSizeDataLables(dataLables);
+                setMempoolSizeDataLabels(dataLabels);
                 setMempoolSizeDataValues(dataValues);
-                setAvgMempoolSize(_.mean(dataValues).toFixed(2));
+                setAvgMempoolSize(_.mean(dataValues).toFixed(2) + " Kb");
             })
             .catch((e: any) => {
                 console.error(e);
@@ -136,12 +143,12 @@ export default function MempoolInfo() {
                     </div>
                     <div>
                         <p className="text-sm font-normal text-[#E6E6E6]">Average Size</p>
-                        <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize} Kb</p>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize}</p>
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    {mempoolSizeDataValues.length > 0 && mempoolSizeDataLables.length > 0 ? (
-                        <LineChart labels={mempoolSizeDataLables} data={mempoolSizeDataValues} tickText="Kb" />
+                    {mempoolSizeDataValues.length > 0 && mempoolSizeDataLabels.length > 0 ? (
+                        <LineChart labels={mempoolSizeDataLabels} data={mempoolSizeDataValues} tickText="Kb" />
                     ) : (
                         <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
                             {_.range(0, 10).map((percent, index) => (
@@ -165,43 +172,43 @@ export default function MempoolInfo() {
                         <tbody className="!text-xs lg:!text-sm !font-normal w-full">
                             {currentMempoolTransactions && currentMempoolTransactions.length > 0
                                 ? currentMempoolTransactions.map((mt, index) => (
-                                      <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                          {Object.entries(mt).map(([k, d], idx) => {
-                                              if (k !== 'hash' && k !== 'received_time') return null;
-                                              let item: any = d;
-                                              let content;
-                                              if (typeof item === 'object' && item?.type !== 'div') {
-                                                  content = (
-                                                      <GradientTypography>
-                                                          <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
-                                                      </GradientTypography>
-                                                  );
-                                              } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {
-                                                  content = <GradientTypography>{item?.props?.children?.props?.children[0]?.length}</GradientTypography>;
-                                              } else {
-                                                  content = toMidDottedStr(item, isMobile ? 3 : 5);
-                                              }
+                                    <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                        {Object.entries(mt).map(([k, d], idx) => {
+                                            if (k !== 'hash' && k !== 'received_time') return null;
+                                            let item: any = d;
+                                            let content;
+                                            if (typeof item === 'object' && item?.type !== 'div') {
+                                                content = (
+                                                    <GradientTypography>
+                                                        <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
+                                                    </GradientTypography>
+                                                );
+                                            } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {
+                                                content = <GradientTypography>{item?.props?.children?.props?.children[0]?.length}</GradientTypography>;
+                                            } else {
+                                                content = toMidDottedStr(item, isMobile ? 3 : 5);
+                                            }
 
-                                              return (
-                                                  <td key={idx} className="py-5 px-4 md:px-10 text-start">
-                                                      {content}
-                                                  </td>
-                                              );
-                                          })}
-                                      </tr>
-                                  ))
+                                            return (
+                                                <td key={idx} className="py-5 px-4 md:px-10 text-start">
+                                                    {content}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))
                                 : _.range(0, 8).map((percent, index) => (
-                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                      </tr>
-                                  ))}
+                                    <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="p-4 lg:p-10">
                     <Link href="/mempool">
-                        <GradientButton size="large" fullWidth onClick={() => {}}>
+                        <GradientButton size="large" fullWidth onClick={() => { }}>
                             Show Live Data
                         </GradientButton>
                     </Link>

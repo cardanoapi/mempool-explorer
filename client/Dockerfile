@@ -32,13 +32,12 @@ RUN yarn dlx node-gyp
 RUN yarn workspaces focus
 
 # Rebuild the source code
-RUN yarn prisma:generate && \
-    NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=wss://mempool.cardanoapi.io/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet NEXT_PUBLIC_API_URL=https://mempool-api.cardanoapi.io/api/v1 yarn build
+RUN NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=wss://mempool.cardanoapi.io/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet NEXT_PUBLIC_API_URL=https://mempool-api.cardanoapi.io/api/v1 yarn build
 
 # Remove unnecessary files
 RUN rm -rf ./.next/cache/* && \
     mkdir moveTarget && \
-    mv ./prisma entrypoint.sh next.config.js next-i18next.config.js next-sitemap.config.js package.json public/ ./moveTarget/
+    mv entrypoint.sh next.config.js next-i18next.config.js next-sitemap.config.js package.json public/ ./moveTarget/
 
 # Create a production-ready image
 FROM node:18-slim
