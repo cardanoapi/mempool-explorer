@@ -32,7 +32,7 @@ export default function StakePoolsInfo() {
             .then((res) => {
                 setPoolData(res);
                 const waitTimes = res.map((item: PoolDistribution) => parseFloat(item.avg_wait_time));
-                setAvgWaitTime(_.mean(waitTimes).toFixed(2));
+                setAvgWaitTime(_.mean(waitTimes).toFixed(2) + " sec");
                 const percentaileData = mapToPercentiles(waitTimes, res);
                 const data = Object.keys(percentaileData).map((key) => {
                     const resultArray = percentaileData[key].map((pool: any) => ({

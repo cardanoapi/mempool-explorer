@@ -55,7 +55,7 @@ export default function MempoolInfo() {
                 });
                 setMempoolSizeDataLables(dataLables);
                 setMempoolSizeDataValues(dataValues);
-                setAvgMempoolSize(_.mean(dataValues).toFixed(2));
+                setAvgMempoolSize(_.mean(dataValues).toFixed(2) + " Kb");
             })
             .catch((e: any) => {
                 console.error(e);
@@ -136,7 +136,7 @@ export default function MempoolInfo() {
                     </div>
                     <div>
                         <p className="text-sm font-normal text-[#E6E6E6]">Average Size</p>
-                        <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize} Kb</p>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize}</p>
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
@@ -165,43 +165,43 @@ export default function MempoolInfo() {
                         <tbody className="!text-xs lg:!text-sm !font-normal w-full">
                             {currentMempoolTransactions && currentMempoolTransactions.length > 0
                                 ? currentMempoolTransactions.map((mt, index) => (
-                                      <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                          {Object.entries(mt).map(([k, d], idx) => {
-                                              if (k !== 'hash' && k !== 'received_time') return null;
-                                              let item: any = d;
-                                              let content;
-                                              if (typeof item === 'object' && item?.type !== 'div') {
-                                                  content = (
-                                                      <GradientTypography>
-                                                          <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
-                                                      </GradientTypography>
-                                                  );
-                                              } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {
-                                                  content = <GradientTypography>{item?.props?.children?.props?.children[0]?.length}</GradientTypography>;
-                                              } else {
-                                                  content = toMidDottedStr(item, isMobile ? 3 : 5);
-                                              }
+                                    <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                        {Object.entries(mt).map(([k, d], idx) => {
+                                            if (k !== 'hash' && k !== 'received_time') return null;
+                                            let item: any = d;
+                                            let content;
+                                            if (typeof item === 'object' && item?.type !== 'div') {
+                                                content = (
+                                                    <GradientTypography>
+                                                        <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
+                                                    </GradientTypography>
+                                                );
+                                            } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {
+                                                content = <GradientTypography>{item?.props?.children?.props?.children[0]?.length}</GradientTypography>;
+                                            } else {
+                                                content = toMidDottedStr(item, isMobile ? 3 : 5);
+                                            }
 
-                                              return (
-                                                  <td key={idx} className="py-5 px-4 md:px-10 text-start">
-                                                      {content}
-                                                  </td>
-                                              );
-                                          })}
-                                      </tr>
-                                  ))
+                                            return (
+                                                <td key={idx} className="py-5 px-4 md:px-10 text-start">
+                                                    {content}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))
                                 : _.range(0, 8).map((percent, index) => (
-                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                      </tr>
-                                  ))}
+                                    <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="p-4 lg:p-10">
                     <Link href="/mempool">
-                        <GradientButton size="large" fullWidth onClick={() => {}}>
+                        <GradientButton size="large" fullWidth onClick={() => { }}>
                             Show Live Data
                         </GradientButton>
                     </Link>
