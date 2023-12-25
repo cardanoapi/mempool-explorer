@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { encode } from 'cbor-x';
 
-import { redisMiddleware, withCaching } from '@app/app/middleware';
 import environments from '@app/configs/environments';
 import { getAggregrationForLastThreeBlocks } from '@app/db/queries';
 import { getUrlObject, transformToClientSideData } from '@app/utils/cardano-utils';
@@ -52,8 +51,6 @@ const handler = async (req: NextRequest, res: NextResponse) => {
 };
 
 export async function GET(req: NextRequest, res: NextResponse) {
-    // const data = await redisMiddleware(req, res, withCaching(handler));
-    // return NextResponse.json(data);
     console.log('GET: ', req.url);
     try {
         const response = await fetch(environments.API_URL + '/tx/stats');

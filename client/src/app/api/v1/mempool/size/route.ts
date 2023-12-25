@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server.js';
 
-import { redisMiddleware, withCaching } from '@app/app/middleware';
 import environments from '@app/configs/environments';
 import { getLatestMempoolAverageSizes } from '@app/db/queries';
 
@@ -30,9 +29,6 @@ const handler = async (req: NextRequest, res: NextResponse) => {
  *           application/json: {}
  */
 export async function GET(req: NextRequest, res: NextResponse) {
-    // const data = await redisMiddleware(req, res, withCaching(handler));
-    // return NextResponse.json(data);
-
     console.log('GET: ', req.url);
     try {
         const response = await fetch(environments.API_URL + '/mempool/size');
