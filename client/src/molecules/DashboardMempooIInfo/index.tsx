@@ -23,7 +23,7 @@ type MempoolSizeData = {
 };
 
 export default function MempoolInfo() {
-    const [mempoolSizeDataLables, setMempoolSizeDataLables] = useState<string[]>([]);
+    const [mempoolSizeDataLabels, setMempoolSizeDataLabels] = useState<string[]>([]);
     const [mempoolSizeDataValues, setMempoolSizeDataValues] = useState<number[]>([]);
     const [avgMempoolSize, setAvgMempoolSize] = useState<string | undefined>(undefined);
 
@@ -37,23 +37,30 @@ export default function MempoolInfo() {
     useEffect(() => {
         getMempoolSizeData()
             .then((res) => {
-                const formatDay = (inputDay: string): string => {
-                    const date = new Date(inputDay);
-                    // Convert to format hour:min:sec
-                    const hours = date.getHours();
-                    const minutes = date.getMinutes();
-                    const seconds = date.getSeconds();
-                    return `${hours}:${minutes}:${seconds}`;
-                };
-                const dataLables: string[] = [];
+                const dataLabels: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: MempoolSizeData) => {
-                    const formattedTime = formatDay(result.received_date);
+
+                    const currentDate = new Date(); // It is inside loop because some time might pass between iterations
+                    const receivedDate = new Date(result.received_date);
+
+                    // Calculate time difference in seconds
+                    const timeDifferenceInSeconds = Math.floor((currentDate.getTime() - receivedDate.getTime()) / 1000);
+
+                    // Push the time difference to the dataLabels array
+                    if (timeDifferenceInSeconds < 60) {
+                        // If time difference is less than 60 seconds, push seconds format
+                        dataLabels.push(`${timeDifferenceInSeconds} sec`);
+                    } else {
+                        // If time difference is greater than or equal to 60 seconds, convert to minutes format
+                        const minutes = Math.floor(timeDifferenceInSeconds / 60);
+                        dataLabels.push(`${minutes} min`);
+                    }
+
                     const sizeInKb = parseFloat((result.size / 1024).toFixed(2));
-                    dataLables.push(formattedTime);
                     dataValues.push(sizeInKb);
                 });
-                setMempoolSizeDataLables(dataLables);
+                setMempoolSizeDataLabels(dataLabels);
                 setMempoolSizeDataValues(dataValues);
                 setAvgMempoolSize(_.mean(dataValues).toFixed(2) + " Kb");
             })
@@ -140,8 +147,8 @@ export default function MempoolInfo() {
                     </div>
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
-                    {mempoolSizeDataValues.length > 0 && mempoolSizeDataLables.length > 0 ? (
-                        <LineChart labels={mempoolSizeDataLables} data={mempoolSizeDataValues} tickText="Kb" />
+                    {mempoolSizeDataValues.length > 0 && mempoolSizeDataLabels.length > 0 ? (
+                        <LineChart labels={mempoolSizeDataLabels} data={mempoolSizeDataValues} tickText="Kb" />
                     ) : (
                         <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
                             {_.range(0, 10).map((percent, index) => (
