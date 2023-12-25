@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { encode } from 'cbor-x';
 
 import environments from '@app/configs/environments';
-import { getAggregrationForLastThreeBlocks } from '@app/db/queries';
-import { getUrlObject, transformToClientSideData } from '@app/utils/cardano-utils';
-import { convertBuffersToString } from '@app/utils/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,28 +23,6 @@ export const dynamic = 'force-dynamic';
  *         required: true
  *         description: The identifier for the address or pool
  */
-
-const handler = async (req: NextRequest, res: NextResponse) => {
-    console.log('GET: ', req.url);
-    try {
-        const urlObject = getUrlObject(req.url);
-        const id = urlObject.searchParams.get('query') as string;
-        let data = await getAggregrationForLastThreeBlocks(id);
-        if (req.headers.get('accept') === 'application/json') {
-            return convertBuffersToString(await transformToClientSideData(data));
-        }
-
-        // TODO: handle response for cbor
-        const transformedData = await transformToClientSideData(data);
-        const serializedBuffer = encode(transformedData);
-        const response = new NextResponse(serializedBuffer);
-        response.headers.set('Content-Type', 'application/cbor');
-        return response;
-    } catch (e: any) {
-        console.log(req.url, e);
-        return { error: e.name, status: !e?.errorCode ? 500 : e.errorCode };
-    }
-};
 
 export async function GET(req: NextRequest, res: NextResponse) {
     console.log('GET: ', req.url);
