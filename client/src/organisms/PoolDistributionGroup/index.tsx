@@ -73,7 +73,7 @@ export default function StakePoolsInfo() {
                             </div>
                             <div className="flex gap-2 items-center">
                                 <div className="h-2 w-6 rounded bg-[#FF6B00]" />
-                                <p className="text-sm font-normal text-[#E6E6E6]">Bad Pools</p>
+                                <p className="text-sm font-normal text-[#E6E6E6]">Suboptimal Pools</p>
                             </div>
                         </div>
                     </div>

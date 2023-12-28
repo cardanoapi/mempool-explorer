@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '@app/molecules/Navbar';
 
 import './globals.css';
+import Script from 'next/script';
 
 
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
@@ -20,6 +21,22 @@ export default function RootLayout({ children }: { readonly children: React.Reac
                 <ToastContainer position="bottom-right" theme="dark" autoClose={3000} newestOnTop closeOnClick pauseOnFocusLoss pauseOnHover limit={8} />
                 {children}
             </body>
+            {/* <!-- Google tag (gtag.js) --> */}
+            <Script
+                strategy="lazyOnload"
+                src={`https://www.googletagmanager.com/gtag/js?id=G-MG10RWWQ1Y`}
+            />
+
+            <Script strategy="lazyOnload">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'G-MG10RWWQ1Y', {
+                    page_path: window.location.pathname,
+                    });
+                `}
+            </Script>
         </html>
     );
 }
