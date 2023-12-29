@@ -23,11 +23,14 @@ export default function RootLayout({ children }: { readonly children: React.Reac
             </body>
             {/* <!-- Google tag (gtag.js) --> */}
             <Script
+                id="google-analytics-script"
                 strategy="lazyOnload"
                 src={`https://www.googletagmanager.com/gtag/js?id=G-MG10RWWQ1Y`}
             />
 
-            <Script strategy="lazyOnload">
+            <Script strategy="lazyOnload"
+                id="google-analytics-code"
+            >
                 {`
                     window.dataLayer = window.dataLayer || [];
                     function gtag(){dataLayer.push(arguments);}
