@@ -73,11 +73,11 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentag
                                                         </p>
                                                     }
                                                     {content.linkUrl ? (
-                                                        <Link href={content.linkUrl} className="hover:text-blue-500 w-full">
+                                                        <Link href={content.linkUrl} className="hover:text-blue-500 w-full" target="_blank">
                                                             <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                         </Link>
                                                     ) : (
-                                                        <Link href={`/pool/${content.text}`}>
+                                                        <Link href={`/pool/${content.text}`} target="_blank">
                                                             <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                         </Link>
                                                     )}
