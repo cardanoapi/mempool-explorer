@@ -32,7 +32,11 @@ RUN yarn dlx node-gyp
 RUN yarn workspaces focus
 
 # Rebuild the source code
-RUN NODE_OPTIONS="--max_old_space_size=8192" NEXT_PUBLIC_WS_URL=wss://mempool.cardanoapi.io/ws NEXT_PUBLIC_CARDANO_NETWORK=mainnet NEXT_PUBLIC_API_URL=https://mempool-api.cardanoapi.io/api/v1 yarn build
+RUN NODE_OPTIONS="--max_old_space_size=8192" \
+    NEXT_PUBLIC_WS_URL="wss://mempool.cardanoapi.io/ws" \
+    NEXT_PUBLIC_CARDANO_NETWORK="mainnet" \
+    NEXT_PUBLIC_API_URL="https://mempool-api.cardanoapi.io/api/v1" \
+    yarn build
 
 # Remove unnecessary files
 RUN rm -rf ./.next/cache/* && \
