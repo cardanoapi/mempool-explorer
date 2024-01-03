@@ -38,7 +38,8 @@ export default function StakePoolsInfo() {
                     const resultArray = percentaileData[key].map((pool: any) => ({
                         text: pool.name,
                         imageUrl: pool.ticker_name,
-                        linkUrl: pool.url
+                        linkUrl: pool.url,
+                        avgWaitTime: parseFloat(pool.avg_wait_time).toFixed(2)
                     }));
                     return {
                         data: resultArray.length,
