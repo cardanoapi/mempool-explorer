@@ -1,3 +1,5 @@
+import React, { useEffect } from 'react';
+
 import CurrentEpochInfo from '@app/molecules/DashboardCurrentEpochInfo';
 import MempoolInfo from '@app/molecules/DashboardMempooIInfo';
 import ContributersInfo from '@app/organisms/ContributersInfo';
@@ -9,7 +11,7 @@ export default async function Home() {
         return await res.json();
     };
 
-    const contributorsData = await getContributorsData();
+    const contributorsData = process.env.CONTRIBUTERS_JSON_URL ? await getContributorsData() : [];
 
     return (
         <main className="w-full min-h-screen">
