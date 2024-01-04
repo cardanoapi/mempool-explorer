@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 
 import _ from 'lodash';
 
+import BubbleChart from '@app/atoms/BubbleChart';
 import GradientBanner from '@app/atoms/GradientBanner';
 import GradientHealthBar from '@app/atoms/GradientHealthBar';
 import StakePoolTiming from '@app/molecules/DashboardStakePoolsInfo';
-
 
 type PoolDistribution = {
     pool_id: string;
@@ -32,7 +32,7 @@ export default function StakePoolsInfo() {
             .then((res) => {
                 setPoolData(res);
                 const waitTimes = res.map((item: PoolDistribution) => parseFloat(item.avg_wait_time));
-                setAvgWaitTime(_.mean(waitTimes).toFixed(2) + " sec");
+                setAvgWaitTime(_.mean(waitTimes).toFixed(2) + ' sec');
                 const percentaileData = mapToPercentiles(waitTimes, res);
                 const data = Object.keys(percentaileData).map((key) => {
                     const resultArray = percentaileData[key].map((pool: any) => ({
@@ -88,6 +88,15 @@ export default function StakePoolsInfo() {
                                 ))}
                             </div>
                         )}
+                        {/* {poolDistribution ? (
+                            <BubbleChart labels={[]} data={poolDistribution} tickText="" hoverTextPrefix="pools" stepSize={50} />
+                        ) : (
+                            <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
+                                {_.range(0, 10).map((percent, index) => (
+                                    <div key={index} className="h-full col-span-1 bg-black animate-pulse flex items-center justify-center"></div>
+                                ))}
+                            </div>
+                        )} */}
                     </div>
                 </div>
             </GradientBanner>
