@@ -1,28 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
+import { useParams } from 'next/navigation';
+
+import { set } from 'lodash';
+import _ from 'lodash';
+
 import { decode } from 'cbor-x';
+
+import api from '@app/api/axios';
+import { getEpochDetails } from '@app/api/epoch';
+import BarChart from '@app/atoms/BarChart';
+import GradientButton from '@app/atoms/Button/GradientButton';
+import GradientHealthBar from '@app/atoms/GradientHealthBar';
+import GradientTypography from '@app/atoms/GradientTypography';
 import CopyIcon from '@app/atoms/Icon/Copy';
+import PoolIcon from '@app/atoms/Icon/Pool';
 import TxIcon from '@app/atoms/Icon/Tx';
+import LineChart from '@app/atoms/LineChart';
+import TableEmptyElement from '@app/atoms/TableEmptyElement';
+import TableHeader from '@app/atoms/TableHeader';
 import TableTitle from '@app/atoms/TableTitle';
 import { checkForErrorResponse } from '@app/components/loader/error';
 import BannerStatCard from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
 import { copyToClipboard } from '@app/utils/utils';
-import GradientHealthBar from '@app/atoms/GradientHealthBar';
-import LineChart from '@app/atoms/LineChart';
-import TableHeader from '@app/atoms/TableHeader';
-import TableEmptyElement from '@app/atoms/TableEmptyElement';
-import GradientTypography from '@app/atoms/GradientTypography';
-import PoolIcon from '@app/atoms/Icon/Pool';
-import { useParams } from 'next/navigation';
-import BarChart from '@app/atoms/BarChart';
-import { set } from 'lodash';
-import api from '@app/api/axios';
-import { getEpochDetails } from '@app/api/epoch';
-import _ from 'lodash';
-import GradientButton from '@app/atoms/Button/GradientButton';
-
 
 type TransactionDetailsInterface = {
     tx: any;
@@ -43,10 +46,9 @@ enum TransactionStatus {
 type PoolTimingInterface = {
     interval_range: string;
     transaction_count: number;
-}
+};
 
 export default function PoolDetails() {
-
     const router = useParams();
     const poolId = router.id as string;
 
@@ -62,35 +64,32 @@ export default function PoolDetails() {
     const [previousEpochWaitTime, setPreviousEpochWaitTime] = useState<string>();
     const [currentEpochWaitTime, setCurrentEpochWaitTime] = useState<string>();
 
-    const txHistoryColumns = ['Transaction Hash', 'Epoch', 'Slot No', 'Block No', 'Received Time', 'Confirmation Time', 'Wait Time (sec)',];
+    const txHistoryColumns = ['Transaction Hash', 'Epoch', 'Slot No', 'Block No', 'Received Time', 'Confirmation Time', 'Wait Time (sec)'];
     const latestEpochColumns = ['Epoch', 'Transactions', 'Avg. Wait Time (sec)'];
-
 
     const getTransactionTimingOfPool = async (poolId: string) => {
         const response = await api.get(`/pool/${poolId}/timing`);
         return await response.data;
-    }
+    };
 
     const getTransactionHistoryOfPool = async (poolId: string, pageNumber: number) => {
-        const response = await api.get(`/pool/${poolId}/transactions`,
-            {
-                params: {
-                    pageNumber: pageNumber
-                }
+        const response = await api.get(`/pool/${poolId}/transactions`, {
+            params: {
+                pageNumber: pageNumber
             }
-        );
+        });
         return await response.data;
-    }
+    };
 
     const getEpochWiseInfoOfPool = async (poolId: string) => {
         const response = await api.get(`/pool/${poolId}/epoch`);
         return await response.data;
-    }
+    };
 
     useEffect(() => {
         getTransactionTimingOfPool(poolId)
             .then((timingData) => {
-                const intervalRanges = timingData.map((data: PoolTimingInterface) => data.interval_range + " sec");
+                const intervalRanges = timingData.map((data: PoolTimingInterface) => data.interval_range + ' sec');
                 const txCount = timingData.map((data: PoolTimingInterface) => data.transaction_count);
                 setPoolTimingIntervalRanges(intervalRanges);
                 setPoolTimingTxCount(txCount);
@@ -100,72 +99,71 @@ export default function PoolDetails() {
                 console.error(e);
             });
 
-        getEpochDetails().then((epochDetails) => {
-            const current_epoch = epochDetails.epoch_number;
+        getEpochDetails()
+            .then((epochDetails) => {
+                const current_epoch = epochDetails.epoch_number;
 
-            getEpochWiseInfoOfPool(poolId).then((epochWiseData) => {
-                setEpochTxCountData(epochWiseData);
+                getEpochWiseInfoOfPool(poolId)
+                    .then((epochWiseData) => {
+                        setEpochTxCountData(epochWiseData);
 
-                const last5EpochAvgWaitTime = _.mean(epochWiseData.map((epochData: any) => parseFloat(epochData.avg_wait_time))).toFixed(2) + ' sec';
-                setLast5EpochAvgWaitTime(last5EpochAvgWaitTime);
+                        const last5EpochAvgWaitTime = _.mean(epochWiseData.map((epochData: any) => parseFloat(epochData.avg_wait_time))).toFixed(2) + ' sec';
+                        setLast5EpochAvgWaitTime(last5EpochAvgWaitTime);
 
-                const previousEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch - 1)?.avg_wait_time;
-                if (previousEpochWaitTime) {
-                    setPreviousEpochWaitTime(previousEpochWaitTime + ' sec');
-                } else {
-                    setPreviousEpochWaitTime('No Transactions');
-                }
+                        const previousEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch - 1)?.avg_wait_time;
+                        if (previousEpochWaitTime) {
+                            setPreviousEpochWaitTime(previousEpochWaitTime + ' sec');
+                        } else {
+                            setPreviousEpochWaitTime('No Transactions');
+                        }
 
-                const currentEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch)?.avg_wait_time;
-                if (currentEpochWaitTime) {
-                    setCurrentEpochWaitTime(currentEpochWaitTime + ' sec');
-                } else {
-                    setCurrentEpochWaitTime('No Transactions');
-                }
-
-            }).catch((e: any) => {
-                console.log('Error occurred while fetching epoch details for pool.');
+                        const currentEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch)?.avg_wait_time;
+                        if (currentEpochWaitTime) {
+                            setCurrentEpochWaitTime(currentEpochWaitTime + ' sec');
+                        } else {
+                            setCurrentEpochWaitTime('No Transactions');
+                        }
+                    })
+                    .catch((e: any) => {
+                        console.log('Error occurred while fetching epoch details for pool.');
+                        console.error(e);
+                    });
+            })
+            .catch((e: any) => {
+                console.log('Error occurred while fetching current epoch details');
                 console.error(e);
             });
-
-
-        }).catch((e: any) => {
-            console.log('Error occurred while fetching current epoch details');
-            console.error(e);
-        });
-
-
     }, [poolId]);
 
     useEffect(() => {
         setIsTransactionLoading(true);
-        getTransactionHistoryOfPool(poolId, pageNumber).then((data) => {
-            if (transactions) {
-                setTransactions(transactions.concat(data));
-            } else {
-                setTransactions(data);
-            }
-            setIsTransactionLoading(false);
-        }).catch((e: any) => {
-            console.log('Error occurred while fetching pool transaction history.');
-            console.error(e);
-        });
+        getTransactionHistoryOfPool(poolId, pageNumber)
+            .then((data) => {
+                if (transactions) {
+                    setTransactions(transactions.concat(data));
+                } else {
+                    setTransactions(data);
+                }
+                setIsTransactionLoading(false);
+            })
+            .catch((e: any) => {
+                console.log('Error occurred while fetching pool transaction history.');
+                console.error(e);
+            });
     }, [pageNumber]);
-
 
     return (
         <div className="mb-4">
-            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight=''>
+            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight="">
                 <div className="px-4 md:px-10 pb-10">
                     <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(poolId, 'Pool ID')}>
-                        <p className="text-base font-normal text-[#B9B9B9] break-all" > {poolId}</p>
+                        <p className="text-base font-normal text-[#B9B9B9] break-all"> {poolId}</p>
                         <CopyIcon />
                     </button>
-                </div >
-            </BannerTitle >
+                </div>
+            </BannerTitle>
 
             <div className="grid grid-cols-1 min-h-[566px] lg:grid-cols-3 mb-2">
-
                 <div className="col-span-1 lg:col-span-2 border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
                     <div className="px-4 py-6 flex flex-col gap-8 w-full lg:px-10 lg:py-10 lg:flex-row lg:justify-between">
                         <div>
@@ -214,9 +212,10 @@ export default function PoolDetails() {
                                             );
                                         })}
                                     </tr>
-                                ))) :
-                                < TableEmptyElement />
-                            }
+                                ))
+                            ) : (
+                                <TableEmptyElement />
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -226,29 +225,26 @@ export default function PoolDetails() {
             <table className="table-auto w-full">
                 <TableHeader columns={txHistoryColumns} />
                 <tbody className="!text-xs md:!text-sm !font-medium">
-
                     {transactions?.length ? (
                         <>
-                            {
-                                transactions.map((row, idx) => (
-                                    <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                        {Object.keys(row).map((rowKey: string, index: number) => {
-                                            return (
-                                                <td key={index} className="py-5 px-4 md:px-10 text-start">
-                                                    {rowKey === 'tx_hash' ?
-                                                        <a href={'/transactions/' + row[rowKey]}>
-                                                            <GradientTypography>{row[rowKey]}</GradientTypography>
-                                                        </a>
-                                                        :
+                            {transactions.map((row, idx) => (
+                                <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                    {Object.keys(row).map((rowKey: string, index: number) => {
+                                        return (
+                                            <td key={index} className="py-5 px-4 md:px-10 text-start">
+                                                {rowKey === 'tx_hash' ? (
+                                                    <a href={'/transactions/' + row[rowKey]}>
                                                         <GradientTypography>{row[rowKey]}</GradientTypography>
-                                                    }
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))
-                            }
-                            {isTransactionLoading &&
+                                                    </a>
+                                                ) : (
+                                                    <GradientTypography>{row[rowKey]}</GradientTypography>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                            {isTransactionLoading && (
                                 <tr className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                     <td colSpan={6} className="py-5 px-4 md:px-10 text-start">
                                         <div className="flex justify-center">
@@ -256,19 +252,22 @@ export default function PoolDetails() {
                                         </div>
                                     </td>
                                 </tr>
-                            }
+                            )}
                         </>
-                    ) : < TableEmptyElement />}
-
+                    ) : (
+                        <TableEmptyElement />
+                    )}
                 </tbody>
             </table>
             <div className="m-8">
-                <GradientButton size="large" onClick={() => {
-                    setPageNumber(pageNumber + 1);
-                }}>
+                <GradientButton
+                    size="large"
+                    onClick={() => {
+                        setPageNumber(pageNumber + 1);
+                    }}
+                >
                     Show More
                 </GradientButton>
-
             </div>
         </div>
     );

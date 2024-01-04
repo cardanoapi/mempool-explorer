@@ -7,10 +7,10 @@ import Link from 'next/link';
 import _ from 'lodash';
 
 import BarChart from '@app/atoms/BarChart';
+import BubbleChart from '@app/atoms/BubbleChart';
 import GradientTypography from '@app/atoms/GradientTypography';
 import TableHeader from '@app/atoms/TableHeader';
 import { toMidDottedStr } from '@app/utils/string-utils';
-
 
 interface IDashboardStakePoolsBannerProps {
     avgWaitTime?: string;
@@ -32,7 +32,7 @@ export default function StakePoolTiming({ avgWaitTime, poolData }: IDashboardSta
                 const dataLables: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: any) => {
-                    dataLables.push(result.interval_range + " sec");
+                    dataLables.push(result.interval_range + ' sec');
                     dataValues.push(result.pool_count);
                 });
                 setPoolTimingLabels(dataLables);
@@ -59,7 +59,7 @@ export default function StakePoolTiming({ avgWaitTime, poolData }: IDashboardSta
                 </div>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                     {poolTimingLabels && poolTimingValues ? (
-                        <BarChart labels={poolTimingLabels} data={poolTimingValues} tickText="" hoverTextPrefix='pools' stepSize={50} />
+                        <BarChart labels={poolTimingLabels} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />
                     ) : (
                         <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
                             {_.range(0, 10).map((percent, index) => (
@@ -84,23 +84,23 @@ export default function StakePoolTiming({ avgWaitTime, poolData }: IDashboardSta
                         <tbody className="!text-xs lg:!text-sm !font-normal">
                             {poolData && poolData.length > 0
                                 ? poolData.map((pool: any) => (
-                                    <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                        <td className="py-5 px-4 lg:px-10 text-start">
-                                            <GradientTypography>
-                                                <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
-                                            </GradientTypography>
-                                        </td>
-                                        <td className="py-5 px-4 lg:px-10 text-start">
-                                            <span className="text-white">{pool.avg_wait_time}</span>
-                                        </td>
-                                    </tr>
-                                ))
+                                      <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                          <td className="py-5 px-4 lg:px-10 text-start">
+                                              <GradientTypography>
+                                                  <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
+                                              </GradientTypography>
+                                          </td>
+                                          <td className="py-5 px-4 lg:px-10 text-start">
+                                              <span className="text-white">{pool.avg_wait_time}</span>
+                                          </td>
+                                      </tr>
+                                  ))
                                 : _.range(0, 8).map((percent, index) => (
-                                    <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
-                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                    </tr>
-                                ))}
+                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                      </tr>
+                                  ))}
                         </tbody>
                     </table>
                 </div>
