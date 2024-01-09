@@ -1,15 +1,23 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LineController, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js';
 import { Bubble } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, LineController, CategoryScale, LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
 
+interface IPoolData {
+    pool_id: string;
+    name: string;
+    ticker_name: string;
+    url: string;
+    avg_wait_time: string;
+}
+
 interface IBubbleChartProps {
-    labels: string[];
-    data: Array<any>;
+    data: Array<IPoolData>;
+    searchQuery?: string;
     secondData?: Array<any>;
     tickText: string;
     hoverTextPrefix?: string;
@@ -18,177 +26,137 @@ interface IBubbleChartProps {
     stepSize?: number;
 }
 
-export default function BubbleChart({ labels, data, tickText, hoverTextPrefix, secondData, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBubbleChartProps) {
-    console.log('BubbleChart', labels, data, tickText, hoverTextPrefix, secondData, suggestedMin, suggestedMax, stepSize);
-    // const [datasets, setDatasets] = React.useState<Array<any>>([
-    //     {
-    //         data,
-    //         label: '',
-    //         borderColor: '#E6E6E6',
-    //         backgroundColor: '#FF6B00',
-    //         pointBackgroundColor: '#E6E6E6',
-    //         pointBorderColor: '#E6E6E6',
-    //         pointHoverBackgroundColor: '#FF6B00',
-    //         pointHoverBorderWidth: 8,
-    //         pointBorderWidth: 8,
-    //         borderWidth: 4,
-    //         fill: false,
-    //         tension: 0.2
-    //     }
-    // ]);
+export default function BubbleChart({ data, tickText, hoverTextPrefix, secondData, searchQuery = '', suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBubbleChartProps) {
+    console.log('BubbleChart', data, tickText, hoverTextPrefix, secondData, suggestedMin, suggestedMax, stepSize);
 
-    let min = -100;
-    let max = 100;
+    const backgroundColor = ['#FF4B1D', '#FF5E1F', '#FF7122', '#FE8425', '#FE9828', '#F8A92C', '#DFB634', '#C4C33D', '#AAD046', '#90DD4F'];
 
-    const fakeDataset = {
-        datasets: [
-            {
-                label: 'Red dataset',
-                data: Array.from({ length: 50 }, () => ({
-                    x: Math.floor(Math.random() * (max - min + 1)) + min,
-                    y: Math.floor(Math.random() * (max - min + 1)) + min,
-                    r: Math.floor(Math.random() * (20 - 5 + 1)) + 5
-                })),
-                backgroundColor: 'rgba(255, 99, 132, 0.5)'
-            },
-            {
-                label: 'Blue dataset',
-                data: Array.from({ length: 50 }, () => ({
-                    x: Math.floor(Math.random() * (max - min + 1)) + min,
-                    y: Math.floor(Math.random() * (max - min + 1)) + min,
-                    r: Math.floor(Math.random() * (20 - 5 + 1)) + 5
-                })),
-                backgroundColor: 'rgba(53, 162, 235, 0.5)'
-            }
-        ]
-    };
+    // const generateRandomColor = () => {
+    //     const randomHue = Math.random() * 360; // Random hue value
+    //     const randomSaturation = Math.random() * 30 + 70; // Random saturation value biased towards brighter colors
+    //     const randomLightness = Math.random() * 30 + 40; // Random lightness value biased towards brighter colors
+    //     return `hsl(${randomHue}, ${randomSaturation}%, ${randomLightness}%)`;
+    // };
 
-    // useEffect(() => {
-    //     // Update the first dataset when data prop changes
-    //     const updatedFirstDataset = {
-    //         ...datasets[0],
-    //         data
-    //     };
+    const datasets = data
+        .slice()
+        .reverse()
+        .sort((a, b) => {
+            return parseFloat(a.avg_wait_time) - parseFloat(b.avg_wait_time);
+        })
+        .map((item: IPoolData, idx: number) => {
+            let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
+            colorIndex = Math.max(0, Math.min(colorIndex, 9));
+            const bgColor = backgroundColor[colorIndex];
 
-    //     const updatedDatasets = [updatedFirstDataset];
+            return {
+                label: item.name,
+                data: [
+                    {
+                        x: idx + 1,
+                        y: parseFloat(item.avg_wait_time),
+                        r: 5
+                    }
+                ],
+                backgroundColor: bgColor
+            };
+        });
+    const [filteredDatasets, setFilteredDatasets] = useState(datasets);
 
-    //     if (secondData) {
-    //         // Update the second dataset when secondData prop changes
-    //         const updatedSecondDataset = {
-    //             data: secondData,
-    //             borderColor: '#E6E6E6',
-    //             backgroundColor: '#BD00FF',
-    //             pointBackgroundColor: '#BD00FF',
-    //             pointBorderColor: '#E6E6E6',
-    //             pointHoverBackgroundColor: '#BD00FF',
-    //             pointHoverBorderWidth: 8,
-    //             pointBorderWidth: 8,
-    //             borderWidth: 4,
-    //             fill: false,
-    //             tension: 0.2
-    //         };
-    //         updatedDatasets.push(updatedSecondDataset);
-    //     }
+    useEffect(() => {
+        setFilteredDatasets(
+            datasets.map((dataset, idx) => {
+                if (searchQuery === '') {
+                    return { ...dataset, backgroundColor: dataset.backgroundColor };
+                }
+                const found = dataset.label.toLowerCase().includes(searchQuery);
+                // const opacity = found ? 1 : 0.2;
 
-    //     setDatasets(updatedDatasets);
+                return {
+                    ...dataset,
+                    data: dataset.data.map((item) => ({
+                        ...item,
+                        // opacity,
+                        r: found ? 15 : 3
+                    }))
+                    // backgroundColor: found ? '#90DD4F' : '#E7E7E7' // Highlight in red if found
+                };
+            })
+        );
 
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [data, secondData]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery]);
+
     return (
         <Bubble
             options={{
-                animations: {
-                    radius: {
-                        duration: 400,
-                        easing: 'linear',
-                        loop: (context) => context.active
-                    }
-                },
+                animation: false,
+                // animations: {
+                //     radius: {
+                //         duration: 200,
+                //         easing: 'linear',
+                //         loop: (context: any) => context.active
+                //     }
+                // },
                 responsive: true,
                 interaction: {
                     intersect: false
                 },
                 plugins: {
-                    tooltip: {
-                        mode: 'nearest',
-                        backgroundColor: '#4A4A4A',
-                        caretPadding: 16,
-                        caretSize: 8,
-                        borderWidth: 1,
-                        borderColor: '#000000',
-                        cornerRadius: 8,
-                        position: 'average',
-                        padding: {
-                            top: 8,
-                            bottom: 8,
-                            left: 16,
-                            right: 16
-                        },
-                        callbacks: {
-                            // Remove default label
-                            title: function () {
-                                return '';
-                            },
-                            // Remove default label
-                            label: function () {
-                                return '';
-                            },
-                            footer(tooltipItems) {
-                                const yValue = tooltipItems[0].parsed.y;
-                                return `${yValue} ${hoverTextPrefix}`;
-                            }
-                        },
-                        footerFont: {
-                            size: 16,
-                            style(ctx, options) {
-                                options.size = 16;
-                                options.weight = 500;
-                                options.lineHeight = 1.2;
-                                options.color = '#E6E6E6';
-                                return options.fontStyle;
-                            }
-                        }
-                    },
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context: any) => {
+                                const dataset = context.dataset.label || '';
+                                const dataPoint = context.parsed;
+                                return `${dataset}: ${dataPoint.y} ${hoverTextPrefix}`;
+                            }
+                        }
                     }
                 },
                 color: '#E6E6E6',
                 scales: {
                     x: {
                         // beginAtZero: true,
-
                         grid: {
-                            color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color,
+                            color: 'rgba(48, 48, 48, 1)'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Pool'
+                        },
+                        ticks: {
+                            stepSize,
+                            callback: function (value, index, ticks) {
+                                return `${value} ${tickText}`;
+                            }
                         }
                     },
                     y: {
-                        beginAtZero: true,
+                        // beginAtZero: true,
                         ticks: {
-                            stepSize, // Adjust the stepSize as needed
+                            stepSize,
                             callback: function (value, index, ticks) {
                                 return `${value} ${tickText}`;
                             }
                         },
+                        title: {
+                            display: true,
+                            text: 'Avg. Wait Time (Seconds)'
+                        },
                         suggestedMin,
                         suggestedMax,
                         grid: {
-                            color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color
+                            color: 'rgba(48, 48, 48, 1)'
                         }
                     }
                 }
             }}
-            // options={{
-            //     scales: {
-            //         y: {
-            //             beginAtZero: true
-            //         }
-            //     }
-            // }}
-            // data={fakeDataset}
             data={{
-                labels,
-                datasets: fakeDataset.datasets
+                // labels: filteredDatasets.map((item) => item.label),
+                datasets: filteredDatasets.flat()
             }}
         />
     );

@@ -9,6 +9,7 @@ import TriangleIndicator from '@app/atoms/Icon/TriangleIndicator';
 import { toEndDottedStr } from '@app/utils/string-utils';
 
 interface IGradientHealthBarProps {
+    searchQuery?: string;
     labelIsPercentage?: boolean;
     labels?: Array<
         | string
@@ -49,7 +50,7 @@ interface IGradientHealthBarProps {
 //         }
 //     ];
 // <GradientHealthBar labels={labels} labelIndicator="bad" />
-const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
+const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = '', labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
     console.log('GradientHealthBar', labels, labelData, labelIndicator, labelIsPercentage);
     return (
         <>
@@ -122,7 +123,7 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, labelIsPercentag
                             return (
                                 // do not remove text-center text-end !text-start
                                 <div key={index} className="h-full w-full flex items-center justify-center">
-                                    <p className="w-full text-center text-end !text-start text-sm font-normal text-[#E6E6E6]">{label}</p>
+                                    <p className={`w-full text-center text-end !text-start text-sm font-normal text-[#E6E6E6] ${label.toLowerCase().includes(searchQuery.toLowerCase()) ? 'bg-[#7AE856] text-white' : ''}`}>{label}</p>
                                 </div>
                             );
                         })}

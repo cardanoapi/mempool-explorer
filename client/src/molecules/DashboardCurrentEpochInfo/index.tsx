@@ -4,10 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import _ from 'lodash';
 
+import { getEpochDetails } from '@app/api/epoch';
 import GradientBanner from '@app/atoms/GradientBanner';
 import LineChart from '@app/atoms/LineChart';
-import { getEpochDetails } from '@app/api/epoch';
-
 
 type EpochDetails = {
     epoch_number?: number;
