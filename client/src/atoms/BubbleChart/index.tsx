@@ -46,8 +46,23 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
             return parseFloat(a.avg_wait_time) - parseFloat(b.avg_wait_time);
         })
         .map((item: IPoolData, idx: number) => {
-            let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
-            colorIndex = Math.max(0, Math.min(colorIndex, 9));
+            const mean = data.reduce((acc, curr) => acc + parseFloat(curr.avg_wait_time), 0) / data.length;
+            // const adjustedColorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + (parseFloat(item.avg_wait_time) > mean ? 5 : 0);
+            // const colorIndex = Math.max(0, Math.min(9, adjustedColorIndex));
+
+            const isAboveMean = parseFloat(item.avg_wait_time) > mean;
+
+            let colorIndex;
+            if (isAboveMean) {
+                colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + 4;
+            } else {
+                const totalBelowMean = data.filter((d) => parseFloat(d.avg_wait_time) <= mean).length;
+                colorIndex = Math.floor((idx + 1) / (totalBelowMean / 5));
+            }
+
+            colorIndex = Math.max(0, Math.min(9, colorIndex));
+            // let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
+            // colorIndex = Math.max(0, Math.min(colorIndex, 9));
             const bgColor = backgroundColor[colorIndex];
 
             return {
@@ -56,8 +71,8 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 data: [
                     {
                         ...item,
-                        x: idx + 1,
                         y: parseFloat(item.avg_wait_time),
+                        x: idx + 1,
                         // r: !!item?.tx_count ? parseInt(item.tx_count) : 5
                         r: 5
                     }
