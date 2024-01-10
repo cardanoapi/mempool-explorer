@@ -18,6 +18,7 @@ type PoolDistribution = {
     ticker_name: string;
     url: string;
     avg_wait_time: string;
+    tx_count: string;
 };
 
 export default function StakePoolsInfo() {

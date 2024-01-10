@@ -5,6 +5,8 @@ import Link from 'next/link';
 
 import _ from 'lodash';
 
+import { Tooltip } from '@mui/material';
+
 import TriangleIndicator from '@app/atoms/Icon/TriangleIndicator';
 import { toEndDottedStr } from '@app/utils/string-utils';
 
@@ -51,7 +53,7 @@ interface IGradientHealthBarProps {
 //     ];
 // <GradientHealthBar labels={labels} labelIndicator="bad" />
 const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = '', labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
-    console.log('GradientHealthBar', labels, labelData, labelIndicator, labelIsPercentage);
+    console.log('GradientHealthBar', labels, labelData?.slice().reverse(), labelIndicator, labelIsPercentage);
     return (
         <>
             <div className="relative w-full overflow-auto">
@@ -76,19 +78,17 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                                                 </p>
                                                             )}
                                                             {content.linkUrl ? (
-                                                                <a href={content.linkUrl} className="hover:text-blue-500 w-full" target="_blank">
-                                                                    <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                                    <div className="absolute pt-8 inset-0 z-10 opacity-0 hover:opacity-100 duration-300">
-                                                                        <div className="p-4 flex justify-center items-center text-xs text-white bg-black">Avg. Wait time {content.avgWaitTime} sec</div>
-                                                                    </div>
-                                                                </a>
+                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
+                                                                    <a href={content.linkUrl} className="hover:text-blue-500 w-full" target="_blank">
+                                                                        <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                                    </a>
+                                                                </Tooltip>
                                                             ) : (
-                                                                <Link href={`/pool/${content.text}`} target="_blank">
-                                                                    <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                                    <div className="absolute pt-8  inset-0 z-10 opacity-0 hover:opacity-100 duration-300">
-                                                                        <div className="p-4 flex justify-center items-center text-xs text-white bg-black">Avg. Wait time {content.avgWaitTime} sec</div>
-                                                                    </div>
-                                                                </Link>
+                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
+                                                                    <Link href={`/pool/${content.text}`}>
+                                                                        <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                                    </Link>
+                                                                </Tooltip>
                                                             )}
                                                         </div>
                                                     </div>
