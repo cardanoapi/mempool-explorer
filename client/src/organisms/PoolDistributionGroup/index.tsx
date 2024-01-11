@@ -133,7 +133,9 @@ export default function StakePoolsInfo() {
                             </div>
                         )}
                         {poolData ? (
-                            <BubbleChart data={poolData} searchQuery={searchQuery} tickText="" hoverTextPrefix="secs" stepSize={10} />
+                            <div className="mt-5">
+                                <BubbleChart data={poolData} searchQuery={searchQuery} tickText="" hoverTextPrefix="secs" stepSize={10} />
+                            </div>
                         ) : (
                             <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
                                 {_.range(0, 10).map((percent, index) => (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +10,18 @@ import { Tooltip } from '@mui/material';
 import TriangleIndicator from '@app/atoms/Icon/TriangleIndicator';
 import { toEndDottedStr } from '@app/utils/string-utils';
 
+interface ILabelContent {
+    imageUrl?: string;
+    linkUrl?: string;
+    text: string;
+    avgWaitTime: string;
+}
+
+interface ILabelData {
+    data: number | string; // indicates percentage
+    content: Array<ILabelContent>;
+}
+
 interface IGradientHealthBarProps {
     searchQuery?: string;
     labelIsPercentage?: boolean;
@@ -20,15 +32,7 @@ interface IGradientHealthBarProps {
               textPosition: string;
           }
     >;
-    labelData?: Array<{
-        data: number | string; // indicates percentage
-        content: Array<{
-            imageUrl?: string;
-            linkUrl?: string;
-            text: string;
-            avgWaitTime: string;
-        }>;
-    }>;
+    labelData?: ILabelData[];
     labelIndicator?: 'great' | 'good' | 'bad';
     className?: string;
 }
@@ -53,15 +57,29 @@ interface IGradientHealthBarProps {
 //     ];
 // <GradientHealthBar labels={labels} labelIndicator="bad" />
 const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = '', labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
-    console.log('GradientHealthBar', labels, labelData?.slice().reverse(), labelIndicator, labelIsPercentage);
+    // console.log('GradientHealthBar', labels, labelData?.slice().reverse(), labelIndicator, labelIsPercentage);
+
+    const [filteredData, setFilteredData] = useState<Array<ILabelData>>([]);
+
+    useEffect(() => {
+        if (labelData) {
+            const filtered: any = labelData.map((label: ILabelData) => ({
+                data: label.content.filter((content: ILabelContent) => content.text.toLowerCase().includes(searchQuery.toLowerCase())).length,
+                content: label.content.filter((content: ILabelContent) => content.text.toLowerCase().includes(searchQuery.toLowerCase()))
+            }));
+
+            setFilteredData(filtered);
+        }
+    }, [searchQuery, labelData]);
+
     return (
         <>
             <div className="relative w-full overflow-auto">
                 {/* Rendering labelData with Array inside Array */}
-                <div className="flex w-full justify-evenly items-end text-[#292929]">
-                    {labelData &&
-                        labelData.length > 0 &&
-                        labelData
+                <div className="flex w-full justify-evenly items-end h-[385px] text-[#292929]">
+                    {filteredData &&
+                        filteredData.length > 0 &&
+                        filteredData
                             .slice()
                             .reverse()
                             .map((label, index) => {
