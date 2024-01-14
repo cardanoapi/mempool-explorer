@@ -89,7 +89,7 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                             {label.content.length > 0 &&
                                                 label.content.map((content, idx) => (
                                                     <div key={idx} className="relative">
-                                                        <div className="w-full min-h-[35px] bg-white border-[1px] border-[#303030] flex items-center">
+                                                        <div className="w-full min-h-[35px] bg-black border-[1px] border-[#303030] flex items-center">
                                                             {content.imageUrl && (
                                                                 <p className="h-[35px] w-[35px] flex items-center justify-start bg-black text-white text-xs p-2 overflow-hidden">
                                                                     {content.text.startsWith('pool') ? content.imageUrl.substring(0, 3) : content.imageUrl.substring(0, 2)}
@@ -97,13 +97,13 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                                             )}
                                                             {content.linkUrl ? (
                                                                 <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
-                                                                    <a href={content.linkUrl} className="hover:text-blue-500 w-full" target="_blank">
+                                                                    <a href={content.linkUrl} className="hover:text-blue-500 w-full bg-white" target="_blank">
                                                                         <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                                     </a>
                                                                 </Tooltip>
                                                             ) : (
                                                                 <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
-                                                                    <Link href={`/pool/${content.text}`}>
+                                                                    <Link href={`/pool/${content.text}`} className="bg-white w-full">
                                                                         <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                                     </Link>
                                                                 </Tooltip>
