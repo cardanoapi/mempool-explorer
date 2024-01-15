@@ -13,6 +13,7 @@ interface IPoolData {
     ticker_name: string;
     url: string;
     avg_wait_time: string;
+    tx_count: string;
 }
 
 interface IBubbleChartProps {
@@ -27,7 +28,7 @@ interface IBubbleChartProps {
 }
 
 export default function BubbleChart({ data, tickText, hoverTextPrefix, secondData, searchQuery = '', suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBubbleChartProps) {
-    console.log('BubbleChart', data, tickText, hoverTextPrefix, secondData, suggestedMin, suggestedMax, stepSize);
+    // console.log('BubbleChart', data, tickText, hoverTextPrefix, secondData, suggestedMin, suggestedMax, stepSize);
 
     const backgroundColor = ['#FF4B1D', '#FF5E1F', '#FF7122', '#FE8425', '#FE9828', '#F8A92C', '#DFB634', '#C4C33D', '#AAD046', '#90DD4F'];
 
@@ -45,16 +46,34 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
             return parseFloat(a.avg_wait_time) - parseFloat(b.avg_wait_time);
         })
         .map((item: IPoolData, idx: number) => {
-            let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
-            colorIndex = Math.max(0, Math.min(colorIndex, 9));
+            const mean = data.reduce((acc, curr) => acc + parseFloat(curr.avg_wait_time), 0) / data.length;
+            // const adjustedColorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + (parseFloat(item.avg_wait_time) > mean ? 5 : 0);
+            // const colorIndex = Math.max(0, Math.min(9, adjustedColorIndex));
+
+            const isAboveMean = parseFloat(item.avg_wait_time) > mean;
+
+            let colorIndex;
+            if (isAboveMean) {
+                colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + 4;
+            } else {
+                const totalBelowMean = data.filter((d) => parseFloat(d.avg_wait_time) <= mean).length;
+                colorIndex = Math.floor((idx + 1) / (totalBelowMean / 5));
+            }
+
+            colorIndex = Math.max(0, Math.min(9, colorIndex));
+            // let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
+            // colorIndex = Math.max(0, Math.min(colorIndex, 9));
             const bgColor = backgroundColor[colorIndex];
 
             return {
                 label: item.name,
+                txCount: item.tx_count,
                 data: [
                     {
-                        x: idx + 1,
+                        ...item,
                         y: parseFloat(item.avg_wait_time),
+                        x: idx + 1,
+                        // r: !!item?.tx_count ? parseInt(item.tx_count) : 5
                         r: 5
                     }
                 ],
@@ -65,22 +84,20 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
 
     useEffect(() => {
         setFilteredDatasets(
-            datasets.map((dataset, idx) => {
+            datasets.filter((dataset, idx) => {
                 if (searchQuery === '') {
                     return { ...dataset, backgroundColor: dataset.backgroundColor };
                 }
                 const found = dataset.label.toLowerCase().includes(searchQuery);
-                // const opacity = found ? 1 : 0.2;
+                return found;
 
-                return {
-                    ...dataset,
-                    data: dataset.data.map((item) => ({
-                        ...item,
-                        // opacity,
-                        r: found ? 15 : 3
-                    }))
-                    // backgroundColor: found ? '#90DD4F' : '#E7E7E7' // Highlight in red if found
-                };
+                // return {
+                //     ...dataset,
+                //     data: dataset.data.map((item) => ({
+                //         ...item,
+                //         r: found ? 15 : 5
+                //     }))
+                // };
             })
         );
 
@@ -111,7 +128,8 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                             label: (context: any) => {
                                 const dataset = context.dataset.label || '';
                                 const dataPoint = context.parsed;
-                                return `${dataset}: ${dataPoint.y} ${hoverTextPrefix}`;
+                                const tx = context.dataset?.txCount ? `\n(${context.dataset?.txCount} transactions)` : '';
+                                return `${dataset}: ${dataPoint.y} ${hoverTextPrefix}${tx}`;
                             }
                         }
                     }

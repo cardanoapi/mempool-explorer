@@ -18,7 +18,7 @@ export default async function Home() {
             <CurrentEpochInfo />
             <MempoolInfo />
             <StakePoolsInfo />
-            <ContributersInfo contributorsData={contributorsData} />
+            {contributorsData && contributorsData.length > 0 && <ContributersInfo contributorsData={contributorsData} />}
         </main>
     );
 }

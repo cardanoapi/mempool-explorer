@@ -32,6 +32,7 @@ export default function StakePoolTiming({ avgWaitTime, poolData }: IDashboardSta
                 const dataLables: string[] = [];
                 const dataValues: number[] = [];
                 res.forEach((result: any) => {
+                    if (result.pool_count === 0) return;
                     dataLables.push(result.interval_range + ' sec');
                     dataValues.push(result.pool_count);
                 });

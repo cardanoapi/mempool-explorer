@@ -130,7 +130,6 @@ export default function BarChart({ labels, data, tickText, hoverTextPrefix, seco
                 scales: {
                     x: {
                         // beginAtZero: true,
-                        // 
 
                         grid: {
                             color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color,
@@ -148,8 +147,7 @@ export default function BarChart({ labels, data, tickText, hoverTextPrefix, seco
                         suggestedMax,
                         grid: {
                             color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color
-                        },
-
+                        }
                     }
                 }
             }}

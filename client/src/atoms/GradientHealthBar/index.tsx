@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
 import _ from 'lodash';
 
+import { Tooltip } from '@mui/material';
+
 import TriangleIndicator from '@app/atoms/Icon/TriangleIndicator';
 import { toEndDottedStr } from '@app/utils/string-utils';
+
+interface ILabelContent {
+    imageUrl?: string;
+    linkUrl?: string;
+    text: string;
+    avgWaitTime: string;
+}
+
+interface ILabelData {
+    data: number | string; // indicates percentage
+    content: Array<ILabelContent>;
+}
 
 interface IGradientHealthBarProps {
     searchQuery?: string;
@@ -18,15 +32,7 @@ interface IGradientHealthBarProps {
               textPosition: string;
           }
     >;
-    labelData?: Array<{
-        data: number | string; // indicates percentage
-        content: Array<{
-            imageUrl?: string;
-            linkUrl?: string;
-            text: string;
-            avgWaitTime: string;
-        }>;
-    }>;
+    labelData?: ILabelData[];
     labelIndicator?: 'great' | 'good' | 'bad';
     className?: string;
 }
@@ -51,15 +57,29 @@ interface IGradientHealthBarProps {
 //     ];
 // <GradientHealthBar labels={labels} labelIndicator="bad" />
 const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = '', labelIsPercentage = false, className = '' }: IGradientHealthBarProps) => {
-    console.log('GradientHealthBar', labels, labelData, labelIndicator, labelIsPercentage);
+    // console.log('GradientHealthBar', labels, labelData?.slice().reverse(), labelIndicator, labelIsPercentage);
+
+    const [filteredData, setFilteredData] = useState<Array<ILabelData>>([]);
+
+    useEffect(() => {
+        if (labelData) {
+            const filtered: any = labelData.map((label: ILabelData) => ({
+                data: label.content.filter((content: ILabelContent) => content.text.toLowerCase().includes(searchQuery.toLowerCase())).length,
+                content: label.content.filter((content: ILabelContent) => content.text.toLowerCase().includes(searchQuery.toLowerCase()))
+            }));
+
+            setFilteredData(filtered);
+        }
+    }, [searchQuery, labelData]);
+
     return (
         <>
             <div className="relative w-full overflow-auto">
                 {/* Rendering labelData with Array inside Array */}
-                <div className="flex w-full justify-evenly items-end text-[#292929]">
-                    {labelData &&
-                        labelData.length > 0 &&
-                        labelData
+                <div className="flex w-full justify-evenly items-end h-[385px] text-[#292929]">
+                    {filteredData &&
+                        filteredData.length > 0 &&
+                        filteredData
                             .slice()
                             .reverse()
                             .map((label, index) => {
@@ -69,26 +89,24 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                             {label.content.length > 0 &&
                                                 label.content.map((content, idx) => (
                                                     <div key={idx} className="relative">
-                                                        <div className="w-full min-h-[35px] bg-white border-[1px] border-[#303030] flex items-center">
+                                                        <div className="w-full min-h-[35px] bg-black border-[1px] border-[#303030] flex items-center">
                                                             {content.imageUrl && (
                                                                 <p className="h-[35px] w-[35px] flex items-center justify-start bg-black text-white text-xs p-2 overflow-hidden">
                                                                     {content.text.startsWith('pool') ? content.imageUrl.substring(0, 3) : content.imageUrl.substring(0, 2)}
                                                                 </p>
                                                             )}
                                                             {content.linkUrl ? (
-                                                                <a href={content.linkUrl} className="hover:text-blue-500 w-full" target="_blank">
-                                                                    <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                                    <div className="absolute pt-8 inset-0 z-10 opacity-0 hover:opacity-100 duration-300">
-                                                                        <div className="p-4 flex justify-center items-center text-xs text-white bg-black">Avg. Wait time {content.avgWaitTime} sec</div>
-                                                                    </div>
-                                                                </a>
+                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
+                                                                    <a href={content.linkUrl} className="hover:text-blue-500 w-full bg-white" target="_blank">
+                                                                        <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                                    </a>
+                                                                </Tooltip>
                                                             ) : (
-                                                                <Link href={`/pool/${content.text}`} target="_blank">
-                                                                    <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                                    <div className="absolute pt-8  inset-0 z-10 opacity-0 hover:opacity-100 duration-300">
-                                                                        <div className="p-4 flex justify-center items-center text-xs text-white bg-black">Avg. Wait time {content.avgWaitTime} sec</div>
-                                                                    </div>
-                                                                </Link>
+                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
+                                                                    <Link href={`/pool/${content.text}`} className="bg-white w-full">
+                                                                        <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                                    </Link>
+                                                                </Tooltip>
                                                             )}
                                                         </div>
                                                     </div>
