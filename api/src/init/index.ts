@@ -3,7 +3,6 @@ import { Express } from 'express';
 import environments from '../config/environment';
 import DependencyInjectionManager from '../services/DependencyInjectionManager';
 import { RedisManager } from '../services/RedisManager';
-import environment from '../config/environment';
 
 const appSetup = (app: Express) => {
     if (environments.ENABLE_REDIS_CACHE) {
