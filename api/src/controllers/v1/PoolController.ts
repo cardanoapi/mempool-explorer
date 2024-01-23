@@ -15,7 +15,8 @@ class PoolController extends RedisBaseController<any> {
     async _getPoolDistributionAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
         SELECT tc.pool_id,
-        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time
+        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time,
+        count(tx_hash) as tx_count
         FROM tx_confirmed tc
         WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
                     FROM tx_confirmed))
@@ -25,14 +26,11 @@ class PoolController extends RedisBaseController<any> {
         ORDER BY avg_wait_time DESC;
                 `;
 
-        interface PoolDistributionQueryResult {
-            pool_id: string;
-            avg_wait_time: number;
-        }
 
-        const poolDistributionResult: PoolDistributionQueryResult[] =
+
+        const poolDistributionResult: any =
             await discoveryDb.$queryRaw(avgTxCountQuery);
-        const pool_id_list = poolDistributionResult.map((v) => {
+        const pool_id_list = poolDistributionResult.map((v:any) => {
             return v.pool_id;
         });
 
@@ -60,6 +58,7 @@ class PoolController extends RedisBaseController<any> {
             name: String;
             url: String;
             avg_wait_time: number;
+            tx_count: number;
         }
 
         const info_result: PoolInfoResult[] =
@@ -69,10 +68,11 @@ class PoolController extends RedisBaseController<any> {
         // insert avg_wait_time for each pool in info_result
         info_result.forEach((v) => {
             const pool = poolDistributionResult.find(
-                (x) => x.pool_id === v.pool_id
+                (x: any) => x.pool_id === v.pool_id
             );
             if (pool) {
                 v.avg_wait_time = pool.avg_wait_time;
+                v.tx_count = pool.tx_count;
             }
         });
 
@@ -86,15 +86,16 @@ class PoolController extends RedisBaseController<any> {
             return v.pool_id;
         });
         const diff = poolDistributionResult.filter(
-            (x) => !pool_ids.includes(x.pool_id)
+            (x: any) => !pool_ids.includes(x.pool_id)
         );
-        diff.forEach((v) => {
+        diff.forEach((v: any) => {
             info_result.push({
                 pool_id: v.pool_id,
                 ticker_name: 'N/A',
                 name: v.pool_id,
                 url: '',
-                avg_wait_time: v.avg_wait_time
+                avg_wait_time: v.avg_wait_time,
+                tx_count: v.tx_count,
             });
         });
 
