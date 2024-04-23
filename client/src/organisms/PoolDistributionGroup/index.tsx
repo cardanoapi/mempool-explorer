@@ -167,23 +167,3 @@ function mapToPercentiles(waitTimes: number[], data: any[]) {
     }
     return result;
 }
-
-// function mapToPercentiles(waitTimes: number[], data: any[], backgroundColor: string[]) {
-//     // Extract the wait times and calculate the min and max values
-//     const minValue = Math.min(...waitTimes);
-//     const maxValue = Math.max(...waitTimes);
-//     const rangeSize = (maxValue - minValue) / 10;
-
-//     // Populate each percentile by filtering the data and assigning color
-//     const result: any = {};
-//     for (let i = 0; i < 10; i++) {
-//         const lowerBound = maxValue - i * rangeSize;
-//         const upperBound = maxValue - (i + 1) * rangeSize;
-//         const percentileKey = `${100 - i * 10}-${90 - i * 10}`;
-//         const filteredData = data.filter((item: any) => parseFloat(item.avg_wait_time) <= lowerBound && parseFloat(item.avg_wait_time) > upperBound);
-//         const colorIndex = i < 10 ? i : 9; // Ensure color index doesn't go beyond the length of backgroundColor array
-//         const color = backgroundColor[colorIndex];
-//         result[percentileKey] = filteredData.map((item: any) => ({ ...item, backgroundColor: color }));
-//     }
-//     return result;
-// }

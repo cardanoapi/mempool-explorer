@@ -28,9 +28,9 @@ interface IGradientHealthBarProps {
     labels?: Array<
         | string
         | {
-              text: string;
-              textPosition: string;
-          }
+            text: string;
+            textPosition: string;
+        }
     >;
     labelData?: ILabelData[];
     labelIndicator?: 'great' | 'good' | 'bad';
