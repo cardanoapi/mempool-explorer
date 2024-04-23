@@ -12,7 +12,7 @@ Cardano blockchain network in real-time.
 
 ## Getting Started
 
-- Clone the repository: `git clone git@git.sireto.io:cardano/mempool-explorer-webapp.git`
+- Clone this repository
 - `yarn install` to install required dependencies
 - create .env file and add the required variables as mentioned below
 - `yarn run dev` to start the development server
@@ -23,6 +23,8 @@ Cardano blockchain network in real-time.
 |-----------------------|--------------------------------|-------------------------------------------------------------|
 | DATABASE_URL          | Connection string for database | postgresql://user:pwd@host:5432/database_name?schema=public |
 | NEXT_PUBLIC_WS_URL    | Websocket url                  | ws://localhost:8080/ws                                      |
+More environments variables example can be found on
+.env.example
 
 ## Acknowledgements
 

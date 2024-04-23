@@ -4,12 +4,24 @@ This monorepo contains api, websocket-server and frontend application source cod
 
 For the complete setup of the application. We need to run client, api and server respectively. The environment variables required for running each application is given on the respective directories.
 
-### Folder Structure
+### Components and How to run
 - **api** - Connects with the mempool database and run quries for  data required by the frontend and exposes via rest endpoints. It is built on express.
+
+  How to run api :
+https://github.com/cardanoapi/mempool-explorer/blob/main/api#readme
+
 - **client** - Mempool explorer frontend application built on Next.JS, Chart.js and tailwindcss.
+
+  How to run client:
+https://github.com/cardanoapi/mempool-explorer/tree/main/client#readme
 - **server** - Connects with the kafka server for listening mempool transactions and exposes websocket endpoint for the client to listen to mempool events.
 
+  How to run server:
+https://github.com/cardanoapi/mempool-explorer/tree/main/server#readme
 
+After running all three components 
+then access the mempool frontend via
+http://localhost:3000
 
 ### Features
 Currently mempool explorer supports following features :
