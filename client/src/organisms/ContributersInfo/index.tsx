@@ -17,7 +17,7 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                     <TableHeader thClassName="md:px-4 lg:px-10" columns={['Pool Name']} />
                     <tbody className="!text-xs lg:!text-sm !font-normal">
                         {contributorsData && contributorsData.length > 0
-                            ? contributorsData.map((pool: any) => (
+                            && contributorsData.map((pool: any) => (
                                   <tr key={pool.name} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                       <td className="py-5 px-4 lg:px-10 text-start">
                                           <GradientTypography>
@@ -26,12 +26,7 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                                       </td>
                                   </tr>
                               ))
-                            : _.range(0, 8).map((percent, index) => (
-                                  <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
-                                      <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                      <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                  </tr>
-                              ))}
+                              }
                     </tbody>
                 </table>
             </div>
