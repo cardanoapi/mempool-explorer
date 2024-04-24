@@ -15,7 +15,7 @@ class PoolController extends RedisBaseController<any> {
     async _getPoolDistributionAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
         SELECT tc.pool_id,
-        round(avg(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time,
+        round(sum(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time,
         count(tx_hash) as tx_count
         FROM tx_confirmed tc
         WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
