@@ -1,36 +1,32 @@
-'use client';
+import React from 'react';
 
-import React, { useRef } from 'react';
+import { Metadata } from 'next';
 
-import Banner from '@app/atoms/Banner';
-import CurrentEpochInfo from '@app/molecules/DashboardCurrentEpochInfo';
-import MempoolInfo from '@app/molecules/DashboardMempooIInfo';
-import ContributersInfo from '@app/organisms/ContributersInfo';
-import StakePoolsInfo from '@app/organisms/PoolDistributionGroup';
+import DashboardPage from '@app/templates/Dashboard';
 
-export default async function Home() {
-    const currentEpochInfoRef = useRef<HTMLDivElement>(null);
+export const metadata: Metadata = {
+    title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+    description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+    robots: 'index, follow',
+    assets: ['/seo/og-image.png'],
+    openGraph: {
+        title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+        description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+        images: [{ url: '/seo/og-image.png' }],
+        type: 'website',
+        url: 'https://mempool.cardanoapi.io/',
+        siteName: 'Mempool Explorer'
+    },
+    twitter: {
+        card: 'summary',
+        site: '@cardano',
+        title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+        description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+        images: [{ url: '/seo/og-image.png' }]
+    },
+    applicationName: 'Mempool Explorer'
+};
 
-    const scrollToCurrentEpochInfo = () => {
-        if (currentEpochInfoRef.current) {
-            currentEpochInfoRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    const getContributorsData = async () => {
-        const res = await fetch(`${process.env.CONTRIBUTERS_JSON_URL}`);
-        return await res.json();
-    };
-
-    const contributorsData = process.env.CONTRIBUTERS_JSON_URL ? await getContributorsData() : [];
-
-    return (
-        <main className="w-full min-h-screen">
-            <Banner scrollToCurrentEpochInfo={scrollToCurrentEpochInfo} />
-            <CurrentEpochInfo ref={currentEpochInfoRef} />
-            <MempoolInfo />
-            <StakePoolsInfo />
-            {contributorsData && contributorsData.length > 0 && <ContributersInfo contributorsData={contributorsData} />}
-        </main>
-    );
+export default function Home() {
+    return <DashboardPage />;
 }
