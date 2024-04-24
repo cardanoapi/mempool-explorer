@@ -21,9 +21,6 @@ module.exports = {
         policies: [policy]
     },
     transform: (config, path) => {
-        if (path.match(`\\/.*\\/(dashboard)\\.*`)) {
-            return null;
-        }
         // Use default transformation for all other cases
         return {
             loc: path, // => this will be exported as http(s)://<config.siteUrl>/<path>

@@ -59,17 +59,18 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
         NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK,
+        NEXT_PUBLIC_NODE_ENV: process.env.NEXT_PUBLIC_NODE_ENV,
         ENABLE_CONNECT_WALLET: process.env.ENABLE_CONNECT_WALLET,
         API_URL: process.env.API_URL,
         CONTRIBUTERS_JSON_URL: process.env.CONTRIBUTERS_JSON_URL,
         CONTACT_US_URL: process.env.CONTACT_US_URL
-    },
-    experimental: {
-        maximumFileSizeToCacheInBytes: {
-            js: 10 * 1024 * 1024, // 10 MB
-            css: 10 * 1024 * 1024 // 10 MB
-        }
     }
+    // experimental: {
+    //     maximumFileSizeToCacheInBytes: {
+    //         js: 10 * 1024 * 1024, // 10 MB
+    //         css: 10 * 1024 * 1024 // 10 MB
+    //     }
+    // }
 };
 
 if (process.env.BASE_DEPLOY_PATH) {
@@ -91,6 +92,6 @@ const nextConfigWithPWA = withPWA({
 
 console.log(process.env);
 
-module.exports = withPlugins([[plausiblePlugin, bundleAnalyzer]], nextConfigWithPWA);
+// module.exports = withPlugins([[plausiblePlugin, bundleAnalyzer]], nextConfigWithPWA);
 
-// module.exports = nextConfigWithPWA;
+module.exports = nextConfigWithPWA;

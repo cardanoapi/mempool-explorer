@@ -1,24 +1,32 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import CurrentEpochInfo from '@app/molecules/DashboardCurrentEpochInfo';
-import MempoolInfo from '@app/molecules/DashboardMempooIInfo';
-import ContributersInfo from '@app/organisms/ContributersInfo';
-import StakePoolsInfo from '@app/organisms/PoolDistributionGroup';
+import { Metadata } from 'next';
 
-export default async function Home() {
-    const getContributorsData = async () => {
-        const res = await fetch(`${process.env.CONTRIBUTERS_JSON_URL}`);
-        return await res.json();
-    };
+import DashboardPage from '@app/templates/Dashboard';
 
-    const contributorsData = process.env.CONTRIBUTERS_JSON_URL ? await getContributorsData() : [];
+export const metadata: Metadata = {
+    title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+    description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+    robots: 'index, follow',
+    assets: ['/seo/og-image.png'],
+    openGraph: {
+        title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+        description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+        images: [{ url: '/seo/og-image.png' }],
+        type: 'website',
+        url: 'https://mempool.cardanoapi.io/',
+        siteName: 'Mempool Explorer'
+    },
+    twitter: {
+        card: 'summary',
+        site: '@cardano',
+        title: 'Mempool Explorer: Real-Time Transaction Status & Network Insights',
+        description: 'Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more.',
+        images: [{ url: '/seo/og-image.png' }]
+    },
+    applicationName: 'Mempool Explorer'
+};
 
-    return (
-        <main className="w-full min-h-screen">
-            <CurrentEpochInfo />
-            <MempoolInfo />
-            <StakePoolsInfo />
-            {contributorsData && contributorsData.length > 0 && <ContributersInfo contributorsData={contributorsData} />}
-        </main>
-    );
+export default function Home() {
+    return <DashboardPage />;
 }
