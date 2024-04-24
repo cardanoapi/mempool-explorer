@@ -23,7 +23,13 @@ export default function DashboardPage() {
             try {
                 if (process.env.CONTRIBUTERS_JSON_URL) {
                     const res = await fetch(process.env.CONTRIBUTERS_JSON_URL);
+                    if (!res.ok) {
+                        throw new Error('Failed to fetch contributors data');
+                    }
                     const data = await res.json();
+                    if (!data || !Array.isArray(data)) {
+                        throw new Error('Invalid contributors data');
+                    }
                     setContributorsData(data);
                 } else {
                     setContributorsData([]);
