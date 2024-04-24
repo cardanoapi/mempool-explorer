@@ -15,7 +15,7 @@ class PoolController extends RedisBaseController<any> {
     async _getPoolDistributionAndUpdateCache() {
         const avgTxCountQuery = Prisma.sql`
         SELECT tc.pool_id,
-        round(sum(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS avg_wait_time,
+        round(sum(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS total_wait_time,
         count(tx_hash) as tx_count
         FROM tx_confirmed tc
         WHERE tc.epoch > ((SELECT max(tx_confirmed.epoch) - 5
@@ -23,7 +23,7 @@ class PoolController extends RedisBaseController<any> {
          AND received_time IS NOT NULL
          AND EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) > 0
         GROUP BY tc.pool_id
-        ORDER BY avg_wait_time DESC;
+        ORDER BY total_wait_time DESC;
                 `;
 
 
@@ -57,7 +57,7 @@ class PoolController extends RedisBaseController<any> {
             ticker_name: string;
             name: String;
             url: String;
-            avg_wait_time: number;
+            total_wait_time: number;
             tx_count: number;
         }
 
@@ -65,20 +65,20 @@ class PoolController extends RedisBaseController<any> {
             await dbSyncDb.$queryRaw(pool_info_query);
         console.log('Numbers of pools fetched from dbsync', info_result.length);
 
-        // insert avg_wait_time for each pool in info_result
+        // insert total_wait_time for each pool in info_result
         info_result.forEach((v) => {
             const pool = poolDistributionResult.find(
                 (x: any) => x.pool_id === v.pool_id
             );
             if (pool) {
-                v.avg_wait_time = pool.avg_wait_time;
+                v.total_wait_time = pool.total_wait_time;
                 v.tx_count = pool.tx_count;
             }
         });
 
-        // sort by avg_wait_time desc
+        // sort by total_wait_time desc
         info_result.sort((a, b) => {
-            return b.avg_wait_time - a.avg_wait_time;
+            return b.total_wait_time - a.total_wait_time;
         });
 
         // Find the missing pool_ids from dbsync result
@@ -94,7 +94,7 @@ class PoolController extends RedisBaseController<any> {
                 ticker_name: 'N/A',
                 name: v.pool_id,
                 url: '',
-                avg_wait_time: v.avg_wait_time,
+                total_wait_time: v.total_wait_time,
                 tx_count: v.tx_count,
             });
         });
