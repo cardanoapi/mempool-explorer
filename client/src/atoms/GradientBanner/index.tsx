@@ -1,16 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-interface IGradientBannerProps {
+interface GradientBannerProps {
     minHeight?: string;
     className?: string;
     children: React.ReactNode;
 }
 
-export default function GradientBanner({ children, minHeight = '366px', className = '' }: IGradientBannerProps) {
+const GradientBanner = forwardRef<HTMLDivElement, GradientBannerProps>((props, ref) => {
+    const { children, minHeight = '366px', className = '' } = props;
+
     return (
-        <div className={`min-h-[${minHeight}] relative`}>
+        <div ref={ref} className={`min-h-[${minHeight}] relative`}>
             <div className={`${className}`}>{children}</div>
             <div className="absolute overflow-hidden inset-0 -z-10">
                 <div className="absolute top-[-9px] left-[269px] w-[350px] min-h-[366px] bg-gradient-to-r from-[#5F0080] via-[#9700CC] to-[#BD00FF] rotate-90 blur-color" />
@@ -18,4 +20,8 @@ export default function GradientBanner({ children, minHeight = '366px', classNam
             </div>
         </div>
     );
-}
+});
+
+GradientBanner.displayName = 'GradientBanner';
+
+export default GradientBanner;

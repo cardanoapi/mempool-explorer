@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 
 import _ from 'lodash';
 
@@ -21,7 +21,7 @@ type TxTiming = {
     avg_wait_time: string;
 };
 
-export default function CurrentEpochInfo() {
+const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
     const [currentEpoch, setCurrentEpoch] = useState<EpochDetails>({});
 
     useEffect(() => {
@@ -71,7 +71,7 @@ export default function CurrentEpochInfo() {
     }, []);
 
     return (
-        <GradientBanner minHeight="566px">
+        <GradientBanner ref={ref} minHeight="566px">
             <div className="grid grid-cols-1 min-h-[566px] md:grid-cols-3">
                 <div className="col-span-1 border-r-0 border-b-[1px] border-b-[#666666] md:border-r-[1px] md:border-r-[#666666] md:border-b-0">
                     <div className="px-4 py-6 md:px-10 md:py-5 border-b-[1px] border-b-[#303030] last:border-b-0">
@@ -137,4 +137,8 @@ export default function CurrentEpochInfo() {
             </div>
         </GradientBanner>
     );
-}
+});
+
+CurrentEpochInfo.displayName = 'CurrentEpochInfo';
+
+export default CurrentEpochInfo;
