@@ -28,6 +28,9 @@ module.exports = {
                 // Old colors
                 cardano: '#0C1420'
             },
+            minHeight: {
+                'calc-68': 'calc(100vh - 68px)'
+            },
             height: {
                 22: '88px',
                 'calc-88': 'calc(100vh - 88px)'

@@ -14,7 +14,8 @@ interface ILabelContent {
     imageUrl?: string;
     linkUrl?: string;
     text: string;
-    avgWaitTime: string;
+    totalWaitTime: string;
+    poolId: string;
 }
 
 interface ILabelData {
@@ -28,9 +29,9 @@ interface IGradientHealthBarProps {
     labels?: Array<
         | string
         | {
-            text: string;
-            textPosition: string;
-        }
+              text: string;
+              textPosition: string;
+          }
     >;
     labelData?: ILabelData[];
     labelIndicator?: 'great' | 'good' | 'bad';
@@ -95,19 +96,20 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                                                     {content.text.startsWith('pool') ? content.imageUrl.substring(0, 3) : content.imageUrl.substring(0, 2)}
                                                                 </p>
                                                             )}
-                                                            {content.linkUrl ? (
-                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
+                                                            {/* {content.linkUrl ? (
+                                                                // TODO: Navigate to our pool page and in that page add external link to the pool
+                                                                <Tooltip title={`Total Wait time ${content.totalWaitTime} sec`} arrow>
                                                                     <a href={content.linkUrl} className="hover:text-blue-500 w-full bg-white" target="_blank">
                                                                         <p className="p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                                     </a>
                                                                 </Tooltip>
-                                                            ) : (
-                                                                <Tooltip title={`Avg. Wait time ${content.avgWaitTime} sec`} arrow>
-                                                                    <Link href={`/pool/${content.text}`} className="bg-white w-full">
-                                                                        <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
-                                                                    </Link>
-                                                                </Tooltip>
-                                                            )}
+                                                            ) : ( */}
+                                                            <Tooltip title={`Total Wait time ${content.totalWaitTime} sec`} arrow>
+                                                                <Link href={`/pool/${content.poolId}`} className="bg-white w-full">
+                                                                    <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
+                                                                </Link>
+                                                            </Tooltip>
+                                                            {/* )} */}
                                                         </div>
                                                     </div>
                                                 ))}

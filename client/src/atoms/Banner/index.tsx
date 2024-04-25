@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 import ArrowIcon from '@app/assets/svgs/arrow-icon';
 
@@ -14,7 +15,7 @@ export default function Banner({ scrollToCurrentEpochInfo }: { scrollToCurrentEp
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-10 md:px-[104px]">
+        <div className="w-full min-h-calc-68 bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-10 md:px-[104px]">
             <div className="flex flex-col w-full">
                 <h1 className="text-4xl md:text-5xl mb-10 font-medium">{bannerContent.title}</h1>
                 {bannerContent.features.map((feature, index) => (
@@ -24,9 +25,16 @@ export default function Banner({ scrollToCurrentEpochInfo }: { scrollToCurrentEp
                     </div>
                 ))}
                 <p className="mt-[88px] text-lg font-medium mb-12">{bannerContent.description}</p>
-                <GradientButton size="large" startIcon={<ArrowIcon stroke="#0D0D0D" className="transform rotate-90" />} onClick={scrollToCurrentEpochInfo} fullWidth={false} className="w-fit">
-                    <span>Scroll Down</span>
-                </GradientButton>
+                <div className="flex gap-4">
+                    <GradientButton size="large" startIcon={<ArrowIcon stroke="#0D0D0D" className="transform rotate-90" />} onClick={scrollToCurrentEpochInfo} fullWidth={false} className="w-fit">
+                        <span>Explore</span>
+                    </GradientButton>
+                    <Link href="/mempool">
+                        <GradientButton size="large" fullWidth={false} onClick={() => {}}>
+                            Show Live Data
+                        </GradientButton>
+                    </Link>
+                </div>
             </div>
             <div className="w-full flex justify-center items-center">
                 <div style={{ maxWidth: '100%', maxHeight: '100%' }}>

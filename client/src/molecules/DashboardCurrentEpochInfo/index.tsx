@@ -76,25 +76,25 @@ const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
                 <div className="col-span-1 border-r-0 border-b-[1px] border-b-[#666666] md:border-r-[1px] md:border-r-[#666666] md:border-b-0">
                     <div className="px-4 py-6 md:px-10 md:py-5 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-2xl font-medium text-[#E6E6E6]">Current Epoch</p>
-                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.epoch_number ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.epoch_number}</p>
+                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.epoch_number ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.epoch_number?.toLocaleString('en-US')}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Total Transactions</p>
-                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.tx_count ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.tx_count}</p>
+                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.tx_count ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.tx_count?.toLocaleString('en-US')}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Average Confirmation Time</p>
                         <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.avg_wait_time ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>
-                            {currentEpoch?.avg_wait_time ? `${currentEpoch.avg_wait_time?.toFixed(2)} sec` : ''}
+                            {currentEpoch?.avg_wait_time ? `${currentEpoch.avg_wait_time.toLocaleString('en-Us', { maximumFractionDigits: 2 })} sec` : ''}
                         </p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
                         <p className="text-base font-medium text-[#B9B9B9]">Total Blocks</p>
-                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.block_count ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.block_count}</p>
+                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.block_count ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.block_count?.toLocaleString('en-US')}</p>
                     </div>
                     <div className="px-4 py-4 md:px-10 md:py-8 border-b-[1px] border-b-[#303030] last:border-b-0">
-                        <p className="text-base font-medium text-[#B9B9B9]">Avg Transaction Per Block</p>
-                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.avg_transaction_per_block ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.avg_transaction_per_block}</p>
+                        <p className="text-base font-medium text-[#B9B9B9]">Avg. Transaction Per Block</p>
+                        <p className={`text-base md:text-2xl font-medium text-[#E6E6E6] ${!currentEpoch.avg_transaction_per_block ? 'animate-pulse bg-black w-full h-10 mt-2' : ''}`}>{currentEpoch.avg_transaction_per_block?.toLocaleString('en-US')}</p>
                     </div>
                 </div>
                 <div className="col-span-1 md:col-span-2">
@@ -114,7 +114,7 @@ const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
                                     <div className="h-2 w-6 rounded bg-[#FF6B00]" />
                                     <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
                                 </div>
-                                {currentEpoch?.avg_wait_time && <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpoch?.avg_wait_time?.toFixed(2)} sec</p>}
+                                {currentEpoch?.avg_wait_time && <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_wait_time.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec</p>}
                             </div>
                         </div>
                     </div>

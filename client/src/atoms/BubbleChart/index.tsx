@@ -2,22 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LineController, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js';
 import { Bubble } from 'react-chartjs-2';
 
+import { PoolDistribution } from '@app/types/poolDistribution';
+
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, LineController, CategoryScale, LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
 
-interface IPoolData {
-    pool_id: string;
-    name: string;
-    ticker_name: string;
-    url: string;
-    avg_wait_time: string;
-    tx_count: string;
-}
-
 interface IBubbleChartProps {
-    data: Array<IPoolData>;
+    data: Array<PoolDistribution>;
     searchQuery?: string;
     secondData?: Array<any>;
     tickText: string;
@@ -28,7 +23,7 @@ interface IBubbleChartProps {
 }
 
 export default function BubbleChart({ data, tickText, hoverTextPrefix, secondData, searchQuery = '', suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBubbleChartProps) {
-    // console.log('BubbleChart', data, tickText, hoverTextPrefix, secondData, suggestedMin, suggestedMax, stepSize);
+    const router = useRouter();
 
     const backgroundColor = ['#FF4B1D', '#FF5E1F', '#FF7122', '#FE8425', '#FE9828', '#F8A92C', '#DFB634', '#C4C33D', '#AAD046', '#90DD4F'];
 
@@ -43,20 +38,20 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
         .slice()
         .reverse()
         .sort((a, b) => {
-            return parseFloat(a.avg_wait_time) - parseFloat(b.avg_wait_time);
+            return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
         })
-        .map((item: IPoolData, idx: number) => {
-            const mean = data.reduce((acc, curr) => acc + parseFloat(curr.avg_wait_time), 0) / data.length;
+        .map((item: PoolDistribution, idx: number) => {
+            const mean = data.reduce((acc, curr) => acc + parseFloat(curr.total_wait_time), 0) / data.length;
             // const adjustedColorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + (parseFloat(item.avg_wait_time) > mean ? 5 : 0);
             // const colorIndex = Math.max(0, Math.min(9, adjustedColorIndex));
 
-            const isAboveMean = parseFloat(item.avg_wait_time) > mean;
+            const isAboveMean = parseFloat(item.total_wait_time) > mean;
 
             let colorIndex;
             if (isAboveMean) {
-                colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + 4;
+                colorIndex = Math.floor(parseFloat(item.total_wait_time) / 10) + 4;
             } else {
-                const totalBelowMean = data.filter((d) => parseFloat(d.avg_wait_time) <= mean).length;
+                const totalBelowMean = data.filter((d) => parseFloat(d.total_wait_time) <= mean).length;
                 colorIndex = Math.floor((idx + 1) / (totalBelowMean / 5));
             }
 
@@ -71,7 +66,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 data: [
                     {
                         ...item,
-                        y: parseFloat(item.avg_wait_time),
+                        y: parseFloat(item.total_wait_time),
                         x: idx + 1,
                         // r: !!item?.tx_count ? parseInt(item.tx_count) : 5
                         r: 5
@@ -88,7 +83,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 if (searchQuery === '') {
                     return { ...dataset, backgroundColor: dataset.backgroundColor };
                 }
-                const found = dataset.label.toLowerCase().includes(searchQuery);
+                const found = dataset.label?.toLowerCase().includes(searchQuery);
                 return found;
 
                 // return {
@@ -128,9 +123,19 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                             label: (context: any) => {
                                 const dataset = context.dataset.label || '';
                                 const dataPoint = context.parsed;
-                                const tx = context.dataset?.txCount ? `\n(${context.dataset?.txCount} transactions)` : '';
-                                return `${dataset}: ${dataPoint.y} ${hoverTextPrefix}${tx}`;
+                                const tx = context.dataset?.txCount ? `\n(${parseInt(context.dataset.txCount).toLocaleString('en-US')} transactions)` : '';
+                                return `${dataset}: ${dataPoint.y?.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hoverTextPrefix}${tx}`;
                             }
+                        }
+                    }
+                },
+                onClick(event, elements, chart) {
+                    if (elements.length > 0) {
+                        const element = elements[0];
+                        const dataset = chart.data.datasets[element.datasetIndex];
+                        if (dataset && dataset.data && dataset.data[element.index]) {
+                            const pool: PoolDistribution = dataset.data[element.index] as unknown as PoolDistribution;
+                            router.push(`/pool/${pool.pool_id}`);
                         }
                     }
                 },
@@ -148,7 +153,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                         ticks: {
                             stepSize,
                             callback: function (value, index, ticks) {
-                                return `${value} ${tickText}`;
+                                return `${value.toLocaleString('en-US')} ${tickText}`;
                             }
                         }
                     },
@@ -157,12 +162,12 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                         ticks: {
                             stepSize,
                             callback: function (value, index, ticks) {
-                                return `${value} ${tickText}`;
+                                return `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${tickText}`;
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Avg. Wait Time (Seconds)'
+                            text: 'Total Wait Time (Seconds)'
                         },
                         suggestedMin,
                         suggestedMax,
