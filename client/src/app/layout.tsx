@@ -11,23 +11,6 @@ import './globals.css';
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
     return (
         <html lang="en">
-            <head>
-                <title>Mempool Explorer: Real-Time Transaction Status & Network Insights</title>
-                <meta name="description" content="Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more." />
-                <meta name="robots" content="index, follow" />
-                <meta property="og:title" content="Mempool Explorer: Real-Time Transaction Status & Network Insights" />
-                <meta property="og:description" content="Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more." />
-                <meta property="og:image" content="/seo/og-image.png" />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://mempool.cardanoapi.io/" />
-                <meta property="og:site_name" content="Mempool Explorer" />
-                <meta name="twitter:card" content="summary" />
-                <meta name="twitter:site" content="@cardano" />
-                <meta name="twitter:title" content="Mempool Explorer: Real-Time Transaction Status & Network Insights" />
-                <meta name="twitter:description" content="Explore the full Cardano ecosystem with The Mempool. See the real-time status of your transactions, browse network stats, and more." />
-                <meta name="twitter:image" content="/seo/og-image.png" />
-                <link rel="icon" href="/favicon.ico" />
-            </head>
             <body className="!bg-black !text-white">
                 <NextTopLoader showSpinner={false} color="#E6E6E6" />
                 <Navbar />
