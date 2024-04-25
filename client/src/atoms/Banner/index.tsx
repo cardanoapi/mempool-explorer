@@ -15,7 +15,10 @@ export default function Banner({ scrollToCurrentEpochInfo }: { scrollToCurrentEp
     };
 
     return (
-        <div className="w-full min-h-calc-68 bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-10 md:px-[104px]">
+        <div
+            style={{ background: "url('/banner-bg.png')", backgroundSize: 'cover' }}
+            className="w-full min-h-calc-68 bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-10 md:px-[104px]"
+        >
             <div className="flex flex-col w-full">
                 <h1 className="text-4xl md:text-5xl mb-10 font-medium">{bannerContent.title}</h1>
                 {bannerContent.features.map((feature, index) => (
