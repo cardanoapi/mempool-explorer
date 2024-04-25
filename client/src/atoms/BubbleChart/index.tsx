@@ -27,23 +27,15 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
 
     const backgroundColor = ['#FF4B1D', '#FF5E1F', '#FF7122', '#FE8425', '#FE9828', '#F8A92C', '#DFB634', '#C4C33D', '#AAD046', '#90DD4F'];
 
-    // const generateRandomColor = () => {
-    //     const randomHue = Math.random() * 360; // Random hue value
-    //     const randomSaturation = Math.random() * 30 + 70; // Random saturation value biased towards brighter colors
-    //     const randomLightness = Math.random() * 30 + 40; // Random lightness value biased towards brighter colors
-    //     return `hsl(${randomHue}, ${randomSaturation}%, ${randomLightness}%)`;
-    // };
-
     const datasets = data
         .slice()
         .reverse()
         .sort((a, b) => {
-            return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
+            return parseFloat(b.total_wait_time) - parseFloat(a.total_wait_time);
+            // return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
         })
         .map((item: PoolDistribution, idx: number) => {
             const mean = data.reduce((acc, curr) => acc + parseFloat(curr.total_wait_time), 0) / data.length;
-            // const adjustedColorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10) + (parseFloat(item.avg_wait_time) > mean ? 5 : 0);
-            // const colorIndex = Math.max(0, Math.min(9, adjustedColorIndex));
 
             const isAboveMean = parseFloat(item.total_wait_time) > mean;
 
@@ -52,12 +44,11 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 colorIndex = Math.floor(parseFloat(item.total_wait_time) / 10) + 4;
             } else {
                 const totalBelowMean = data.filter((d) => parseFloat(d.total_wait_time) <= mean).length;
-                colorIndex = Math.floor((idx + 1) / (totalBelowMean / 5));
+                colorIndex = 9 - Math.floor((idx + 1) / (totalBelowMean / 5));
+                // colorIndex = Math.floor((idx + 1) / (totalBelowMean / 5));
             }
 
             colorIndex = Math.max(0, Math.min(9, colorIndex));
-            // let colorIndex = Math.floor(parseFloat(item.avg_wait_time) / 10);
-            // colorIndex = Math.max(0, Math.min(colorIndex, 9));
             const bgColor = backgroundColor[colorIndex];
 
             return {
