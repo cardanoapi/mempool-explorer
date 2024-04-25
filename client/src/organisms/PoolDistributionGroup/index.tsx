@@ -10,21 +10,14 @@ import BubbleChart from '@app/atoms/BubbleChart';
 import GradientBanner from '@app/atoms/GradientBanner';
 import GradientHealthBar from '@app/atoms/GradientHealthBar';
 import SearchIcon from '@app/atoms/Icon/Search';
+import environments from '@app/configs/environments';
 import StakePoolTiming from '@app/molecules/DashboardStakePoolsInfo';
-
-type PoolDistribution = {
-    pool_id: string;
-    name: string;
-    ticker_name: string;
-    url: string;
-    avg_wait_time: string;
-    tx_count: string;
-};
+import { PoolDistribution } from '@app/types/poolDistribution';
 
 export default function StakePoolsInfo() {
     const [poolData, setPoolData] = useState<PoolDistribution[]>();
     const [poolDistribution, setPoolDistribution] = useState<any[]>();
-    const [avgWaitTime, setAvgWaitTime] = useState<string>();
+    const [totalWaitTime, setTotalWaitTime] = useState<string>();
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const handleChange: any = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,17 +31,19 @@ export default function StakePoolsInfo() {
 
     useEffect(() => {
         getPoolDistribution()
-            .then((res) => {
+            .then((res: PoolDistribution[]) => {
                 setPoolData(res);
-                const waitTimes = res.map((item: PoolDistribution) => parseFloat(item.avg_wait_time));
-                setAvgWaitTime(_.mean(waitTimes).toFixed(2) + ' sec');
+
+                const waitTimes = res.map((item: PoolDistribution) => parseFloat(item.total_wait_time));
+                setTotalWaitTime(_.mean(waitTimes).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' sec');
                 const percentaileData = mapToPercentiles(waitTimes, res);
                 const data = Object.keys(percentaileData).map((key) => {
                     const resultArray = percentaileData[key].map((pool: any) => ({
                         text: pool.name,
                         imageUrl: pool.ticker_name,
                         linkUrl: pool.url,
-                        avgWaitTime: parseFloat(pool.avg_wait_time).toFixed(2)
+                        poolId: pool.pool_id,
+                        totalWaitTime: parseFloat(pool.total_wait_time).toLocaleString('en-US', { maximumFractionDigits: 2 })
                     }));
                     return {
                         data: resultArray.length,
@@ -86,6 +81,22 @@ export default function StakePoolsInfo() {
                                 <p className="text-sm font-normal text-[#E6E6E6]">Suboptimal Pools</p>
                             </div>
                         </div>
+                    </div>
+                    <div className="px-4 py-4 pb-12 lg:px-10 lg:py-8 lg:pb-16">
+                        {environments.ENABLE_PERCENTILE_POOL_GRAPH && (
+                            <div className="mb-5">
+                                {poolDistribution ? (
+                                    <GradientHealthBar searchQuery={searchQuery} className="absolute" labelData={poolDistribution} labelIsPercentage />
+                                ) : (
+                                    <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
+                                        {_.range(0, 10).map((percent, index) => (
+                                            <div key={index} className="h-full col-span-1 bg-black animate-pulse flex items-center justify-center"></div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <Box sx={{ flexGrow: 1 }}>
                             <TextField
                                 placeholder="Search your pool on distribution..."
@@ -121,23 +132,12 @@ export default function StakePoolsInfo() {
                                 onChange={handleChange}
                             />
                         </Box>
-                    </div>
-                    <div className="px-4 py-4 pb-12 lg:px-10 lg:py-8 lg:pb-16">
-                        {poolDistribution ? (
-                            <GradientHealthBar searchQuery={searchQuery} className="absolute" labelData={poolDistribution} labelIsPercentage />
-                        ) : (
-                            <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
-                                {_.range(0, 10).map((percent, index) => (
-                                    <div key={index} className="h-full col-span-1 bg-black animate-pulse flex items-center justify-center"></div>
-                                ))}
-                            </div>
-                        )}
                         {poolData ? (
                             <div className="mt-5">
                                 <BubbleChart data={poolData} searchQuery={searchQuery} tickText="" hoverTextPrefix="secs" stepSize={10} />
                             </div>
                         ) : (
-                            <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1">
+                            <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-1 mt-5">
                                 {_.range(0, 10).map((percent, index) => (
                                     <div key={index} className="h-full col-span-1 bg-black animate-pulse flex items-center justify-center"></div>
                                 ))}
@@ -146,7 +146,7 @@ export default function StakePoolsInfo() {
                     </div>
                 </div>
             </GradientBanner>
-            <StakePoolTiming avgWaitTime={avgWaitTime} poolData={poolData && Array.isArray(poolData) ? poolData?.slice(0, 12) : []} />
+            <StakePoolTiming totalWaitTime={totalWaitTime} poolData={poolData && Array.isArray(poolData) ? poolData?.slice(0, 12) : []} />
         </div>
     );
 }
@@ -163,7 +163,7 @@ function mapToPercentiles(waitTimes: number[], data: any[]) {
         const lowerBound = maxValue - i * rangeSize;
         const upperBound = maxValue - (i + 1) * rangeSize;
         const percentileKey = `${100 - i * 10}-${90 - i * 10}`;
-        result[percentileKey] = data.filter((item: any) => parseFloat(item.avg_wait_time) <= lowerBound && parseFloat(item.avg_wait_time) > upperBound);
+        result[percentileKey] = data.filter((item: any) => parseFloat(item.total_wait_time) <= lowerBound && parseFloat(item.total_wait_time) > upperBound);
     }
     return result;
 }
