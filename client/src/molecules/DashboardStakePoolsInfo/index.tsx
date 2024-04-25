@@ -49,7 +49,6 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
     useEffect(() => {
         getPoolTiming()
             .then((res) => {
-                console.log(res);
                 const labels: string[] = [];
                 const values: number[] = [];
                 res.forEach((result: any) => {
