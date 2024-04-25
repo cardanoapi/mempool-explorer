@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -20,11 +20,11 @@ import TableHeader from '@app/atoms/TableHeader';
 import TableTitle from '@app/atoms/TableTitle';
 import { checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
+import { useGenerateCardanoScanLink } from '@app/lib/hooks/useGenerateCardanoScanLink';
 import BannerStatCard from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
 import { AddressTransactionType } from '@app/types/transaction-details-response/socket-response-type';
 import { copyToClipboard } from '@app/utils/utils';
-
 
 export default function AddressPage() {
     const router = useParams();
@@ -33,18 +33,7 @@ export default function AddressPage() {
     const { isLoading, hideLoader, error, setError } = useLoader();
     const [currentPage, setCurrentPage] = useState(1);
     const [transactions, setTransactions] = useState<Array<AddressTransactionType>>([]);
-
-    function generateCardanoScanLink() {
-        const baseUrl = 'https://cardanoscan.io/';
-        if (((router?.id as string) || '').startsWith('addr')) {
-            const addr = Address.from_bech32((router?.id as string) || '');
-            const hex = Buffer.from(addr.to_bytes()).toString('hex');
-            return baseUrl + 'address' + `/${hex}`;
-        } else if (((router?.id as string) || '').startsWith('pool')) {
-            return baseUrl + 'pool/' + (router?.id || '');
-        }
-        return '';
-    }
+    const cardanoScanLink = useGenerateCardanoScanLink(setError);
 
     const getStatsFromDatabase = async () => {
         const response = await fetch(`/api/v1/tx/stats?query=${router?.id}`);
@@ -71,7 +60,7 @@ export default function AddressPage() {
             )
             .finally(() => hideLoader());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router?.id]);
+    }, []);
 
     useEffect(() => {
         getDataFromDatabase(currentPage)
@@ -96,7 +85,7 @@ export default function AddressPage() {
                         <p className="text-base font-normal text-[#B9B9B9] text-start break-all">{router?.id}</p>
                         <CopyIcon />
                     </button>
-                    <Link href={generateCardanoScanLink()}>
+                    <Link href={cardanoScanLink}>
                         <LinkIcon />
                     </Link>
                 </div>
