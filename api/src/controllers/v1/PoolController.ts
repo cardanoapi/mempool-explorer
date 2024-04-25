@@ -139,49 +139,48 @@ class PoolController extends RedisBaseController<any> {
     async _getPoolTimingAndUpdateCache() {
         const poolTimingQuery = Prisma.sql`
         -- Generate a series of intervals
-        WITH IntervalSeries AS (SELECT generate_series(0, 90000, 3000)  AS start_range,
-                                       generate_series(3000, 90000, 3000) AS end_range),
-
+        WITH IntervalSeries AS (SELECT generate_series(0, 140, 10)  AS start_range,
+                                       generate_series(10, 140, 10) AS end_range),
+        
         -- Compute average wait time for each pool_id and bucket into intervals
              AvgWaitTimePerPool AS (SELECT tc.pool_id,
                                            CASE
-                                               WHEN SUM(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) <= 90000 THEN
+                                               WHEN AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) <= 140 THEN
                                                    CONCAT(
-                                                               FLOOR(SUM(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 3000) *
-                                                               3000,
+                                                               FLOOR(AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 10) *
+                                                               10,
                                                                '-',
-                                                               FLOOR(SUM(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 3000) *
-                                                               3000 + 3000)
+                                                               FLOOR(AVG(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)) / 10) *
+                                                               10 + 10)
                                                ELSE
-                                                   '90000+'
+                                                   '140+'
                                                END AS wait_interval
                                     FROM tx_confirmed tc
                                     WHERE tc.received_time IS NOT NULL
                                       AND tc.epoch > (SELECT max(tx_confirmed.epoch) - 5 FROM tx_confirmed)
                                     GROUP BY tc.pool_id),
-
+        
         -- Aggregate based on intervals and calculate statistics
              AggregatedData AS (SELECT wait_interval           AS interval_range,
                                        COUNT(pool_id)::integer AS pool_count
                                 FROM AvgWaitTimePerPool
                                 GROUP BY wait_interval),
-
+        
         -- Generate a full list of intervals
              FullIntervals AS (SELECT CONCAT(start_range, '-', end_range) AS full_interval
                                FROM IntervalSeries
-                               WHERE end_range <= 90000
+                               WHERE end_range <= 140
                                UNION
-                               SELECT '90000+')
-
+                               SELECT '140+')
+        
         -- Join with full intervals to ensure all intervals are represented
         SELECT fi.full_interval AS interval_range, COALESCE(ad.pool_count, 0) AS pool_count
         FROM FullIntervals fi
                  LEFT JOIN AggregatedData ad ON fi.full_interval = ad.interval_range
         ORDER BY CASE
-                     WHEN fi.full_interval = '90000+' THEN 2000000 -- Assuming a very large number for sorting purposes
+                     WHEN fi.full_interval = '140+' THEN 1000 -- Assuming a very large number for sorting purposes
                      ELSE CAST(SPLIT_PART(fi.full_interval, '-', 1) AS INT)
-                     END;
-        
+                     END;    
                 `;
 
         interface AverageTransactionTimeQueryResult {
