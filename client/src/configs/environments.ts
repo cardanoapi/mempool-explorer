@@ -5,6 +5,7 @@ const environments = {
     ENABLE_CONNECT_WALLET: (process.env.ENABLE_CONNECT_WALLET && (process.env.ENABLE_CONNECT_WALLET === 'true' || process.env.ENABLE_CONNECT_WALLET === true)) ?? false,
     // @ts-ignore
     ENABLE_PERCENTILE_POOL_GRAPH: (process.env.ENABLE_PERCENTILE_POOL_GRAPH && (process.env.ENABLE_PERCENTILE_POOL_GRAPH === 'true' || process.env.ENABLE_PERCENTILE_POOL_GRAPH === true)) ?? false,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'https://mempool-api.cardanoapi.io/api/v1',
     API_URL: process.env.API_URL ?? 'http://localhost:8080/api/v1'
 };
 
