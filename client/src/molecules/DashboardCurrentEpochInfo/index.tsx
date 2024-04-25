@@ -118,6 +118,7 @@ const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
                             </div>
                         </div>
                     </div>
+                    <p className="px-4 lg:px-10">The line chart visually depicts the average duration taken (in seconds) for transactions over the course of the last 7 days.</p>
                     <div className="md:min-h-[355px] px-4 py-4 md:px-10 md:py-8">
                         {txTimingsDays.length === 0 ? (
                             <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
