@@ -100,7 +100,7 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                         <p className="text-2xl font-medium text-[#E6E6E6]">Stake Pools</p>
                         <p className="text-sm font-normal text-[#E6E6E6]">Last 5 Epochs</p>
                     </div>
-                    <div>
+                    {/* <div>
                         <p className="text-sm font-normal text-[#E6E6E6]">Filter</p>
                         <Select
                             value={selectedFilter}
@@ -112,12 +112,12 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                             <MenuItem value="mins">Minutes</MenuItem>
                             <MenuItem value="secs">Seconds</MenuItem>
                         </Select>
-                    </div>
+                    </div> */}
                 </div>
                 <p className="px-4 lg:px-10">The bar graph illustrates the count of stake pools over the last five epochs, categorized by their average wait times.</p>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                     {poolTimingLabels && poolTimingValues ? (
-                        <BarChart labels={selectedPoolTimingLabels} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />
+                        <BarChart labels={poolTimingLabelsSecs} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />
                     ) : (
                         <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
                             {_.range(0, 10).map((percent, index) => (

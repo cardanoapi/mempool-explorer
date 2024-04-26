@@ -18,9 +18,9 @@ export default function BannerStatCard({ title, value, isLoading = false, valueC
 
 export function ConfirmBannerStatCard({ title, value, valueClassName = '' }: IBannerStatCardProps) {
     return (
-        <div className="p-4 md:p-10 w-full h-full flex flex-col gap-2 justify-start items-start">
+        <div className="p-4 md:p-10 w-full h-full flex flex-col gap-2 justify-start items-start border-b-[1px] border-t-[1px] border-t-green-50 border-b-green-50 border-l-none border-r-none md:border-l-[1px] md:border-r-[1px] md:border-l-green-50 md:border-r-green-50">
             <p className="!text-[#4A4A4A] text-sm md:!text-base !font-medium">{title}</p>
-            <p className={`text-black text-base md:text-[40px] md:leading-[52px] font-medium ${valueClassName}`}>{value}</p>
+            <p className={`text-black text-base md:text-[40px] md:leading-[52px] font-medium !leading-normal ${valueClassName}`}>{value}</p>
         </div>
     );
 }
