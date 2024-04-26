@@ -161,8 +161,8 @@ export default function TransactionDetails() {
                         {isTransactionConfirmed && (
                             <>
                                 <div className="mt-10 h-[1px]" />
-                                <div className="pt-4 bg-green-300">
-                                    <div className="ml-4 text-black text-2xl font-medium">Confirmation Details</div>
+                                <div className="bg-green-300">
+                                    <div className="px-4 py-10 md:px-10 text-black text-2xl font-medium">Confirmation Details</div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                                         <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
                                         <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
