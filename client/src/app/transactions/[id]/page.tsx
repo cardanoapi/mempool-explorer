@@ -4,22 +4,18 @@ import { useEffect, useState } from 'react';
 
 import { useParams } from 'next/navigation';
 
-
+import api from '@app/api/axios';
 import CopyIcon from '@app/atoms/Icon/Copy';
 import TxIcon from '@app/atoms/Icon/Tx';
 import TableTitle from '@app/atoms/TableTitle';
 import Loader from '@app/components/loader';
-import { checkForErrorResponse } from '@app/components/loader/error';
 import useLoader from '@app/components/loader/useLoader';
 import Competitors from '@app/components/transaction-hash/competitors';
 import Followups from '@app/components/transaction-hash/followups';
-import { DateTimeCustomoptions } from '@app/constants/constants';
 import BannerStatCard, { ConfirmBannerStatCard } from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
 import TxInputOutput from '@app/organisms/TxInputOutput';
 import { copyToClipboard } from '@app/utils/utils';
-import api from '@app/api/axios';
-
 
 type ConfirmationDetails = {
     block_hash: string;
@@ -28,7 +24,7 @@ type ConfirmationDetails = {
     block_time: string;
     epoch: number;
     pool_id: string;
-}
+};
 
 type TransactionDetailsInterface = {
     tx: any;
@@ -132,7 +128,6 @@ export default function TransactionDetails() {
                     })
                     .finally(() => hideLoader());
             });
-
     }, [tx_hash]);
 
     const isTransactionPending = transactionStatus === TransactionStatus.pending;
@@ -169,12 +164,10 @@ export default function TransactionDetails() {
                                 <div className="pt-4 bg-green-300">
                                     <div className="ml-4 text-black text-2xl font-medium">Confirmation Details</div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                                        <>
-                                            <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
-                                            <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
-                                            <ConfirmBannerStatCard title="Block No." value={miner?.block_no ?? ''} />
-                                            <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
-                                        </>
+                                        <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
+                                        <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
+                                        <ConfirmBannerStatCard title="Block No." value={miner?.block_no ?? ''} />
+                                        <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
                                     </div>
                                 </div>
                             </>
