@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 import _ from 'lodash';
@@ -19,6 +20,7 @@ import TableTitle from '@app/atoms/TableTitle';
 import { useIsMobile } from '@app/lib/hooks/useBreakpoint';
 import BannerStatCard from '@app/molecules/BannerStatCard';
 import BannerTitle from '@app/molecules/BannerTitle';
+import { PoolDistribution } from '@app/types/poolDistribution';
 import { parseDateStrToDate, toHourMinStr, toMonthDateYearStr } from '@app/utils/date-utils';
 import { toMidDottedStr } from '@app/utils/string-utils';
 import { copyToClipboard } from '@app/utils/utils';
@@ -49,10 +51,12 @@ export default function PoolDetails() {
     const isMobile = useIsMobile();
     const poolId = router.id as string;
 
+    const [poolData, setPoolData] = useState<PoolDistribution[]>();
+    const [poolExternalLink, setPoolExternalLink] = useState<string>();
+
     const [poolTimingIntervalRanges, setPoolTimingIntervalRanges] = useState<string[]>([]);
     const [poolTimingTxCount, setPoolTimingTxCount] = useState<number[]>([]);
     const [epochTxCountData, setEpochTxCountData] = useState<any[]>([]);
-    console.log(epochTxCountData);
 
     const [transactions, setTransactions] = useState<any[]>();
     const [pageNumber, setPageNumber] = useState<number>(1);
@@ -83,6 +87,39 @@ export default function PoolDetails() {
         const response = await api.get(`/pool/${poolId}/epoch`);
         return await response.data;
     };
+
+    const getPoolDistribution = async () => {
+        const response = await fetch('/api/v1/pool/distribution');
+        return await response.json();
+    };
+
+    const getPoolExternalLink = (poolId: string) => {
+        if (poolData && poolData.length > 0) {
+            const pool = poolData.find((pool) => pool.pool_id === poolId);
+            if (pool?.url) {
+                return pool.url;
+            }
+        }
+        return '';
+    };
+
+    useEffect(() => {
+        getPoolDistribution()
+            .then((res: PoolDistribution[]) => {
+                setPoolData(res);
+            })
+            .catch((e: any) => {
+                console.log('Error occurred while fetching pool distribution');
+                console.error(e);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (poolData) {
+            const poolLink = getPoolExternalLink(poolId);
+            setPoolExternalLink(poolLink);
+        }
+    }, [poolData]);
 
     useEffect(() => {
         getTransactionTimingOfPool(poolId)
@@ -153,11 +190,19 @@ export default function PoolDetails() {
     return (
         <div className="mb-4">
             <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight="">
-                <div className="px-4 md:px-10 pb-10">
+                <div className="px-4 md:px-10 pb-10 flex flex-col gap-4">
                     <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(poolId, 'Pool ID')}>
                         <p className="text-base font-normal text-[#B9B9B9] break-all"> {poolId}</p>
                         <CopyIcon />
                     </button>
+                    {poolExternalLink && (
+                        <GradientButton fullWidth={false} className="flex gap-4 w-fit !h-10 items-center cursor-default" onClick={() => copyToClipboard(poolExternalLink, 'Pool Link')}>
+                            <Link target="_blank" href={poolExternalLink} className="flex gap-2 items-center cursor-pointer hover:underline">
+                                <p className="text-base lowercase font-normal break-all"> {poolExternalLink.toLowerCase()}</p>
+                            </Link>
+                            <CopyIcon stroke="#0D0D0D" className="cursor-pointer text-inherit" />
+                        </GradientButton>
+                    )}
                 </div>
                 <div>
                     <div className="mt-10 h-[1px]" />
