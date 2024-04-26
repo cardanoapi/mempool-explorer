@@ -49,7 +49,6 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
     useEffect(() => {
         getPoolTiming()
             .then((res) => {
-                console.log(res);
                 const labels: string[] = [];
                 const values: number[] = [];
                 res.forEach((result: any) => {
@@ -115,6 +114,7 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                         </Select>
                     </div>
                 </div>
+                <p className="px-4 lg:px-10">The bar graph illustrates the count of stake pools over the last five epochs, categorized by their average wait times.</p>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                     {poolTimingLabels && poolTimingValues ? (
                         <BarChart labels={selectedPoolTimingLabels} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />

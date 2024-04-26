@@ -85,6 +85,12 @@ export default function StakePoolsInfo() {
                     <div className="px-4 py-4 pb-12 lg:px-10 lg:py-8 lg:pb-16">
                         {environments.ENABLE_PERCENTILE_POOL_GRAPH && (
                             <div className="mb-5">
+                                <p className="mb-4">
+                                    Pool distribution, represented in a health bar style graph with class intervals defined by percentage ranges (e.g., 0-10%, 10-20%, ..., 90-100%), categorizes pools based on their performance. In this representation,
+                                    pools falling within the 0-10% range are categorized as &apos;Suboptimal Pools.&apos; As the percentage increases, indicating better performance, pools transition into the &apos;Good Pools&apos; category. Finally, pools
+                                    within the 90-100% range are classified as &apos;Great Pools.&apos; Visualized as a health bar graph, each segment represents the number of pools falling into these categories. You can navigate to the pools within each
+                                    category by clicking or scrolling, facilitating informed decision-making and comparison of pool performance.
+                                </p>
                                 {poolDistribution ? (
                                     <GradientHealthBar searchQuery={searchQuery} className="absolute" labelData={poolDistribution} labelIsPercentage />
                                 ) : (
@@ -134,6 +140,11 @@ export default function StakePoolsInfo() {
                         </Box>
                         {poolData ? (
                             <div className="mt-5">
+                                <p>
+                                    In the bubble chart, pool distribution is depicted based on the total wait time on the y-axis and the number of pools on the x-axis. The chart is oriented such that &apos;Great Pools&apos; are positioned on the left
+                                    side, gradually transitioning towards &apos;Suboptimal Pools&apos; on the right side along the x-axis. You can navigate to the pools within the chart by hovering to the desired pool and clicking on it, facilitating
+                                    informed decision-making and comparison of pool performance.
+                                </p>
                                 <BubbleChart data={poolData} searchQuery={searchQuery} tickText="" hoverTextPrefix="secs" stepSize={10} />
                             </div>
                         ) : (

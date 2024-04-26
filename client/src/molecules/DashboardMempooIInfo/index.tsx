@@ -67,6 +67,7 @@ export default function MempoolInfo() {
                     <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize}</p>
                 </div>
             </div>
+            <p className="px-4 lg:px-10">The line chart visually illustrates the fluctuation in mempool size over the past 10 minutes within the Cardano blockchain network.</p>
             <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                 {mempoolSizeDataValues.length > 0 && mempoolSizeDataLabels.length > 0 ? (
                     <LineChart labels={mempoolSizeDataLabels} data={mempoolSizeDataValues} tickText="Kb" />
