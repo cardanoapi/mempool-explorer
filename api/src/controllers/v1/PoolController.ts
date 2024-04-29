@@ -12,8 +12,10 @@ class PoolController extends RedisBaseController<any> {
         super(cronJobTimeInSeconds);
     }
 
-    async _getPoolDistributionAndUpdateCache() {
-        const avgTxCountQuery = Prisma.sql`
+    async _getPoolDistributionAndUpdateCache(weighted: boolean) {
+        let poolDistQuery;
+        if (!weighted) {
+            poolDistQuery = Prisma.sql`
         SELECT tc.pool_id,
         round(sum(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4) AS total_wait_time,
         count(tx_hash) as tx_count
@@ -25,12 +27,33 @@ class PoolController extends RedisBaseController<any> {
         GROUP BY tc.pool_id
         ORDER BY total_wait_time DESC;
                 `;
+        } else {
+            poolDistQuery = Prisma.sql`
+            SELECT
+            tc.pool_id,
+            ROUND(SUM(EXTRACT(epoch FROM tc.confirmation_time - tc.received_time)), 4)
+                * (1 + LOG(1 + COUNT(tx_hash))) AS total_wait_time_weighted,
+            COUNT(tx_hash) AS tx_count
+            FROM
+                tx_confirmed tc
+            WHERE
+                tc.epoch > (
+                    (SELECT MAX(tx_confirmed.epoch) - 5 FROM tx_confirmed)
+                )
+                AND received_time IS NOT NULL
+                AND EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) > 0
+            GROUP BY
+                tc.pool_id
+            ORDER BY
+                total_wait_time_weighted DESC;
+                `;
+        }
 
 
 
         const poolDistributionResult: any =
-            await discoveryDb.$queryRaw(avgTxCountQuery);
-        const pool_id_list = poolDistributionResult.map((v:any) => {
+            await discoveryDb.$queryRaw(poolDistQuery);
+        const pool_id_list = poolDistributionResult.map((v: any) => {
             return v.pool_id;
         });
 
@@ -102,7 +125,7 @@ class PoolController extends RedisBaseController<any> {
         if (environments.ENABLE_REDIS_CACHE) {
             // Cache the data in Redis with a short expiration time (e.g., 3600 seconds)
             await this.redisManager?.setToCache(
-                'poolDistribution',
+                weighted ? 'weightedPoolDistribution' : 'poolDistribution',
                 JSON.stringify(info_result),
                 'EX',
                 3600
@@ -110,6 +133,8 @@ class PoolController extends RedisBaseController<any> {
         }
         return info_result;
     }
+
+
 
     @Get('/distribution')
     async getPoolDistribution() {
@@ -128,7 +153,32 @@ class PoolController extends RedisBaseController<any> {
             }
 
             // If not cached, fetch data and update the cache
-            const data = await this._getPoolDistributionAndUpdateCache();
+            const data = await this._getPoolDistributionAndUpdateCache(false);
+            console.log('[Redis:Pool/Distribution] Data fetched and cached');
+            return data;
+        } catch (e) {
+            console.log('/api/db/pool/distribution', e);
+        }
+    }
+
+    @Get('/distribution/weighted')
+    async getPoolDistributionWeightage() {
+        try {
+            if (environments.ENABLE_REDIS_CACHE) {
+                // Check if data is cached in Redis
+                const cachedData =
+                    await this.redisManager?.getFromCache('weightedPoolDistribution');
+
+                if (cachedData) {
+                    console.log(
+                        '[Redis:Pool/weightedPoolDistribution] Data retrieved from cache'
+                    );
+                    return JSON.parse(cachedData);
+                }
+            }
+
+            // If not cached, fetch data and update the cache
+            const data = await this._getPoolDistributionAndUpdateCache(true);
             console.log('[Redis:Pool/Distribution] Data fetched and cached');
             return data;
         } catch (e) {
@@ -358,9 +408,14 @@ class PoolController extends RedisBaseController<any> {
 
 
     protected async fetchDataAndUpdateCache() {
-        this._getPoolDistributionAndUpdateCache()
+        this._getPoolDistributionAndUpdateCache(true)
             .then((r) => r)
             .catch((e) => e);
+
+        this._getPoolDistributionAndUpdateCache(false)
+            .then((r) => r)
+            .catch((e) => e);
+
         this._getPoolTimingAndUpdateCache()
             .then((r) => r)
             .catch((e) => e);

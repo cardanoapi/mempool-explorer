@@ -105,6 +105,26 @@
 				"parameters": []
 			}
 		},
+		"/api/v1/pool/distribution/weighted": {
+			"get": {
+				"operationId": "GetPoolDistributionWeightage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"V1 Pool"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/api/v1/pool/timing": {
 			"get": {
 				"operationId": "GetPoolTiming",
