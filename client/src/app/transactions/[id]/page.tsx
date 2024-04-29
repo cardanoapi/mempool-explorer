@@ -169,10 +169,10 @@ export default function TransactionDetails() {
                 {!isLoading ? (
                     isTransactionNotInOurPool ? (
                         miner ? (
-                            <div className="text-center text-lg font-medium mb-2">
-                                <p className='text-green-500'>This transaction is confirmed.</p>
+                            <div className="text-lg font-medium mb-2">
+                                <p className='text-center text-green-500'>This transaction is confirmed.</p>
                                 <div
-                                    className='mt-4 group'
+                                    className='flex flex-col items-center text-center mt-4 group'
                                 >
 
                                     <div
@@ -191,7 +191,8 @@ export default function TransactionDetails() {
                                         </svg>
                                     </div>
 
-                                    <p className='text-center text-gray-500 hidden opacity-0 group-hover:flex group-hover:opacity-100 transition-opacity duration-300 pb-2'>
+
+                                    <p className='mb-2 text-gray-500 hidden opacity-0 group-hover:flex group-hover:opacity-100 transition-opacity duration-300 pb-4'>
                                         It is possible in Cardano Blockchain Network that explorer node like this may not always receive all mempool transactions.
                                     </p>
                                 </div>
