@@ -191,7 +191,7 @@ export default function TransactionDetails() {
                                         </svg>
                                     </div>
 
-                                    <p className='text-gray-500 hidden opacity-0 group-hover:flex group-hover:opacity-100 transition-opacity duration-300 pb-2'>
+                                    <p className='text-center text-gray-500 hidden opacity-0 group-hover:flex group-hover:opacity-100 transition-opacity duration-300 pb-2'>
                                         It is possible in Cardano Blockchain Network that explorer node like this may not always receive all mempool transactions.
                                     </p>
                                 </div>
