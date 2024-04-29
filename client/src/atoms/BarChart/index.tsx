@@ -16,9 +16,17 @@ interface IBarChartProps {
     suggestedMin?: number;
     suggestedMax?: number;
     stepSize?: number;
+    xTitle?: {
+        display: boolean;
+        text: string;
+    };
+    yTitle?: {
+        display: boolean;
+        text: string;
+    };
 }
 
-export default function BarChart({ labels, data, tickText, hoverTextPrefix, secondData, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBarChartProps) {
+export default function BarChart({ labels, data, tickText, hoverTextPrefix, secondData, xTitle = { display: false, text: '' }, yTitle = { display: false, text: '' }, suggestedMin = 0, suggestedMax = 10, stepSize = 2 }: IBarChartProps) {
     const [datasets, setDatasets] = React.useState<Array<any>>([
         {
             data,
@@ -130,13 +138,14 @@ export default function BarChart({ labels, data, tickText, hoverTextPrefix, seco
                 scales: {
                     x: {
                         // beginAtZero: true,
-
+                        title: xTitle,
                         grid: {
                             color: 'rgba(48, 48, 48, 1)' // Customize the y-axis grid line color,
                         }
                     },
                     y: {
                         beginAtZero: true,
+                        title: yTitle,
                         ticks: {
                             stepSize, // Adjust the stepSize as needed
                             callback: function (value, index, ticks) {

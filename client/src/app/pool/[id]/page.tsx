@@ -52,6 +52,7 @@ export default function PoolDetails() {
     const poolId = router.id as string;
 
     const [poolData, setPoolData] = useState<PoolDistribution[]>();
+    const [poolInfo, setPoolInfo] = useState<any>();
     const [poolExternalLink, setPoolExternalLink] = useState<string>();
 
     const [poolTimingIntervalRanges, setPoolTimingIntervalRanges] = useState<string[]>([]);
@@ -95,7 +96,10 @@ export default function PoolDetails() {
 
     const getPoolExternalLink = (poolId: string) => {
         if (poolData && poolData.length > 0) {
-            const pool = poolData.find((pool) => pool.pool_id === poolId);
+            const poolIdx = poolData.findIndex((pool) => pool.pool_id === poolId);
+            const pool: any = poolData[poolIdx];
+            pool.rank = poolIdx + 1;
+            setPoolInfo(pool);
             if (pool?.url) {
                 return pool.url;
             }
@@ -140,7 +144,19 @@ export default function PoolDetails() {
 
                 getEpochWiseInfoOfPool(poolId)
                     .then((epochWiseData) => {
-                        setEpochTxCountData(epochWiseData);
+                        setEpochTxCountData(
+                            epochWiseData.map((epochData: any) => {
+                                if (epochData?.tx_count && epochData?.avg_wait_time) {
+                                    return {
+                                        epoch: epochData.epoch,
+                                        transactions: epochData.tx_count,
+                                        avg_wait_time: parseFloat(epochData.avg_wait_time).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' sec',
+                                        total_wait_time: (parseFloat(epochData.avg_wait_time) * parseInt(epochData.tx_count)).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' sec'
+                                    };
+                                }
+                                return epochData;
+                            })
+                        );
 
                         const last5EpochAvgWaitTime = _.mean(epochWiseData.map((epochData: any) => parseFloat(epochData.avg_wait_time))).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' sec';
                         setLast5EpochAvgWaitTime(last5EpochAvgWaitTime);
@@ -149,14 +165,14 @@ export default function PoolDetails() {
                         if (previousEpochWaitTime) {
                             setPreviousEpochWaitTime(previousEpochWaitTime + ' sec');
                         } else {
-                            setPreviousEpochWaitTime('No Transactions');
+                            setPreviousEpochWaitTime('N/A');
                         }
 
                         const currentEpochWaitTime = epochWiseData.find((epochData: any) => epochData.epoch === current_epoch)?.avg_wait_time?.toLocaleString('en-US', { maximumFractionDigits: 2 });
                         if (currentEpochWaitTime) {
                             setCurrentEpochWaitTime(currentEpochWaitTime + ' sec');
                         } else {
-                            setCurrentEpochWaitTime('No Transactions');
+                            setCurrentEpochWaitTime('N/A');
                         }
                     })
                     .catch((e: any) => {
@@ -189,12 +205,15 @@ export default function PoolDetails() {
 
     return (
         <div className="mb-4">
-            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title="Pool ID" bannerClassName="!pb-2 md:!pb-2" minHeight="">
+            <BannerTitle Icon={PoolIcon} breadCrumbText="Pool" title={`Pool ID ${poolInfo?.rank ? '(Rank #' + poolInfo.rank + ')' : ''}`} bannerClassName="!pb-2 md:!pb-2" minHeight="">
                 <div className="px-4 md:px-10 pb-10 flex flex-col gap-4">
                     <button className="flex gap-2 items-center cursor-pointer" onClick={() => copyToClipboard(poolId, 'Pool ID')}>
                         <p className="text-base font-normal text-[#B9B9B9] break-all"> {poolId}</p>
                         <CopyIcon />
                     </button>
+                    <p className="text-lg font-medium text-[#E6E6E6]">
+                        {poolInfo?.ticker_name && <span>[{poolInfo?.ticker_name}]</span>} {poolInfo?.name}
+                    </p>
                     {poolExternalLink && (
                         <GradientButton fullWidth={false} className="flex gap-4 w-fit !h-10 items-center cursor-default" onClick={() => copyToClipboard(poolExternalLink, 'Pool Link')}>
                             <Link target="_blank" href={poolExternalLink} className="flex gap-2 items-center cursor-pointer hover:underline">
@@ -207,9 +226,10 @@ export default function PoolDetails() {
                 <div>
                     <div className="mt-10 h-[1px]" />
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                        <BannerStatCard isLoading={!last5EpochAvgWaitTime} title="Last 5 Epoch Average Time" value={last5EpochAvgWaitTime ?? '-'} />
-                        <BannerStatCard isLoading={!currentEpochWaitTime} title="This Epoch Average Time" value={currentEpochWaitTime ?? '-'} />
-                        <BannerStatCard isLoading={!previousEpochWaitTime} title="Last Epoch Average Time" value={previousEpochWaitTime ?? '-'} />
+                        <BannerStatCard isLoading={!poolInfo?.tx_count} title="Last 5 Epoch Total Transactions" value={parseInt(poolInfo?.tx_count).toLocaleString('en-US') ?? '-'} />
+                        <BannerStatCard isLoading={!last5EpochAvgWaitTime} title="Last 5 Epoch Average Transaction Wait Time" value={last5EpochAvgWaitTime ?? '-'} />
+                        <BannerStatCard isLoading={!previousEpochWaitTime} title="Last Epoch Average Transaction Wait Time" value={previousEpochWaitTime ?? '-'} />
+                        <BannerStatCard isLoading={!currentEpochWaitTime} title="This Epoch Average Transaction Wait Time" value={currentEpochWaitTime ?? '-'} />
                     </div>
                 </div>
             </BannerTitle>
@@ -218,11 +238,11 @@ export default function PoolDetails() {
                 <div className="px-4 py-4 lg:px-10 lg:py-8 col-span-1 lg:col-span-2 border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
                     <div className="flex flex-col gap-8 w-full mb-10">
                         <div className="">
-                            <p className="text-2xl font-medium text-[#E6E6E6]">Transactions Time</p>
+                            <p className="text-2xl font-medium text-[#E6E6E6]">Transaction Waiting Time Distribution</p>
                             <p className="text-sm font-normal text-[#E6E6E6]">Last 5 epochs</p>
                         </div>
 
-                        <p>The graph shows the total number of transactions over the past 5 Epochs, grouped by specific time intervals.</p>
+                        <p>The graph shows the total number of transactions processed by this pool over the past five epochs, grouped by specific time intervals.</p>
 
                         {/* <div className="flex gap-12 md:gap-[72px]">
                             <div className="flex gap-2 items-center">
@@ -236,7 +256,15 @@ export default function PoolDetails() {
                             </div>
                         </div> */}
                     </div>
-                    <BarChart labels={poolTimingIntervalRanges} data={poolTimingTxCount} tickText="" hoverTextPrefix="transactions" stepSize={5} />
+                    <BarChart
+                        xTitle={{ display: true, text: 'Transaction Wait Time (Seconds)' }}
+                        yTitle={{ display: true, text: 'Number of transactions' }}
+                        labels={poolTimingIntervalRanges}
+                        data={poolTimingTxCount}
+                        tickText=""
+                        hoverTextPrefix="transactions"
+                        stepSize={5}
+                    />
                 </div>
 
                 <div className="col-span-1 lg:min-h-[355px] overflow-y-auto">
@@ -274,6 +302,15 @@ export default function PoolDetails() {
                                 {transactions.map((row, idx) => (
                                     <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                         {Object.keys(row).map((rowKey: string, index: number) => {
+                                            if (rowKey === 'received_time' || rowKey === 'confirmation_time' || rowKey === 'wait_time') {
+                                                if (toMonthDateYearStr(parseDateStrToDate(row[rowKey])) === 'Invalid Date') {
+                                                    return (
+                                                        <td key={index} className="py-5 px-4 md:px-10 text-start">
+                                                            -
+                                                        </td>
+                                                    );
+                                                }
+                                            }
                                             return (
                                                 <td key={index} className="py-5 px-4 md:px-10 text-start">
                                                     {rowKey === 'tx_hash' ? (
