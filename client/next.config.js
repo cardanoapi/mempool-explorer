@@ -66,7 +66,16 @@ const nextConfig = {
         API_URL: process.env.API_URL,
         CONTRIBUTERS_JSON_URL: process.env.CONTRIBUTERS_JSON_URL,
         CONTACT_US_URL: process.env.CONTACT_US_URL
-    }
+    },
+    webpack: (config, { isServer }) => {
+        // Add rule to handle Markdown files with raw-loader
+        config.module.rules.push({
+            test: /\.md$/,
+            use: 'raw-loader',
+        });
+
+        return config;
+    },
     // experimental: {
     //     maximumFileSizeToCacheInBytes: {
     //         js: 10 * 1024 * 1024, // 10 MB
