@@ -49,11 +49,7 @@ class TxController extends RedisBaseController<any> {
             } else {
                 data = await getTransactionHistoryOfAddress(query, pageNumber);
             }
-
-            if (req.headers.accept === 'application/json') {
-                return convertBuffersToString(data);
-            }
-            return encode(convertToTableData(data));
+            return convertToTableData(data);
         } catch (e: any) {
             console.error(req.url, e);
         }
@@ -155,13 +151,8 @@ class TxController extends RedisBaseController<any> {
     ): Promise<any> {
         try {
             let data = await getAggregrationForLastThreeBlocks(id);
-            if (req.headers.accept === 'application/json') {
-                return convertBuffersToString(
-                    await transformToClientSideData(data)
-                );
-            }
             const transformedData = await transformToClientSideData(data);
-            return encode(transformedData);
+            return transformedData
         } catch (e: any) {
             console.error(req.url, e);
         }
