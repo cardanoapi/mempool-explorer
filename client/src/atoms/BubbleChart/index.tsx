@@ -74,7 +74,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 if (searchQuery === '') {
                     return { ...dataset, backgroundColor: dataset.backgroundColor };
                 }
-                const found = dataset.label?.toLowerCase().includes(searchQuery);
+                const found = dataset.label?.toLowerCase().includes(searchQuery.toLowerCase());
                 return found;
 
                 // return {
@@ -90,9 +90,31 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery]);
 
+    // Calculate dynamic offsets for maxX and maxY based on data length
+    const calculateOffset = (length: number) => {
+        // Adjust these coefficients as needed based on your requirements
+        const xOffsetCoefficient = 0.02; // Adjust as needed
+        const yOffsetCoefficient = 2; // Adjust as needed
+
+        // Calculate offsets based on data length
+        const offsetX = Math.min(20, Math.floor(length * xOffsetCoefficient));
+        const offsetY = Math.min(200, Math.floor(length * yOffsetCoefficient));
+
+        return { offsetX, offsetY };
+    };
+
+    // Calculate dynamic offsets based on filtered data length
+    const { offsetX, offsetY } = calculateOffset(datasets.length);
+
+    // Find the minimum and maximum values of X and Y axes in the original data
+    const originalXYMin = 0;
+    const originalYMax = Math.max(...data.map((item) => parseFloat(item.total_wait_time))) + offsetY;
+    const originalXMax = data.length + offsetX;
+
     return (
         <Bubble
             options={{
+                clip: false,
                 animation: false,
                 // animations: {
                 //     radius: {
@@ -182,6 +204,8 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 scales: {
                     x: {
                         // beginAtZero: true,
+                        min: originalXYMin,
+                        max: originalXMax,
                         grid: {
                             color: 'rgba(48, 48, 48, 1)'
                         },
@@ -198,6 +222,8 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                     },
                     y: {
                         // beginAtZero: true,
+                        min: originalXYMin,
+                        max: originalYMax,
                         ticks: {
                             stepSize,
                             callback: function (value, index, ticks) {
@@ -220,7 +246,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 // labels: filteredDatasets.map((item) => item.label),
                 datasets: filteredDatasets.flat()
             }}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', overflow: 'visible' }}
         />
     );
 }
