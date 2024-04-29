@@ -37,16 +37,14 @@ export default function AddressPage() {
 
     const getStatsFromDatabase = async () => {
         const response = await fetch(`/api/v1/tx/stats?query=${router?.id}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
+        const data = await response.json();
+        return data;
     };
 
     const getDataFromDatabase = async (pageNumber: number) => {
         const response = await fetch(`/api/v1/tx?query=${router?.id}&pageNumber=${pageNumber}`);
-        await checkForErrorResponse(response);
-        const arrayBuffer = await response.arrayBuffer();
-        return decode(new Uint8Array(arrayBuffer));
+        const data = await response.json();
+        return data;
     };
 
     useEffect(() => {
@@ -77,6 +75,7 @@ export default function AddressPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage]);
 
+
     return (
         <>
             <BannerTitle Icon={WalletIcon} breadCrumbText="Address" title="Address" bannerClassName="!pb-2 md:!pb-2">
@@ -94,28 +93,28 @@ export default function AddressPage() {
                     {isLoading || error.status !== -1 || !stats || stats.length === 0
                         ? _.range(0, 12).map((n) => <BannerStatCard key={n} title="Loading" value="-" />)
                         : stats.map((stat, index) => {
-                              const titleMapping: any = {
-                                  epoch: 'Epoch',
-                                  avg_wait_time: 'Avg Wait Time',
-                                  median_wait_time: 'Median Wait Time',
-                                  tx_count: 'Transaction'
-                              };
+                            const titleMapping: any = {
+                                epoch: 'Epoch',
+                                avg_wait_time: 'Avg Wait Time',
+                                median_wait_time: 'Median Wait Time',
+                                tx_count: 'Transaction'
+                            };
 
-                              return (
-                                  <React.Fragment key={index}>
-                                      {Object.entries(stat).map(([key, value]) => {
-                                          if (titleMapping[key]) {
-                                              const statObj: any = {
-                                                  title: titleMapping[key],
-                                                  value: key === 'avg_wait_time' || key === 'median_wait_time' ? `${value} sec` : value
-                                              };
-                                              return <BannerStatCard key={key} title={statObj.title} value={statObj.value} />;
-                                          }
-                                          return null;
-                                      })}
-                                  </React.Fragment>
-                              );
-                          })}
+                            return (
+                                <React.Fragment key={index}>
+                                    {Object.entries(stat).map(([key, value]) => {
+                                        if (titleMapping[key]) {
+                                            const statObj: any = {
+                                                title: titleMapping[key],
+                                                value: key === 'avg_wait_time' || key === 'median_wait_time' ? `${value} sec` : value
+                                            };
+                                            return <BannerStatCard key={key} title={statObj.title} value={statObj.value} />;
+                                        }
+                                        return null;
+                                    })}
+                                </React.Fragment>
+                            );
+                        })}
                 </div>
             </BannerTitle>
             <div className={`w-full md:border-r-[1px] md:border-r-[#B9B9B9] overflow-auto`}>
