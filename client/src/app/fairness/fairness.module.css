@@ -1,0 +1,116 @@
+/* Style for headings */
+.markdown-container h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+.markdown-container h2 {
+    font-size: 1.5em;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+.markdown-container h3 {
+    font-size: 1.17em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+/* Style for paragraphs */
+.markdown-container p {
+    margin-bottom: 1em;
+}
+
+/* Style for links */
+.markdown-container a {
+    color: #007bff;
+    /* Blue color for links */
+    text-decoration: none;
+    /* Remove default underline */
+}
+
+.markdown-container a:hover {
+    text-decoration: underline;
+    /* Add underline on hover */
+}
+
+/* Style for lists */
+.markdown-container ul,
+.markdown-container ol {
+    margin-bottom: 1em;
+    padding-left: 1em;
+}
+
+.markdown-container ul li,
+.markdown-container ol li {
+    margin-bottom: 0.5em;
+    list-style-type: disc;
+    /* Bullet style for unordered lists */
+}
+
+.markdown-container ol {
+    list-style-type: decimal;
+    /* Numbering style for ordered lists */
+}
+
+/* Style for code blocks */
+.markdown-container pre {
+    background-color: #f8f9fa;
+    /* Light gray background */
+    padding: 1em;
+    border-radius: 0.25em;
+    overflow-x: auto;
+    /* Enable horizontal scrolling */
+}
+
+.markdown-container code {
+    font-family: Consolas, monospace;
+    /* Use monospace font for code */
+    font-size: 0.9em;
+}
+
+/* Style for inline code */
+.markdown-container p code,
+.markdown-container li code {
+    background-color: #575858;
+    /* Light gray background */
+    padding: 0.25em 0.5em;
+    border-radius: 0.25em;
+    font-family: Consolas, monospace;
+    /* Use monospace font for code */
+}
+
+/* Updated style for Markdown tables */
+.markdown-container table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    margin-bottom: 1em;
+    /* Add margin for better separation */
+}
+
+/* Updated style for table headers */
+.markdown-container table th {
+    font-weight: bold;
+    /* background-color: #f2f2f2; */
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+/* Updated style for table rows */
+.markdown-container table tr {
+    border: 1px solid #ccc;
+}
+
+/* Updated style for alternating row colors */
+.markdown-container table tr:nth-child(even) {
+    /* background-color: #f9f9f9; */
+}
+
+/* Updated style for table cells */
+.markdown-container table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
