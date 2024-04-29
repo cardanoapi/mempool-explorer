@@ -62,19 +62,16 @@ export default function StakePoolsInfo() {
         <div>
             <GradientBanner>
                 <div className="col-span-1 lg:col-span-2 border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
-                    <div className="px-4 pt-6 flex flex-col gap-8 w-full lg:px-10 lg:pt-12 justify-between">
+                    <div className="px-4 pt-6 flex flex-col gap-4 w-full lg:px-10 lg:pt-12 justify-between">
                         <div>
-                            <p className="text-2xl font-medium text-[#E6E6E6]">Pool Distribution Group</p>
+                            <p className="text-2xl font-medium text-[#E6E6E6]">Pool Distribution Graph</p>
                             <p className="mt-1 text-sm font-light text-gray">From Last 5 Epoch</p>
+                            <p>Based on the data from the last five epochs (almost 25 days)</p>
                         </div>
                         <div className="flex justify-between md:justify-start md:gap-10">
                             <div className="flex gap-2 items-center">
                                 <div className="h-2 w-6 rounded bg-[#7AE856]" />
                                 <p className="text-sm font-normal text-[#E6E6E6]">Great Pools</p>
-                            </div>
-                            <div className="flex gap-2 items-center">
-                                <div className="h-2 w-6 rounded bg-[#FEA72A]" />
-                                <p className="text-sm font-normal text-[#E6E6E6]">Good Pools</p>
                             </div>
                             <div className="flex gap-2 items-center">
                                 <div className="h-2 w-6 rounded bg-[#FF6B00]" />
@@ -84,13 +81,7 @@ export default function StakePoolsInfo() {
                     </div>
                     <div className="px-4 py-4 pb-12 lg:px-10 lg:py-8 lg:pb-16">
                         {environments.ENABLE_PERCENTILE_POOL_GRAPH && (
-                            <div className="mb-5">
-                                <p className="mb-4">
-                                    Pool distribution, represented in a health bar style graph with class intervals defined by percentage ranges (e.g., 0-10%, 10-20%, ..., 90-100%), categorizes pools based on their performance. In this representation,
-                                    pools falling within the 0-10% range are categorized as &apos;Suboptimal Pools.&apos; As the percentage increases, indicating better performance, pools transition into the &apos;Good Pools&apos; category. Finally, pools
-                                    within the 90-100% range are classified as &apos;Great Pools.&apos; Visualized as a health bar graph, each segment represents the number of pools falling into these categories. You can navigate to the pools within each
-                                    category by clicking or scrolling, facilitating informed decision-making and comparison of pool performance.
-                                </p>
+                            <div className="my-5">
                                 {poolDistribution ? (
                                     <GradientHealthBar searchQuery={searchQuery} className="absolute" labelData={poolDistribution} labelIsPercentage />
                                 ) : (
@@ -103,48 +94,48 @@ export default function StakePoolsInfo() {
                             </div>
                         )}
 
-                        <Box sx={{ flexGrow: 1 }}>
-                            <TextField
-                                placeholder="Search your pool on distribution..."
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon />
-                                        </InputAdornment>
-                                    ),
-                                    sx: {
-                                        height: '48px',
-                                        background: '#292929',
-                                        borderWidth: '1px',
-                                        borderColor: 'transparent',
-                                        borderRadius: '48px',
-                                        maxWidth: '438px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        color: '#E6E6E6',
-                                        paddingX: '16px',
-                                        paddingY: '12px',
-                                        fontFamily: 'IBM Plex Mono',
-                                        fontWeight: 500,
-                                        fontSize: '14px',
-                                        caretColor: '#E6E6E6',
-                                        '&:focus-within fieldset, &:focus-visible fieldset': {
-                                            border: '1px solid #E6E6E6 !important'
-                                        }
-                                    }
-                                }}
-                                fullWidth
-                                className="flex items-start !font-ibm !text-sm md:text-base"
-                                onChange={handleChange}
-                            />
-                        </Box>
                         {poolData ? (
-                            <div className="mt-5">
+                            <div className="flex flex-col gap-4">
                                 <p>
-                                    In the bubble chart, pool distribution is depicted based on the total wait time on the y-axis and the number of pools on the x-axis. The chart is oriented such that &apos;Great Pools&apos; are positioned on the left
-                                    side, gradually transitioning towards &apos;Suboptimal Pools&apos; on the right side along the x-axis. You can navigate to the pools within the chart by hovering to the desired pool and clicking on it, facilitating
-                                    informed decision-making and comparison of pool performance.
+                                    This graph illustrates how different pools are distributed based on the total time, in seconds, of transactions each pool processed that were waiting in the Mempool for confirmation on the chain. A pool&apos;s rank
+                                    improved with mining more disadvantaged transactions that waited longer to be confirmed.
+                                    <br /> <br /> You can filter your <span className="font-bold">favorite</span> pool to find out where it ranks.
                                 </p>
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <TextField
+                                        placeholder="Search your pool on distribution..."
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon />
+                                                </InputAdornment>
+                                            ),
+                                            sx: {
+                                                height: '48px',
+                                                background: '#292929',
+                                                borderWidth: '1px',
+                                                borderColor: 'transparent',
+                                                borderRadius: '48px',
+                                                maxWidth: '438px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                color: '#E6E6E6',
+                                                paddingX: '16px',
+                                                paddingY: '12px',
+                                                fontFamily: 'IBM Plex Mono',
+                                                fontWeight: 500,
+                                                fontSize: '14px',
+                                                caretColor: '#E6E6E6',
+                                                '&:focus-within fieldset, &:focus-visible fieldset': {
+                                                    border: '1px solid #E6E6E6 !important'
+                                                }
+                                            }
+                                        }}
+                                        fullWidth
+                                        className="flex items-start !font-ibm !text-sm md:text-base"
+                                        onChange={handleChange}
+                                    />
+                                </Box>
                                 <BubbleChart data={poolData} searchQuery={searchQuery} tickText="" hoverTextPrefix="secs" stepSize={10} />
                             </div>
                         ) : (

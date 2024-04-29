@@ -98,27 +98,29 @@ const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
                     </div>
                 </div>
                 <div className="col-span-1 md:col-span-2">
-                    <div className="px-4 py-6 flex flex-col gap-8 w-full lg:px-10 lg:py-10 lg:flex-row lg:justify-between">
-                        <div>
-                            <p className="text-2xl font-medium text-[#E6E6E6]">Transactions Time</p>
-                            <p className="text-sm font-normal text-[#E6E6E6]">Last 7 days</p>
-                        </div>
-                        <div className="flex gap-12 md:gap-[72px]">
+                    <div className="px-4 py-6 lg:px-10 lg:py-10">
+                        <div className="flex flex-col gap-8 w-full lg:flex-row lg:justify-between">
                             <div>
-                                {/* TODO : Global is not shown for now */}
-                                {/* <p className="text-sm font-normal text-[#E6E6E6]">Global</p>
+                                <p className="text-2xl font-medium text-[#E6E6E6]">Average Transaction Wait Time</p>
+                                <p className="text-sm font-normal text-[#E6E6E6]">Last 7 days</p>
+                            </div>
+                            <div className="flex gap-12 md:gap-[72px]">
+                                <div>
+                                    {/* TODO : Global is not shown for now */}
+                                    {/* <p className="text-sm font-normal text-[#E6E6E6]">Global</p>
                                 <p className="text-2xl font-medium text-[#E6E6E6]">.. sec</p> */}
-                            </div>
-                            <div>
-                                <div className="flex gap-2 items-center">
-                                    <div className="h-2 w-6 rounded bg-[#FF6B00]" />
-                                    <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
                                 </div>
-                                {currentEpoch?.avg_wait_time && <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_wait_time.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec</p>}
+                                <div>
+                                    <div className="flex gap-2 items-center">
+                                        <div className="h-2 w-6 rounded bg-[#FF6B00]" />
+                                        <p className="text-sm font-normal text-[#E6E6E6]">This Epoch</p>
+                                    </div>
+                                    {currentEpoch?.avg_wait_time && <p className="text-2xl font-medium text-[#E6E6E6]">{currentEpoch.avg_wait_time.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec</p>}
+                                </div>
                             </div>
                         </div>
+                        <p className="mt-4">How long, on average, in the last seven days did a transaction take to be confirmed on the Cardano blockchain?</p>
                     </div>
-                    <p className="px-4 lg:px-10">The line chart visually depicts the average duration taken (in seconds) for transactions over the course of the last 7 days.</p>
                     <div className="md:min-h-[355px] px-4 py-4 md:px-10 md:py-8">
                         {txTimingsDays.length === 0 ? (
                             <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
@@ -133,6 +135,7 @@ const CurrentEpochInfo = forwardRef<HTMLDivElement, {}>((props, ref) => {
                         ) : (
                             <LineChart labels={txTimingsDays} data={txTimingsAvgTime} tickText="sec" suggestedMin={15} suggestedMax={30} stepSize={5} />
                         )}
+                        <p className="mt-4 italic">The line chart visually shows the average daily transaction wait time in the last seven days.</p>
                     </div>
                 </div>
             </div>

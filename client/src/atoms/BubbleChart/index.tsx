@@ -111,13 +111,61 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                     },
                     tooltip: {
                         callbacks: {
+                            title: (context: any) => {
+                                if (context.length === 0) {
+                                    return '';
+                                }
+                                return context[0].dataset.label;
+                            },
                             label: (context: any) => {
-                                const dataset = context.dataset.label || '';
                                 const dataPoint = context.parsed;
-                                const tx = context.dataset?.txCount ? `\n(${parseInt(context.dataset.txCount).toLocaleString('en-US')} transactions)` : '';
-                                return `${dataset}: ${dataPoint.y?.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hoverTextPrefix}${tx}`;
+
+                                return `Rank #${dataPoint.x?.toLocaleString('en-US')}`;
+                            },
+                            afterLabel: (context: any) => {
+                                return context.dataset?.txCount ? `\nMined ${parseInt(context.dataset.txCount).toLocaleString('en-US')} transactions` : '';
+                            },
+                            footer: (context: any) => {
+                                if (context.length === 0) {
+                                    return '';
+                                }
+                                return `\nSaved ${context[0].parsed.y?.toLocaleString('en-US', { maximumFractionDigits: 2 })} seconds of waiting time`;
                             }
-                        }
+                        },
+                        displayColors: false,
+                        // backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        // borderColor: '#ccc',
+                        borderWidth: 1,
+                        // bodyColor: '#333',
+                        bodyFont(ctx, options) {
+                            return {
+                                size: 14,
+                                weight: 'normal',
+                                lineHeight: 1
+                            };
+                        },
+                        bodySpacing: 1,
+                        padding: 16,
+                        boxPadding: 8,
+                        // titleColor: '#333',
+                        titleFont(ctx, options) {
+                            return {
+                                size: 18,
+                                weight: 'bold',
+                                lineHeight: 1.5
+                            };
+                        },
+                        titleSpacing: 1,
+                        // footerColor: '#333',
+                        footerFont(ctx, options) {
+                            return {
+                                size: 14,
+                                weight: 'normal',
+                                lineHeight: 1
+                            };
+                        },
+                        footerMarginTop: 0,
+                        footerSpacing: 1
                     }
                 },
                 onClick(event, elements, chart) {
@@ -139,7 +187,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                         },
                         title: {
                             display: true,
-                            text: 'Pool'
+                            text: 'Pool Rank'
                         },
                         ticks: {
                             stepSize,
@@ -158,7 +206,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                         },
                         title: {
                             display: true,
-                            text: 'Total Wait Time (Seconds)'
+                            text: 'Collective Transaction Wait Time (Seconds)'
                         },
                         suggestedMin,
                         suggestedMax,
@@ -172,6 +220,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 // labels: filteredDatasets.map((item) => item.label),
                 datasets: filteredDatasets.flat()
             }}
+            style={{ cursor: 'pointer' }}
         />
     );
 }
