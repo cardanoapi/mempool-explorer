@@ -39,14 +39,17 @@ type TransactionDetailsInterface = {
 enum TransactionStatus {
     pending = 'Pending',
     confirmed = 'Confirmed',
-    rejected = 'Rejected'
+    rejected = 'Rejected',
+    notInOurPool = 'Not in our pool'
 }
 
 export default function TransactionDetails() {
     const router = useParams();
     const tx_hash = router.id;
 
-    const { isLoading, showLoader, hideLoader, error, setError } = useLoader();
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const { error, setError } = useLoader();
 
     const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
     const [waitTime, setWaitTime] = useState<number>(); // wait time in seconds
@@ -68,7 +71,7 @@ export default function TransactionDetails() {
 
     useEffect(() => {
         let minerDetails: any;
-        showLoader();
+        setLoading(true);
         getMinerDetails(tx_hash)
             .then((minerData) => {
                 if (!minerData.length) {
@@ -101,6 +104,10 @@ export default function TransactionDetails() {
             .finally(() => {
                 getTransactionDetails(tx_hash)
                     .then((d) => {
+                        if (d == '') {
+                            setTransactionStatus(TransactionStatus.notInOurPool);
+                            return;
+                        }
                         const arrivalTime = new Date(d?.arrivalTime);
                         const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
                         const currentTimeUtc = new Date(new Date().toUTCString());
@@ -126,12 +133,15 @@ export default function TransactionDetails() {
                             status: e?.code
                         });
                     })
-                    .finally(() => hideLoader());
+                    .finally(() => {
+                        setLoading(false);
+                    });
             });
     }, [tx_hash]);
 
     const isTransactionPending = transactionStatus === TransactionStatus.pending;
     const isTransactionConfirmed = transactionStatus === TransactionStatus.confirmed;
+    const isTransactionNotInOurPool = transactionStatus === TransactionStatus.notInOurPool;
 
     return (
         <>
@@ -149,30 +159,46 @@ export default function TransactionDetails() {
                         </button>
                     </div>
                 </div>
-                {transactionDetails ? (
-                    <div>
-                        <div className="mt-10 h-[1px]" />
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                            <BannerStatCard title="Arrival Time" value={arrivalTime ?? ''} valueClassName="md:text-lg" />
-                            <BannerStatCard title="Wait Time" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
-                            <BannerStatCard title="Fee" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
-                            <BannerStatCard title="Status" value={miner ? 'Confirmed' : 'Pending'} />
-                        </div>
-                        {isTransactionConfirmed && (
-                            <>
+                {!isLoading ? (
+                    isTransactionNotInOurPool ? (
+                        miner ? (
+                            <div className="text-center text-lg font-medium">
+                                <p className='text-green-500'>This transaction is confirmed.</p>
+                                <p className='text-red-500'>Transaction details is not available yet. Our pools might not have recevied this transaction.</p>
+                            </div>
+                        ) : (
+                            <div className="text-center text-lg font-medium">
+                                <p className='text-red-500'>Transaction details is not available yet. Our pools might not have recevied this transaction yet.</p>
+                            </div>
+                        )
+
+                    ) :
+                        (
+                            <div>
                                 <div className="mt-10 h-[1px]" />
-                                <div className="bg-green-300">
-                                    <div className="px-4 py-10 md:px-10 text-black text-2xl font-medium">Confirmation Details</div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-                                        <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
-                                        <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
-                                        <ConfirmBannerStatCard title="Block No." value={miner?.block_no ?? ''} />
-                                        <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
-                                    </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                                    <BannerStatCard title="Arrival Time" value={arrivalTime ?? ''} valueClassName="md:text-lg" />
+                                    <BannerStatCard title="Wait Time" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
+                                    <BannerStatCard title="Fee" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
+                                    <BannerStatCard title="Status" value={miner ? 'Confirmed' : 'Pending'} />
                                 </div>
-                            </>
-                        )}
-                    </div>
+                                {isTransactionConfirmed && (
+                                    <>
+                                        <div className="mt-10 h-[1px]" />
+                                        <div className="bg-green-300">
+                                            <div className="px-4 py-10 md:px-10 text-black text-2xl font-medium">Confirmation Details</div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                                                <ConfirmBannerStatCard title="Epoch" value={miner?.epoch ?? ''} />
+                                                <ConfirmBannerStatCard title="Slot No." value={miner?.slot_no ?? ''} />
+                                                <ConfirmBannerStatCard title="Block No." value={miner?.block_no ?? ''} />
+                                                <ConfirmBannerStatCard title="Confirmation Time" value={confirmationTime ?? ''} valueClassName="md:text-lg" />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )
+
                 ) : (
                     <Loader />
                 )}
