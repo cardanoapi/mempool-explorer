@@ -65,7 +65,6 @@ export async function getTheLatestTransactionEpochOfAddress(pool_id: string) {
 
 export async function getPoolDetails(
     pool_id: string,
-    epochNo: number,
     pageNumber: number
 ) {
     try {
@@ -79,10 +78,8 @@ export async function getPoolDetails(
             tc.block_no, 
             tc.confirmation_time 
             from tx_confirmed as tc 
-            on tc.tx_hash = ttn.tx_hash 
-            where pool_id=${pool_id} and epoch=${epochNo} order by confirmation_time desc limit 100 offset ${
-                (pageNumber - 1) * 100
-            }`
+            where pool_id=${pool_id} order by confirmation_time desc limit 100 offset ${(pageNumber - 1) * 100
+                }`
         );
     } catch (e) {
         console.error('error:', e);
@@ -91,7 +88,6 @@ export async function getPoolDetails(
 
 export async function getAddressDetails(
     address_id: string,
-    epochNo: number,
     pageNumber: number
 ) {
     try {
@@ -116,15 +112,15 @@ export async function getAddressDetails(
 
 export async function getArrivalTime(txHash: Buffer) {
     try {
-        return discoveryDb.tx_log.findFirst({
+        return discoveryDb.tx_confirmed.findFirst({
             where: {
-                hash: txHash
+                tx_hash: txHash
             },
             select: {
-                received: true
+                received_time: true
             },
             orderBy: {
-                received: 'asc'
+                received_time: 'asc'
             }
         });
     } catch (e) {

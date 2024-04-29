@@ -12,17 +12,14 @@ export async function getTransactionHistoryOfPool(
     id: string,
     pageNumber: number
 ) {
-    const latestEpoch = await getTheLatestTransactionEpochOfAddress(id);
-    if (latestEpoch != null)
-        return await getPoolDetails(id, latestEpoch, pageNumber);
+    return await getPoolDetails(id, pageNumber);
 }
 
 export async function getTransactionHistoryOfAddress(
     id: string,
     pageNumber: number
 ) {
-    const latestEpoch = getLatestEpoch();
-    return await getAddressDetails(id, latestEpoch, pageNumber);
+    return await getAddressDetails(id, pageNumber);
 }
 
 export async function getAddressFromTxHashAndIndex(
@@ -55,8 +52,8 @@ export async function fetchTheArrivalTime(arr: Array<any>) {
             const arrivalTime = await getArrivalTime(item.hash);
             return {
                 ...item,
-                arrivalTime: !!arrivalTime?.received
-                    ? arrivalTime.received.toString()
+                arrivalTime: !!arrivalTime?.received_time
+                    ? arrivalTime.received_time.toString()
                     : 'N/A'
             };
         })
