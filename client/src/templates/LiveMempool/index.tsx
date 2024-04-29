@@ -96,6 +96,7 @@ export default function LiveMempool({ mempoolEvent, mintEvent }: ILiveMempoolPro
     return (
         <main className="w-full min-h-screen">
             <BannerTitle Icon={PlayIcon} breadCrumbText="Live Mempool" title="Live Mempool">
+                <p className="px-4 lg:px-10">As observed by this explorer node.</p>
                 <div className="mt-10 h-[1px]" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                     <BannerStatCard title="Remote Mempool Size" value={mempoolSize} />

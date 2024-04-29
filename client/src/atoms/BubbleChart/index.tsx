@@ -74,7 +74,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 if (searchQuery === '') {
                     return { ...dataset, backgroundColor: dataset.backgroundColor };
                 }
-                const found = dataset.label?.toLowerCase().includes(searchQuery);
+                const found = dataset.label?.toLowerCase().includes(searchQuery.toLowerCase());
                 return found;
 
                 // return {
@@ -90,9 +90,31 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery]);
 
+    // Calculate dynamic offsets for maxX and maxY based on data length
+    const calculateOffset = (length: number) => {
+        // Adjust these coefficients as needed based on your requirements
+        const xOffsetCoefficient = 0.02; // Adjust as needed
+        const yOffsetCoefficient = 2; // Adjust as needed
+
+        // Calculate offsets based on data length
+        const offsetX = Math.min(20, Math.floor(length * xOffsetCoefficient));
+        const offsetY = Math.min(200, Math.floor(length * yOffsetCoefficient));
+
+        return { offsetX, offsetY };
+    };
+
+    // Calculate dynamic offsets based on filtered data length
+    const { offsetX, offsetY } = calculateOffset(datasets.length);
+
+    // Find the minimum and maximum values of X and Y axes in the original data
+    const originalXYMin = 0;
+    const originalYMax = Math.max(...data.map((item) => parseFloat(item.total_wait_time))) + offsetY;
+    const originalXMax = data.length + offsetX;
+
     return (
         <Bubble
             options={{
+                clip: false,
                 animation: false,
                 // animations: {
                 //     radius: {
@@ -111,13 +133,61 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                     },
                     tooltip: {
                         callbacks: {
+                            title: (context: any) => {
+                                if (context.length === 0) {
+                                    return '';
+                                }
+                                return context[0].dataset.label;
+                            },
                             label: (context: any) => {
-                                const dataset = context.dataset.label || '';
                                 const dataPoint = context.parsed;
-                                const tx = context.dataset?.txCount ? `\n(${parseInt(context.dataset.txCount).toLocaleString('en-US')} transactions)` : '';
-                                return `${dataset}: ${dataPoint.y?.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hoverTextPrefix}${tx}`;
+
+                                return `Rank #${dataPoint.x?.toLocaleString('en-US')}`;
+                            },
+                            afterLabel: (context: any) => {
+                                return context.dataset?.txCount ? `\nMined ${parseInt(context.dataset.txCount).toLocaleString('en-US')} transactions` : '';
+                            },
+                            footer: (context: any) => {
+                                if (context.length === 0) {
+                                    return '';
+                                }
+                                return `\nSaved ${context[0].parsed.y?.toLocaleString('en-US', { maximumFractionDigits: 2 })} seconds of waiting time`;
                             }
-                        }
+                        },
+                        displayColors: false,
+                        // backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        // borderColor: '#ccc',
+                        borderWidth: 1,
+                        // bodyColor: '#333',
+                        bodyFont(ctx, options) {
+                            return {
+                                size: 14,
+                                weight: 'normal',
+                                lineHeight: 1
+                            };
+                        },
+                        bodySpacing: 1,
+                        padding: 16,
+                        boxPadding: 8,
+                        // titleColor: '#333',
+                        titleFont(ctx, options) {
+                            return {
+                                size: 18,
+                                weight: 'bold',
+                                lineHeight: 1.5
+                            };
+                        },
+                        titleSpacing: 1,
+                        // footerColor: '#333',
+                        footerFont(ctx, options) {
+                            return {
+                                size: 14,
+                                weight: 'normal',
+                                lineHeight: 1
+                            };
+                        },
+                        footerMarginTop: 0,
+                        footerSpacing: 1
                     }
                 },
                 onClick(event, elements, chart) {
@@ -134,12 +204,14 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 scales: {
                     x: {
                         // beginAtZero: true,
+                        min: originalXYMin,
+                        max: originalXMax,
                         grid: {
                             color: 'rgba(48, 48, 48, 1)'
                         },
                         title: {
                             display: true,
-                            text: 'Pool'
+                            text: 'Pool Rank'
                         },
                         ticks: {
                             stepSize,
@@ -150,6 +222,8 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                     },
                     y: {
                         // beginAtZero: true,
+                        min: originalXYMin,
+                        max: originalYMax,
                         ticks: {
                             stepSize,
                             callback: function (value, index, ticks) {
@@ -158,7 +232,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                         },
                         title: {
                             display: true,
-                            text: 'Total Wait Time (Seconds)'
+                            text: 'Collective Transaction Wait Time (Seconds)'
                         },
                         suggestedMin,
                         suggestedMax,
@@ -172,6 +246,7 @@ export default function BubbleChart({ data, tickText, hoverTextPrefix, secondDat
                 // labels: filteredDatasets.map((item) => item.label),
                 datasets: filteredDatasets.flat()
             }}
+            style={{ cursor: 'pointer', overflow: 'visible' }}
         />
     );
 }

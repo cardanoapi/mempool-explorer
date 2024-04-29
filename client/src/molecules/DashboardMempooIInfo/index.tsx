@@ -57,17 +57,19 @@ export default function MempoolInfo() {
 
     return (
         <div className="border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
-            <div className="px-4 py-6 flex flex-col gap-8 w-full lg:px-10 lg:py-12 lg:flex-row lg:justify-between">
-                <div>
-                    <p className="text-2xl font-medium text-[#E6E6E6]">Mempool Size</p>
-                    <p className="text-sm font-normal text-[#E6E6E6]">Last 10 minutes</p>
+            <div className="px-4 py-6 lg:px-10 lg:py-12">
+                <div className="flex flex-col gap-8 w-full lg:flex-row lg:justify-between">
+                    <div>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">Mempool Size</p>
+                        <p className="text-sm font-normal text-[#E6E6E6]">Last 10 minutes</p>
+                    </div>
+                    <div>
+                        <p className="text-sm font-normal text-[#E6E6E6]">Average Size</p>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize}</p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-sm font-normal text-[#E6E6E6]">Average Size</p>
-                    <p className="text-2xl font-medium text-[#E6E6E6]">{avgMempoolSize}</p>
-                </div>
+                <p className="mt-4">This displays the real-time size of the Mempool for this explorer node, as measured over the last 10 minutes.</p>
             </div>
-            <p className="px-4 lg:px-10">The line chart visually illustrates the fluctuation in mempool size over the past 10 minutes within the Cardano blockchain network.</p>
             <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                 {mempoolSizeDataValues.length > 0 && mempoolSizeDataLabels.length > 0 ? (
                     <LineChart labels={mempoolSizeDataLabels} data={mempoolSizeDataValues} tickText="Kb" />
