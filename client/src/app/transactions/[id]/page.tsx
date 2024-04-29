@@ -162,13 +162,36 @@ export default function TransactionDetails() {
                 {!isLoading ? (
                     isTransactionNotInOurPool ? (
                         miner ? (
-                            <div className="text-center text-lg font-medium">
+                            <div className="text-center text-lg font-medium mb-2">
                                 <p className='text-green-500'>This transaction is confirmed.</p>
-                                <p className='text-red-500'>Transaction details is not available yet. Our pools might not have recevied this transaction.</p>
+                                <div
+                                    className='mt-4 group'
+                                >
+
+                                    <div
+                                        className='flex items-center justify-center gap-2 text-red-500 mt-2 pb-4'
+                                    >
+                                        <p>Transaction is not yet detected on our explorer Mempool.</p>
+                                        <svg
+                                            className="w-6 h-6 text-gray-800 dark:text-white"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            fill="none"
+                                            viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
+
+                                    <p className='text-gray-500 hidden opacity-0 group-hover:flex group-hover:opacity-100 transition-opacity duration-300 pb-2'>
+                                        It is possible in Cardano Blockchain Network that explorer node like this may not always receive all mempool transactions.
+                                    </p>
+                                </div>
                             </div>
                         ) : (
-                            <div className="text-center text-lg font-medium">
-                                <p className='text-red-500'>Transaction details is not available yet. Our pools might not have recevied this transaction yet.</p>
+                            <div className="text-center text-lg font-medium mb-2">
+                                <p className='text-red-500'>Transaction details is not available yet. Our explorer node might not have recevied this transaction yet.</p>
                             </div>
                         )
 
