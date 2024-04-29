@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Pool [JUNO] JUNO stake pool",
+        "pool": "pool1we0xjccr3vc4ypnmhzsgwp7sxpsytu8dtv0syeqmtrllvcex68q",
+        "url": "https://junostakepool.com"
+    },
+    {
+        "name": "Pool [SIRET] Sireto Pool",
+        "pool": "pool14wn0gvhwme9lxx9l7j85k0dr2twyrgf9j0k3gx0f5d5ckzeln2l",
+        "url": "https://sireto.io"
+    },
+    {
+        "name": "Pool [LACE] Open Source Software Fund",
+        "pool": "pool1cpr59c88ps8499gtgegr3muhclr7dln35g9a3rqmv4dkxg9n3h8",
+        "url": "https://lacepool.com"
+    },
+    {
+        "name": "Pool [ATADA] ATADA Stakepool",
+        "pool": "pool1qqqqqdk4zhsjuxxd8jyvwncf5eucfskz0xjjj64fdmlgj735lr9",
+        "url": "https://stakepool.at"
+    },
+    {
+        "name": "Pool [CAN1] CanadaStakes",
+        "pool": "pool12eht6dqxpzqj87xuextrpufz2gxmt4reuesuw26r2utzw0kw906",
+        "url": "https://www.canadastakes.ca"
+    }
+]

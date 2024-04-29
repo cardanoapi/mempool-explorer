@@ -21,19 +21,18 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchContributorsData = async () => {
             try {
-                if (process.env.CONTRIBUTERS_JSON_URL) {
-                    const res = await fetch(process.env.CONTRIBUTERS_JSON_URL);
-                    if (!res.ok) {
-                        throw new Error('Failed to fetch contributors data');
-                    }
-                    const data = await res.json();
-                    if (!data || !Array.isArray(data)) {
-                        throw new Error('Invalid contributors data');
-                    }
-                    setContributorsData(data);
-                } else {
-                    setContributorsData([]);
+                const url = process.env.CONTRIBUTERS_JSON_URL ?? 'mempool-contributors.json';
+
+                const res = await fetch(url);
+                if (!res.ok) {
+                    throw new Error('Failed to fetch contributors data');
                 }
+
+                const data = await res.json();
+                if (!data || !Array.isArray(data)) {
+                    throw new Error('Invalid contributors data');
+                }
+                setContributorsData(data);
             } catch (error) {
                 console.error('Error fetching contributors data:', error);
                 setContributorsData([]);

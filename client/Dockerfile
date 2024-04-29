@@ -42,7 +42,7 @@ RUN NODE_OPTIONS="--max_old_space_size=8192" \
 # Remove unnecessary files
 RUN rm -rf ./.next/cache/* && \
     mkdir moveTarget && \
-    mv entrypoint.sh next.config.js next-i18next.config.js next-sitemap.config.js package.json public/ ./moveTarget/
+    mv entrypoint.sh next.config.js next-i18next.config.js next-sitemap.config.js package.json FAIRNESS.md public/ ./moveTarget/
 
 # Create a production-ready image
 FROM node:18-slim

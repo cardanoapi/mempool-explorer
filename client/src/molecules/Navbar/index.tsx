@@ -15,7 +15,6 @@ import SearchIcon from '@app/atoms/Icon/Search';
 import WalletIcon from '@app/atoms/Icon/Wallet';
 import environments from '@app/configs/environments';
 
-
 declare global {
     interface Window {
         cardano: any;
@@ -142,11 +141,15 @@ export default function Navbar() {
 
             {environments.ENABLE_CONNECT_WALLET && connectedWallet && (
                 <Link href="/profile">
-                    <GradientButton size="large" startIcon={<ProfileIcon />} onClick={() => { }}>
+                    <GradientButton size="large" startIcon={<ProfileIcon />} onClick={() => {}}>
                         <span className="hidden md:block">My Profile</span>
                     </GradientButton>
                 </Link>
             )}
+
+            <Link href="/fairness" className="ml-4">
+                Fairness
+            </Link>
 
             {environments.ENABLE_CONNECT_WALLET && (
                 <Modal open={isModalOpen} onClose={handleCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description" className="flex items-center justify-center">
