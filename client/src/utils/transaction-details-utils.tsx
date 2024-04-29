@@ -82,7 +82,7 @@ export function convertFollowupsToClientSide(response: any, id: string) {
         followupObj = {
             ...followupObj,
             hash: hash,
-            arrivalTime: new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(followups[i].arrivalTime))
+            arrivalTime: followups[i].arrivalTime !== 'N/A' ? new Intl.DateTimeFormat("en-US", DateTimeCustomoptions).format(new Date(followups[i].arrivalTime)) : followups[i].arrivalTime
         };
         const parserObj = new CborTransactionParser(followups[i].body);
         const tx = parserObj.getTransaction();

@@ -52,7 +52,7 @@ export default function TransactionDetails() {
     const { error, setError } = useLoader();
 
     const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsInterface | null>(null);
-    const [waitTime, setWaitTime] = useState<number>(); // wait time in seconds
+    const [waitTime, setWaitTime] = useState<any>(); // wait time in seconds
     const [arrivalTime, setArrivalTime] = useState<string>();
     const [confirmationTime, setConfirmationTime] = useState<string>();
     const [miner, setMiner] = useState<ConfirmationDetails>();
@@ -108,22 +108,29 @@ export default function TransactionDetails() {
                             setTransactionStatus(TransactionStatus.notInOurPool);
                             return;
                         }
-                        const arrivalTime = new Date(d?.arrivalTime);
-                        const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
-                        const currentTimeUtc = new Date(new Date().toUTCString());
-                        let waitTime;
-                        if (minerDetails) {
-                            const confirmTime = new Date(minerDetails.block_time);
-                            const confirmTimeUtc = new Date(confirmTime.toUTCString());
-                            waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime();
-                            setConfirmationTime(formatDate(confirmTime));
+                        if (d?.arrivalTime !== 'N/A') {
+                            const arrivalTime = new Date(d?.arrivalTime);
+                            const arrivalTimeUtc = new Date(arrivalTime.toUTCString());
+                            const currentTimeUtc = new Date(new Date().toUTCString());
+                            let waitTime;
+                            if (minerDetails) {
+                                const confirmTime = new Date(minerDetails.block_time);
+                                const confirmTimeUtc = new Date(confirmTime.toUTCString());
+                                waitTime = confirmTimeUtc.getTime() - arrivalTimeUtc.getTime();
+                                setConfirmationTime(formatDate(confirmTime));
+                            } else {
+                                waitTime = currentTimeUtc.getTime() - arrivalTimeUtc.getTime();
+                            }
+                            waitTime = Math.floor(waitTime / 1000);
+                            setWaitTime(waitTime);
+                            setArrivalTime(formatDate(arrivalTime));
                         } else {
-                            waitTime = currentTimeUtc.getTime() - arrivalTimeUtc.getTime();
+                            setArrivalTime(d?.arrivalTime);
+                            setWaitTime('N/A');
+                            if (minerDetails) {
+                                setConfirmationTime(formatDate(new Date(minerDetails.block_time)));
+                            }
                         }
-                        waitTime = Math.floor(waitTime / 1000);
-                        //TODO : Refactor this code to merge wait, arrival time in transaction details object
-                        setWaitTime(waitTime);
-                        setArrivalTime(formatDate(arrivalTime));
                         setTransactionDetails(d);
                     })
                     .catch((e: any) => {
@@ -201,7 +208,7 @@ export default function TransactionDetails() {
                                 <div className="mt-10 h-[1px]" />
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                                     <BannerStatCard title="Arrival Time" value={arrivalTime ?? ''} valueClassName="md:text-lg" />
-                                    <BannerStatCard title="Wait Time" value={waitTime ? `${waitTime} sec` : 'Loading...'} />
+                                    <BannerStatCard title="Wait Time" value={waitTime ? (waitTime !== 'N/A' ? `${waitTime} sec` : waitTime) : 'Loading...'} />
                                     <BannerStatCard title="Fee" value={transactionDetails ? `${transactionDetails.fee / 1000000} Ada` : ''} />
                                     <BannerStatCard title="Status" value={miner ? 'Confirmed' : 'Pending'} />
                                 </div>
