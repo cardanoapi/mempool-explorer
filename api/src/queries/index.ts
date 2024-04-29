@@ -70,7 +70,17 @@ export async function getPoolDetails(
 ) {
     try {
         return await discoveryDb.$queryRaw(
-            Prisma.sql`SELECT tc.tx_hash, extract (epoch from ttn.wait_time) as wait_time, tc.epoch, tc.block_hash,tc.slot_no, tc.block_no, tc.confirmation_time from tx_confirmed as tc left join tx_timing as ttn on tc.tx_hash = ttn.tx_hash where pool_id=${pool_id} and epoch=${epochNo} order by confirmation_time desc limit 100 offset ${
+            Prisma.sql`
+            SELECT tc.tx_hash, 
+            EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) as wait_time, 
+            tc.epoch, 
+            tc.block_hash,
+            tc.slot_no, 
+            tc.block_no, 
+            tc.confirmation_time 
+            from tx_confirmed as tc 
+            on tc.tx_hash = ttn.tx_hash 
+            where pool_id=${pool_id} and epoch=${epochNo} order by confirmation_time desc limit 100 offset ${
                 (pageNumber - 1) * 100
             }`
         );
@@ -86,9 +96,15 @@ export async function getAddressDetails(
 ) {
     try {
         return await discoveryDb.$queryRaw(Prisma.sql`
-                select tc.tx_hash, extract ( epoch from tt.wait_time) as wait_time, tc.epoch,tc.block_hash,tc.slot_no,tc.block_no,  tc.confirmation_time from tx_addresses
+            select tc.tx_hash, 
+                   EXTRACT(epoch FROM tc.confirmation_time - tc.received_time) as wait_time, 
+                   tc.epoch,
+                   tc.block_hash,
+                   tc.slot_no,
+                   tc.block_no,  
+                   tc.confirmation_time 
+            from tx_addresses
             join tx_confirmed tc on tx_addresses.tx_hash = tc.tx_hash
-            left join tx_timing tt on tt.tx_hash = tc.tx_hash
             where address=${address_id}
             order by tc.confirmation_time desc
             limit 100 offset ${(pageNumber - 1) * 100}
