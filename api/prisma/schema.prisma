@@ -61,6 +61,7 @@ model tx_confirmed {
   block_no          BigInt?
   pool_id           String?   @db.VarChar(100)
   confirmation_time DateTime? @db.Timestamp(6)
+  received_time DateTime? @db.Timestamp(6)
 
   @@index([epoch(sort: Desc)], map: "idx_epoch")
 }
