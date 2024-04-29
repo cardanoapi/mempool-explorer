@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 
 import environments from '@app/configs/environments';
+import { getUrlObject } from '@app/utils/cardano-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest, res: NextResponse) {
     console.log('GET: ', req.url);
     try {
-        const response = await fetch(environments.API_URL + '/tx/stats');
+        const urlObject = getUrlObject(req.url);
+        const query = urlObject.searchParams.get('query');
+        const response = await fetch(environments.API_URL + '/tx/stats' + (query ? `?query=${query}` : ''));
 
         const data = await response.json();
 
