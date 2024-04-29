@@ -97,7 +97,7 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
             <div className="col-span-1 lg:col-span-2 border-r-0 border-b-[1px] border-b-[#666666] lg:border-r-[1px] lg:border-r-[#666666] lg:border-b-0">
                 <div className="px-4 py-6 flex flex-col gap-8 w-full lg:px-10 lg:py-12 lg:flex-row lg:justify-between">
                     <div>
-                        <p className="text-2xl font-medium text-[#E6E6E6]">Stake Pools</p>
+                        <p className="text-2xl font-medium text-[#E6E6E6]">Average Transaction Waiting Time Distribution</p>
                         <p className="text-sm font-normal text-[#E6E6E6]">Last 5 Epochs</p>
                     </div>
                     {/* <div>
@@ -114,7 +114,7 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                         </Select>
                     </div> */}
                 </div>
-                <p className="px-4 lg:px-10">The bar graph illustrates the count of stake pools over the last five epochs, categorized by their average wait times.</p>
+                <p className="px-4 lg:px-10">This bar graph displays the number of stake pools over the past five epochs, categorized by their average transaction wait times.</p>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                     {poolTimingLabels && poolTimingValues ? (
                         <BarChart labels={poolTimingLabelsSecs} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />
@@ -133,19 +133,26 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
             </div>
             <div className="col-span-1">
                 <div className="px-4 py-6 lg:px-10 lg:py-12">
-                    <p className="text-2xl font-medium text-[#E6E6E6]">Top Stake Pools</p>
+                    <p className="text-2xl font-medium text-[#E6E6E6]">Top 10 Stake Pools</p>
+                    <p className="mt-4 text-sm font-normal text-[#E6E6E6]">The table below ranks pools based on the highest collective wait times of transactions they processed, which were pending in the Mempool awaiting confirmation on the chain.</p>
                 </div>
 
                 <div className="lg:h-[100%] overflow-y-auto">
                     <table className="table-auto w-full pb-6 lg:pb-12">
-                        <TableHeader thClassName="md:px-4 lg:px-10" columns={['Ticker Name', 'Name', 'Pool Hash', 'Total Wait Time', 'Avg. Wait Time', 'URL', 'Transaction Count']} />
+                        <TableHeader thClassName="md:px-4 lg:px-10" columns={['Rank', 'Ticker Name', 'Name', 'Pool Hash', 'Total Wait Time', 'Avg. Wait Time', 'URL', 'Transaction Count']} />
                         <tbody className="!text-xs lg:!text-sm !font-normal">
                             {poolData && poolData.length > 0
-                                ? poolData.map((pool: PoolDistribution) => {
+                                ? poolData.map((pool: PoolDistribution, idx: number) => {
+                                      if (idx >= 10) return null;
                                       const totalWaitTime = parseFloat(pool.total_wait_time);
                                       const avgWaitTime = totalWaitTime / parseInt(pool.tx_count);
                                       return (
                                           <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                              <td className="py-5 px-4 lg:px-10 text-start">
+                                                  <GradientTypography>
+                                                      <Link href={`/pool/${pool.pool_id}`}>#{idx + 1}</Link>
+                                                  </GradientTypography>
+                                              </td>
                                               <td className="py-5 px-4 lg:px-10 text-start">
                                                   <GradientTypography>
                                                       <Link href={`/pool/${pool.pool_id}`}>{pool?.ticker_name ?? '-'}</Link>
