@@ -312,7 +312,7 @@ export default function PoolDetails() {
                                 {transactions.map((row, idx) => (
                                     <tr key={idx} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                         {Object.keys(row).map((rowKey: string, index: number) => {
-                                            if (rowKey === 'received_time' || rowKey === 'confirmation_time' || rowKey === 'wait_time') {
+                                            if (rowKey === 'received_time' || rowKey === 'confirmation_time') {
                                                 if (toMonthDateYearStr(parseDateStrToDate(row[rowKey])) === 'Invalid Date') {
                                                     return (
                                                         <td key={index} className="py-5 px-4 md:px-10 text-start">
