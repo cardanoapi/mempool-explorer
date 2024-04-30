@@ -47,17 +47,17 @@ export default function Banner({ scrollToCurrentEpochInfo }: { scrollToCurrentEp
     return (
         <div
             style={{ background: "url('/banner-bg.png')", backgroundSize: 'cover' }}
-            className="w-full min-h-calc-68 bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-10 md:px-[104px] py-10"
+            className="w-full min-h-calc-68 bg-[#0D0D0D] text-[#E6E6E6] flex flex-col md:flex-row justify-center items-center md:justify-between gap-10 md:gap-[176px] px-4 py-6 lg:px-10 lg:py-10"
         >
             <div className="flex flex-col w-full">
                 <h1 className="text-4xl md:text-5xl mb-10 font-medium">{bannerContent.title}</h1>
                 <h2 className="text-xl md:text-2xl mb-10 font-medium">{bannerContent.subtitle}</h2>
                 {/* Tabs */}
                 <div className="flex gap-4 mb-8 rounded-full overflow-hidden bg-slate-700 w-full">
-                    <button onClick={handleTabChange} className={cn(`px-5 py-2 text-lg font-medium w-1/2`, activeTab === TABS.ADA_HOLDERS ? 'text-[#E6E6E6] bg-orange-700' : 'text-[#7C7C7C]')}>
+                    <button onClick={handleTabChange} className={cn(`px-5 py-2 text-lg font-medium w-1/2`, activeTab === TABS.ADA_HOLDERS ? 'text-[#0D0D0D] bg-[#FF6B00]' : 'text-[#E6E6E6]')}>
                         {TABS.ADA_HOLDERS}
                     </button>
-                    <button onClick={handleTabChange} className={`px-5 py-2 text-lg font-medium w-1/2 ${activeTab === TABS.STAKE_POOL_OPERATORS ? 'text-[#E6E6E6] bg-orange-700' : 'text-[#7C7C7C]'}`}>
+                    <button onClick={handleTabChange} className={`px-5 py-2 text-lg font-medium w-1/2 ${activeTab === TABS.STAKE_POOL_OPERATORS ? 'text-[#0D0D0D] bg-[#FF6B00]' : 'text-[#E6E6E6]'}`}>
                         {TABS.STAKE_POOL_OPERATORS}
                     </button>
                 </div>
@@ -71,14 +71,15 @@ export default function Banner({ scrollToCurrentEpochInfo }: { scrollToCurrentEp
                 ))}
                 <p className="mt-[88px] text-lg font-medium mb-12">{bannerContent.description}</p>
                 <div className="flex gap-4">
-                    <GradientButton size="large" startIcon={<ArrowIcon stroke="#0D0D0D" className="transform rotate-90" />} onClick={scrollToCurrentEpochInfo} fullWidth={false} className="w-fit">
+                    <GradientButton size="large" startIcon={<ArrowIcon stroke="#0D0D0D" className="transform rotate-90" />} onClick={scrollToCurrentEpochInfo} fullWidth>
                         <span>Explore</span>
                     </GradientButton>
-                    <Link href="/mempool">
-                        <GradientButton size="large" fullWidth={false} onClick={() => {}}>
-                            Show Live Data
-                        </GradientButton>
-                    </Link>
+                    <GradientButton size="large" fullWidth onClick={() => {}} className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600">
+                        <Link href="/mempool">Show Live Data</Link>
+                    </GradientButton>
+                    <GradientButton size="large" fullWidth onClick={() => {}} className="bg-gradient-to-r from-amber-200 to-yellow-400 hover:from-amber-300 hover:to-yellow-500">
+                        <Link href="/fairness">Learn About Fairness</Link>
+                    </GradientButton>
                 </div>
             </div>
             <div className="w-full flex justify-center items-center">
