@@ -25,12 +25,12 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                                 <tr key={pool.name} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={`/${pool.pool}`}>{toMidDottedStr(pool.pool, 12)}</Link>
+                                            <Link href={`/pool/${pool.pool}`}>{toMidDottedStr(pool.pool, 12)}</Link>
                                         </GradientTypography>
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={`/${pool.pool}`}>{pool.name}</Link>
+                                            <Link href={`/pool/${pool.pool}`}>{pool.name}</Link>
                                         </GradientTypography>
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
