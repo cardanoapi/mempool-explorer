@@ -51,7 +51,7 @@ export default function PoolDetails() {
     const isMobile = useIsMobile();
     const poolId = router.id as string;
 
-    const [poolData, setPoolData] = useState<PoolDistribution[]>();
+    const [poolData, setPoolData] = useState<PoolDistribution[]>([]);
     const [poolInfo, setPoolInfo] = useState<any>();
     const [poolExternalLink, setPoolExternalLink] = useState<string>();
 
@@ -110,7 +110,15 @@ export default function PoolDetails() {
     useEffect(() => {
         getPoolDistribution()
             .then((res: PoolDistribution[]) => {
-                setPoolData(res);
+                if (res) {
+                    const poolDistribution = res.slice()
+                    .reverse()
+                    .sort((a, b) => {
+                        return parseFloat(b.total_wait_time) - parseFloat(a.total_wait_time);
+                        // return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
+                    })
+                    setPoolData(poolDistribution);
+                }
             })
             .catch((e: any) => {
                 console.log('Error occurred while fetching pool distribution');
