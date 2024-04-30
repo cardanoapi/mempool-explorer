@@ -117,7 +117,15 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                 <p className="px-4 lg:px-10">This bar graph displays the number of stake pools over the past five epochs, categorized by their average transaction wait times.</p>
                 <div className="px-4 py-4 lg:px-10 lg:py-8 lg:min-h-[355px]">
                     {poolTimingLabels && poolTimingValues ? (
-                        <BarChart labels={poolTimingLabelsSecs} data={poolTimingValues} tickText="" hoverTextPrefix="pools" stepSize={50} />
+                        <BarChart
+                            xTitle={{ display: true, text: 'Average Transaction Waiting Time Distribution (Seconds)' }}
+                            yTitle={{ display: true, text: 'Number of pools' }}
+                            labels={poolTimingLabelsSecs}
+                            data={poolTimingValues}
+                            tickText=""
+                            hoverTextPrefix="pools"
+                            stepSize={50}
+                        />
                     ) : (
                         <div className="h-[450px] isolate overflow-hidden shadow-xl shadow-black/5 grid grid-cols-10 gap-[2px]">
                             {_.range(0, 10).map((percent, index) => (
