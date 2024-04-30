@@ -97,6 +97,7 @@ export default function PoolDetails() {
     const getPoolExternalLink = (poolId: string) => {
         if (poolData && poolData.length > 0) {
             const poolIdx = poolData.findIndex((pool) => pool.pool_id === poolId);
+            if (!poolIdx || poolIdx < 0) return '';
             const pool: any = poolData[poolIdx];
             pool.rank = poolIdx + 1;
             setPoolInfo(pool);
@@ -111,12 +112,13 @@ export default function PoolDetails() {
         getPoolDistribution()
             .then((res: PoolDistribution[]) => {
                 if (res) {
-                    const poolDistribution = res.slice()
-                    .reverse()
-                    .sort((a, b) => {
-                        return parseFloat(b.total_wait_time) - parseFloat(a.total_wait_time);
-                        // return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
-                    })
+                    const poolDistribution = res
+                        .slice()
+                        .reverse()
+                        .sort((a, b) => {
+                            return parseFloat(b.total_wait_time) - parseFloat(a.total_wait_time);
+                            // return parseFloat(a.total_wait_time) - parseFloat(b.total_wait_time);
+                        });
                     setPoolData(poolDistribution);
                 }
             })
