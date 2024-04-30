@@ -37,7 +37,8 @@ To address potential fairness issues, it is essential to assess how stake pools 
 
 Under this framework, stake pools that consistently mine transactions with shorter wait times, especially if they control a large stake, might be viewed with suspicion. They could be seen as favoring certain transactions, which contradicts the principle of fairness in blockchain. Conversely, pools that include transactions with longer wait times are seen as aiding users who might otherwise be disadvantaged, labeling these as good pools.
 
-Here is a list of good pools as of April 29, 2024
+Here is a list of good pools:
+![alt Good Pools](https://s3.eu-central-1.wasabisys.com/kuberide/mempool/top-stake-pools.png)
 
 ---
 
