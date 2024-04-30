@@ -10,6 +10,11 @@ router.get('/distribution', async (req, res) => {
     res.json(response);
 });
 
+router.get('/distribution/weighted', async (req, res) => {
+    const response = await poolController.getPoolDistributionWeightage();
+    res.json(response);
+});
+
 router.get('/timing', async (req, res) => {
     const response = await poolController.getPoolTiming();
     res.json(response);
