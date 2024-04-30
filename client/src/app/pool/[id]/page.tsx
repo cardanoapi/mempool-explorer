@@ -101,6 +101,7 @@ export default function PoolDetails() {
             const pool: any = poolData[poolIdx];
             pool.rank = poolIdx + 1;
             setPoolInfo(pool);
+            console.log(pool);
             if (pool?.url) {
                 return pool.url;
             }
@@ -226,7 +227,7 @@ export default function PoolDetails() {
                     </p>
                     {poolExternalLink && (
                         <GradientButton fullWidth={false} className="flex gap-4 w-fit !h-10 items-center cursor-default" onClick={() => copyToClipboard(poolExternalLink, 'Pool Link')}>
-                            <Link target="_blank" href={poolExternalLink} className="flex gap-2 items-center cursor-pointer hover:underline">
+                            <Link target="_blank" href={poolExternalLink} prefetch={false} className="flex gap-2 items-center cursor-pointer hover:underline">
                                 <p className="text-base lowercase font-normal break-all"> {poolExternalLink.toLowerCase()}</p>
                             </Link>
                             <CopyIcon stroke="#0D0D0D" className="cursor-pointer text-inherit" />
