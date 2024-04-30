@@ -35,7 +35,7 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={pool.url} target="_blank">
+                                            <Link href={pool.url} target="_blank" prefetch={false}>
                                                 {pool.url}
                                             </Link>
                                         </GradientTypography>

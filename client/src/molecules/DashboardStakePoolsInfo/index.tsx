@@ -199,7 +199,7 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                                               <td className="py-5 px-4 lg:px-10 text-start">
                                                   <GradientTypography>
                                                       {pool?.url ? (
-                                                          <Link href={pool.url} target="_blank">
+                                                          <Link href={pool.url} prefetch={false} target="_blank">
                                                               {pool.url}
                                                           </Link>
                                                       ) : (
