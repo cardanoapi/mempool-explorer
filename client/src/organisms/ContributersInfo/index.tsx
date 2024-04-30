@@ -25,12 +25,12 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                                 <tr key={pool.name} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={`/pool/${pool.pool}`}>{toMidDottedStr(pool.pool, 12)}</Link>
+                                            <Link href={`/pool/${pool.pool}`} prefetch={false}>{toMidDottedStr(pool.pool, 12)}</Link>
                                         </GradientTypography>
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
                                         <GradientTypography>
-                                            <Link href={`/pool/${pool.pool}`}>{pool.name}</Link>
+                                            <Link href={`/pool/${pool.pool}`} prefetch={false}>{pool.name}</Link>
                                         </GradientTypography>
                                     </td>
                                     <td className="py-5 px-4 lg:px-10 text-start">
@@ -88,7 +88,7 @@ export default function ContributersInfo({ contributorsData }: { contributorsDat
                         <p>Help us to include more information on cardano mempool.</p>
                         <p>
                             Submit your pool information
-                            <Link className={`ml-2 bg-gradient-to-br from-[#CC3CFF] to-[#60B3FF] bg-clip-text text-transparent text-base font-medium hover:underline`} href={`${process.env.CONTACT_US_URL}`} target="_blank">
+                            <Link prefetch={false} className={`ml-2 bg-gradient-to-br from-[#CC3CFF] to-[#60B3FF] bg-clip-text text-transparent text-base font-medium hover:underline`} href={`${process.env.CONTACT_US_URL}`} target="_blank">
                                 here
                             </Link>
                         </p>

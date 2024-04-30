@@ -64,6 +64,7 @@ export default function TransactionEventList(props: PropType) {
                     <div className={"inline"}>{renderBatchPill(action)}</div>
                     <Link className={'flex flex-col cursor-pointer text-sm text-blue-500'}
                           href={`/transactions/${hash}`}
+                          prefetch={false}
                           target={"_blank"}>
                         {toMidDottedStr(hash, 10)}
                     </Link>
@@ -95,6 +96,7 @@ export default function TransactionEventList(props: PropType) {
                                     <Link key={index}
                                           className={'flex flex-col mb-1 cursor-pointer text-sm text-blue-500'}
                                           href={`/transactions/${e}`}
+                                          prefetch={false}
                                           target={"_blank"}>
                                         {toMidDottedStr(e, 10)}
                                     </Link>

@@ -151,76 +151,76 @@ export default function StakePoolTiming({ totalWaitTime, poolData }: IDashboardS
                         <tbody className="!text-xs lg:!text-sm !font-normal">
                             {poolData && poolData.length > 0
                                 ? poolData.map((pool: PoolDistribution, idx: number) => {
-                                      if (idx >= 10) return null;
-                                      const totalWaitTime = parseFloat(pool.total_wait_time);
-                                      const avgWaitTime = totalWaitTime / parseInt(pool.tx_count);
-                                      return (
-                                          <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      <Link href={`/pool/${pool.pool_id}`}>#{idx + 1}</Link>
-                                                  </GradientTypography>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      <Link href={`/pool/${pool.pool_id}`}>{pool?.ticker_name ?? '-'}</Link>
-                                                  </GradientTypography>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      <Link href={`/pool/${pool.pool_id}`}>{pool?.name ?? '-'}</Link>
-                                                  </GradientTypography>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      <Link href={`/pool/${pool.pool_id}`}>{toMidDottedStr(pool.pool_id, 5)}</Link>
-                                                  </GradientTypography>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <Tooltip
-                                                      className="cursor-pointer"
-                                                      title={`Approx. ${totalWaitTime.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec. or ${(totalWaitTime / 60).toLocaleString('en-US', {
-                                                          maximumFractionDigits: 2
-                                                      })} mins.`}
-                                                  >
-                                                      <span className="text-white">{(totalWaitTime / 3600).toLocaleString('en-US', { maximumFractionDigits: 2 })} hrs.</span>
-                                                  </Tooltip>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <Tooltip
-                                                      className="cursor-pointer"
-                                                      title={`Approx. ${(avgWaitTime / 3600).toLocaleString('en-US', { maximumFractionDigits: 2 })} hrs. or ${(avgWaitTime / 60).toLocaleString('en-US', {
-                                                          maximumFractionDigits: 2
-                                                      })} mins.`}
-                                                  >
-                                                      <span className="text-white">{avgWaitTime.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec.</span>
-                                                  </Tooltip>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      {pool?.url ? (
-                                                          <Link href={pool.url} prefetch={false} target="_blank">
-                                                              {pool.url}
-                                                          </Link>
-                                                      ) : (
-                                                          <span>-</span>
-                                                      )}
-                                                  </GradientTypography>
-                                              </td>
-                                              <td className="py-5 px-4 lg:px-10 text-start">
-                                                  <GradientTypography>
-                                                      <Link href={`/pool/${pool.pool_id}`}>{parseInt(pool.tx_count).toLocaleString('en-US')}</Link>
-                                                  </GradientTypography>
-                                              </td>
-                                          </tr>
-                                      );
-                                  })
+                                    if (idx >= 10) return null;
+                                    const totalWaitTime = parseFloat(pool.total_wait_time);
+                                    const avgWaitTime = totalWaitTime / parseInt(pool.tx_count);
+                                    return (
+                                        <tr key={pool.pool_id} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    <Link href={`/pool/${pool.pool_id}`} prefetch={false}>#{idx + 1}</Link>
+                                                </GradientTypography>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    <Link href={`/pool/${pool.pool_id}`} prefetch={false}>{pool?.ticker_name ?? '-'}</Link>
+                                                </GradientTypography>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    <Link href={`/pool/${pool.pool_id}`} prefetch={false}>{pool?.name ?? '-'}</Link>
+                                                </GradientTypography>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    <Link href={`/pool/${pool.pool_id}`} prefetch={false}>{toMidDottedStr(pool.pool_id, 5)}</Link>
+                                                </GradientTypography>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <Tooltip
+                                                    className="cursor-pointer"
+                                                    title={`Approx. ${totalWaitTime.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec. or ${(totalWaitTime / 60).toLocaleString('en-US', {
+                                                        maximumFractionDigits: 2
+                                                    })} mins.`}
+                                                >
+                                                    <span className="text-white">{(totalWaitTime / 3600).toLocaleString('en-US', { maximumFractionDigits: 2 })} hrs.</span>
+                                                </Tooltip>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <Tooltip
+                                                    className="cursor-pointer"
+                                                    title={`Approx. ${(avgWaitTime / 3600).toLocaleString('en-US', { maximumFractionDigits: 2 })} hrs. or ${(avgWaitTime / 60).toLocaleString('en-US', {
+                                                        maximumFractionDigits: 2
+                                                    })} mins.`}
+                                                >
+                                                    <span className="text-white">{avgWaitTime.toLocaleString('en-US', { maximumFractionDigits: 2 })} sec.</span>
+                                                </Tooltip>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    {pool?.url ? (
+                                                        <Link href={pool.url} prefetch={false} target="_blank">
+                                                            {pool.url}
+                                                        </Link>
+                                                    ) : (
+                                                        <span>-</span>
+                                                    )}
+                                                </GradientTypography>
+                                            </td>
+                                            <td className="py-5 px-4 lg:px-10 text-start">
+                                                <GradientTypography>
+                                                    <Link href={`/pool/${pool.pool_id}`} prefetch={false}>{parseInt(pool.tx_count).toLocaleString('en-US')}</Link>
+                                                </GradientTypography>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                                 : _.range(0, 8).map((percent, index) => (
-                                      <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                          <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
-                                      </tr>
-                                  ))}
+                                    <tr key={index} className="border-b-[1px] h-[65px] hover:bg-[#292929] w-full isolate overflow-hidden shadow-xl shadow-black/5 gap-[2px]">
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                        <td className="grid-cols-1 bg-[#303030] animate-pulse w-full py-5 px-4 lg:px-10 text-start" />
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>

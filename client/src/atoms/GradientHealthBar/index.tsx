@@ -105,7 +105,7 @@ const GradientHealthBar = ({ labels, labelData, labelIndicator, searchQuery = ''
                                                                 </Tooltip>
                                                             ) : ( */}
                                                             <Tooltip title={`Total Wait time ${content.totalWaitTime} sec`} arrow>
-                                                                <Link href={`/pool/${content.poolId}`} className="bg-white w-full">
+                                                                <Link href={`/pool/${content.poolId}`} className="bg-white w-full" prefetch={false}>
                                                                     <p className="w-full p-2 text-xs">{toEndDottedStr(content.text, 10)}</p>
                                                                 </Link>
                                                             </Tooltip>

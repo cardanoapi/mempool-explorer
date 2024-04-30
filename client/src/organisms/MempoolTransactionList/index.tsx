@@ -40,7 +40,7 @@ export default function MempoolTransactionList({ tableTitle, data, className = '
                                     if (typeof item === 'object' && item?.type !== 'div') {
                                         content = (
                                             <GradientTypography>
-                                                <Link href={item?.props?.href}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
+                                                <Link href={item?.props?.href} prefetch={false}>{toMidDottedStr(item?.key, isMobile ? 3 : 5)}</Link>
                                             </GradientTypography>
                                         );
                                     } else if (typeof item === 'object' && item?.type === 'div' && Array.isArray(item?.props?.children?.props?.children) && item?.props?.children?.props?.children?.length > 0) {

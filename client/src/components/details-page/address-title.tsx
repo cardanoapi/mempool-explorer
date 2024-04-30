@@ -34,7 +34,7 @@ export default function AddressTitle() {
                         <div className={'cursor-pointer mr-2'} onClick={() => copyToClipboard((router?.id as string) || '')}>
                             <CopyIcon />
                         </div>
-                        <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()}>
+                        <a target={'_blank'} className={'cursor-pointer'} href={generateCardanoScanLink()} >
                             <LinkIcon />
                         </a>
                     </div>
