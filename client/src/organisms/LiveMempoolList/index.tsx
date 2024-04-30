@@ -41,7 +41,7 @@ export default function LiveMempoolList({ tableTitle, eventLogList, className = 
                                     <tr key={index} className="border-b-[1px] border-b-[#303030] hover:bg-[#292929]">
                                         <td className="py-5 px-4 md:px-10 text-start">
                                             <GradientTypography>
-                                                <Link href={`/transactions/${addRejectEvent.hash}`}>{toMidDottedStr(addRejectEvent.hash, isMobile ? 3 : 5)}</Link>
+                                                <Link href={`/transactions/${addRejectEvent.hash}`} prefetch={false}>{toMidDottedStr(addRejectEvent.hash, isMobile ? 3 : 5)}</Link>
                                             </GradientTypography>
                                             <span className="text-white">{arrivalTime}</span>
                                         </td>
@@ -57,7 +57,7 @@ export default function LiveMempoolList({ tableTitle, eventLogList, className = 
                                         <td className="py-5 px-4 md:px-10 text-start">
                                             {removeEvent.txHashes.map((e, index) => (
                                                 <GradientTypography key={index}>
-                                                    <Link href={`/transactions/${e}`}>{toMidDottedStr(e, 5)}</Link>
+                                                    <Link href={`/transactions/${e}`} prefetch={false}>{toMidDottedStr(e, 5)}</Link>
                                                 </GradientTypography>
                                             ))}
                                         </td>

@@ -36,7 +36,7 @@ export const createLinkElementsForTransactionHash = (arr: Array<AddressTransacti
         return {
             ...obj,
             tx_hash: (
-                <Link target={'_blank'} className={'text-blue-500 mb-2'} href={`/transactions/${obj.tx_hash}`}>
+                <Link prefetch={false} target={'_blank'} className={'text-blue-500 mb-2'} href={`/transactions/${obj.tx_hash}`}>
                     {obj.tx_hash}
                 </Link>
             )
@@ -51,7 +51,7 @@ function convertInputArrayToReactElement(arr: Array<TransactionInputResponseType
             {arr.slice(0, displayLimit)?.map((el) => {
                 const appendedInputs = `${el.hash}#${el.index}`;
                 return (
-                    <Link key={appendedInputs} target={'_blank'} className={'text-blue-500 mb-[2px]'} href={`/transactions/${el.hash}`}>
+                    <Link prefetch={false} key={appendedInputs} target={'_blank'} className={'text-blue-500 mb-[2px]'} href={`/transactions/${el.hash}`}>
                         {toMidDottedStr(appendedInputs)}
                     </Link>
                 );
@@ -88,7 +88,7 @@ function convertOutputArrayToReactElement(arr: Array<TransactionOutputResponseTy
             {arr.slice(0, displayLimit).map((el) => {
                 return (
                     <div key={el.address} className="flex gap-2 items-center">
-                        <Link key={el.address} target={'_blank'} className={'text-blue-500'} href={`/${el.address}`}>
+                        <Link prefetch={false} key={el.address} target={'_blank'} className={'text-blue-500'} href={`/${el.address}`}>
                             {toMidDottedStr(el.address)}
                         </Link>
                         <p className="text-sm font-bold">{convertToADA(el.amount[0].lovelace)}</p>
@@ -107,7 +107,7 @@ export const createLinkElementsForCurrentMempoolTransactions = (obj: MempoolTran
     return {
         ...obj,
         hash: (
-            <Link key={hash} target={'_blank'} className={'text-blue-500 mb-[2px]'} href={`/transactions/${hash}`}>
+            <Link prefetch={false} key={hash} target={'_blank'} className={'text-blue-500 mb-[2px]'} href={`/transactions/${hash}`}>
                 {toMidDottedStr(hash)}
             </Link>
         ),
@@ -122,7 +122,7 @@ function createLinkFromTransactionHashesArray(arr: Array<string>) {
         <>
             {arr.slice(0, displayLimit).map((e) => (
                 <>
-                    <Link key={e} target={'_blank'} className={'text-blue-500'} href={`/transactions/${e}`}>
+                    <Link prefetch={false} key={e} target={'_blank'} className={'text-blue-500'} href={`/transactions/${e}`}>
                         {toMidDottedStr(e)}
                     </Link>
                 </>

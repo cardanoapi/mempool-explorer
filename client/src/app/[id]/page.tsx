@@ -83,7 +83,7 @@ export default function AddressPage() {
                         <p className="text-base font-normal text-[#B9B9B9] text-start break-all">{router?.id}</p>
                         <CopyIcon />
                     </button>
-                    <Link href={cardanoScanLink}>
+                    <Link href={cardanoScanLink} prefetch={false}>
                         <LinkIcon />
                     </Link>
                 </div>
@@ -130,7 +130,7 @@ export default function AddressPage() {
                                         if (rowKey === 'tx_hash') {
                                             content = (
                                                 <GradientTypography>
-                                                    <Link href={`/transactions/${tx[rowKey as keyof AddressTransactionType]}`}>{content}</Link>
+                                                    <Link href={`/transactions/${tx[rowKey as keyof AddressTransactionType]}`} prefetch={false}>{content}</Link>
                                                 </GradientTypography>
                                             );
                                         }

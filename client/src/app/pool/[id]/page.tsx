@@ -97,11 +97,10 @@ export default function PoolDetails() {
     const getPoolExternalLink = (poolId: string) => {
         if (poolData && poolData.length > 0) {
             const poolIdx = poolData.findIndex((pool) => pool.pool_id === poolId);
-            if (!poolIdx || poolIdx < 0) return '';
+            if (poolIdx === undefined || poolIdx < 0) return '';
             const pool: any = poolData[poolIdx];
             pool.rank = poolIdx + 1;
             setPoolInfo(pool);
-            console.log(pool);
             if (pool?.url) {
                 return pool.url;
             }

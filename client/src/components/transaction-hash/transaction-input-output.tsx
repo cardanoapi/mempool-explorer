@@ -118,11 +118,11 @@ export default function TransactionInputOutput(props: TransactionOutputInputType
                         <div className={'flex flex-col text-sm'}>
                             <div className={'flex items-center gap-2'}>
                                 {!!props?.inputResolvedAddress[tx?.address]?.address ? (
-                                    <Link href={`/${props.inputResolvedAddress[tx.address].address}`} target={'_blank'}>
+                                    <Link href={`/${props.inputResolvedAddress[tx.address].address}`} target={'_blank'} prefetch={false}>
                                         <p className={'text-blue-500'}>{toMidDottedStr(props.inputResolvedAddress[tx.address].address, 14)}</p>
                                     </Link>
                                 ) : (
-                                    <Link href={`/transactions/${tx.address.split('#')[0]}`} target={'_blank'} className={'text-gray-600'}>
+                                    <Link href={`/transactions/${tx.address.split('#')[0]}`} target={'_blank'} className={'text-gray-600'} prefetch={false} >
                                         {tx.address}
                                     </Link>
                                 )}

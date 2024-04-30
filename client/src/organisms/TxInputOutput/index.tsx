@@ -97,11 +97,11 @@ export default function TxInputOutput({ txInputOutputs, error, isLoading, inputR
                             <div className="flex items-center gap-2">
                                 {inputResolvedAddress[tx?.address]?.address ? (
                                     <GradientTypography className="break-all">
-                                        <Link href={`/${inputResolvedAddress[tx.address].address}`}>{inputResolvedAddress[tx.address].address}</Link>
+                                        <Link href={`/${inputResolvedAddress[tx.address].address}`} prefetch={false}>{inputResolvedAddress[tx.address].address}</Link>
                                     </GradientTypography>
                                 ) : (
                                     <GradientTypography className="break-all">
-                                        <Link href={`/transactions/${tx.address.split('#')[0]}`}>{tx.address}</Link>
+                                        <Link href={`/transactions/${tx.address.split('#')[0]}`} prefetch={false}>{tx.address}</Link>
                                     </GradientTypography>
                                 )}
                                 <button onClick={() => copyToClipboard(inputResolvedAddress[tx?.address]?.address ? inputResolvedAddress[tx.address].address : tx.address)}>
@@ -122,7 +122,7 @@ export default function TxInputOutput({ txInputOutputs, error, isLoading, inputR
                         <div className="flex flex-col text-sm">
                             <div className="flex items-center gap-2">
                                 <GradientTypography className="break-all">
-                                    <Link href={`/${tx.address}`}>{tx.address}</Link>
+                                    <Link href={`/${tx.address}`} prefetch={false}>{tx.address}</Link>
                                 </GradientTypography>
                                 <button onClick={() => copyToClipboard(tx.address)}>
                                     <CopyIcon />
