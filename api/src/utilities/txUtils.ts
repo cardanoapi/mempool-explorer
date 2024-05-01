@@ -52,8 +52,8 @@ export async function fetchTheArrivalTime(arr: Array<any>) {
             const arrivalTime = await getArrivalTime(item.hash);
             return {
                 ...item,
-                arrivalTime: !!arrivalTime?.received_time
-                    ? arrivalTime.received_time.toString()
+                arrivalTime: !!arrivalTime?.received
+                    ? arrivalTime.received.toString()
                     : 'N/A'
             };
         })

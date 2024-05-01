@@ -112,15 +112,15 @@ export async function getAddressDetails(
 
 export async function getArrivalTime(txHash: Buffer) {
     try {
-        return discoveryDb.tx_confirmed.findFirst({
+        return discoveryDb.tx_log.findFirst({
             where: {
-                tx_hash: txHash
+                hash: txHash
             },
             select: {
-                received_time: true
+                received: true
             },
             orderBy: {
-                received_time: 'asc'
+                received: 'asc'
             }
         });
     } catch (e) {
